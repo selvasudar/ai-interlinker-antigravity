@@ -1,6 +1,6 @@
 {
 	"name": "ai-internal-link-suggester",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"private": true,
 	"description": "Block editor panel for AI Internal Link Suggester. Source in src/, built files in build/.",
 	"license": "GPL-2.0-or-later",

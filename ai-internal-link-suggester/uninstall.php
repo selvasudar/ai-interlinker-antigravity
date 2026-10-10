@@ -24,13 +24,18 @@ foreach ( array( 'index', 'links', 'suggestions', 'usage', 'queue', 'runs', 'app
 	$wpdb->query( 'DROP TABLE IF EXISTS ' . esc_sql( $wpdb->prefix . 'ailsug_' . $ailsug_table ) );
 }
 
-foreach ( array( 'ailsug_settings', 'ailsug_db_version', 'ailsug_pricing_overrides', 'ailsug_calibration', 'ailsug_last_model', 'ailsug_dismissed_onboarding' ) as $ailsug_option ) {
+foreach ( array( 'ailsug_settings', 'ailsug_db_version', 'ailsug_pricing_overrides', 'ailsug_calibration', 'ailsug_last_model', 'ailsug_price_block', 'ailsug_budget_period', 'ailsug_debug_log' ) as $ailsug_option ) {
 	delete_option( $ailsug_option );
 }
 
-foreach ( array( 'ailsug_ai_status', 'ailsug_ai_models', 'ailsug_dashboard_kpis' ) as $ailsug_transient ) {
+foreach ( array( 'ailsug_ai_status', 'ailsug_ai_models' ) as $ailsug_transient ) {
 	delete_transient( $ailsug_transient );
 }
+// Short-lived per-user transients (apply confirmations, result notices).
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time cleanup on uninstall.
+$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s", $wpdb->esc_like( '_transient_ailsug_' ) . '%', $wpdb->esc_like( '_transient_timeout_ailsug_' ) . '%' ) );
 
 delete_post_meta_by_key( '_ailsug_keyword' );
-delete_metadata( 'user', 0, 'ailsug_dismissed_onboarding', '', true );
+foreach ( array( 'ailsug_dismissed_onboarding', 'ailsug_onboarding_types', 'ailsug_onboarding_costs' ) as $ailsug_meta ) {
+	delete_metadata( 'user', 0, $ailsug_meta, '', true );
+}

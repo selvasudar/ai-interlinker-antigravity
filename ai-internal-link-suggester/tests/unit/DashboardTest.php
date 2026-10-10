@@ -21,18 +21,40 @@ class DashboardTest extends WP_UnitTestCase {
 	public function test_quick_wins_favor_targets_with_few_links() {
 		global $wpdb;
 		$t       = AILSUG\Activator::tables();
-		$popular = self::factory()->post->create( array( 'post_title' => 'Popular', 'post_name' => 'popular' ) );
+		$popular = self::factory()->post->create(
+			array(
+				'post_title' => 'Popular',
+				'post_name'  => 'popular',
+			)
+		);
 		$orphan  = self::factory()->post->create( array( 'post_title' => 'Orphan' ) );
 		$source  = self::factory()->post->create( array( 'post_title' => 'Source' ) );
 		for ( $i = 0; $i < 4; $i++ ) {
 			self::factory()->post->create( array( 'post_content' => '<p><a href="/popular/">x</a></p>' ) );
 		}
-		foreach ( get_posts( array( 'numberposts' => -1, 'fields' => 'ids' ) ) as $id ) {
+		foreach ( get_posts(
+			array(
+				'numberposts' => -1,
+				'fields'      => 'ids',
+			)
+		) as $id ) {
 			Indexer::index_post( $id );
 		}
 		$now = current_time( 'mysql', true );
 		foreach ( array( array( $popular, 95 ), array( $orphan, 80 ) ) as $row ) {
-			$wpdb->insert( $t['suggestions'], array( 'source_post_id' => $source, 'target_post_id' => $row[0], 'anchor_text' => 'x', 'context_snippet' => '', 'score' => $row[1], 'status' => 'pending', 'created_at' => $now, 'updated_at' => $now ) );
+			$wpdb->insert(
+				$t['suggestions'],
+				array(
+					'source_post_id'  => $source,
+					'target_post_id'  => $row[0],
+					'anchor_text'     => 'x',
+					'context_snippet' => '',
+					'score'           => $row[1],
+					'status'          => 'pending',
+					'created_at'      => $now,
+					'updated_at'      => $now,
+				)
+			);
 		}
 		$wins = Dashboard::quick_wins();
 		$this->assertSame( (string) $orphan, $wins[0]['target_post_id'], 'An orphan target beats a slightly higher score to a well-linked page.' );

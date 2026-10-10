@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       AI Internal Link Suggester
  * Description:       Finds each page's main keyword and suggests internal links you can review, apply and undo in bulk, with clear AI cost estimates and a monthly budget cap.
- * Version:           0.1.0
+ * Version:           1.0.0
  * Requires at least: 7.0
  * Requires PHP:      7.4
  * Author:            AI Internal Link Suggester contributors
@@ -16,7 +16,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AILSUG_VERSION', '0.1.0' );
+define( 'AILSUG_VERSION', '1.0.0' );
 define( 'AILSUG_DB_VERSION', '4' );
 define( 'AILSUG_FILE', __FILE__ );
 define( 'AILSUG_DIR', plugin_dir_path( __FILE__ ) );

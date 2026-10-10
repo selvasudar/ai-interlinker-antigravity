@@ -15,7 +15,7 @@ Reference record of what each milestone delivered, how it was verified, and any 
 | M4 Suggestion engine | `b9d9f40` | Done |
 | M5 Review and apply | `af97b6c` | Done |
 | M6 Polish | `507992b` | Done |
-| M7 Release prep | — | Pending |
+| M7 Release prep | (see below) | Done |
 
 ---
 
@@ -214,9 +214,43 @@ Reference record of what each milestone delivered, how it was verified, and any 
 
 **Verified:** 104 tests passing; the dashboard checked in a real browser (an orphan target ranks first in Quick wins); no notices on any screen; Plugin Check reports no errors; PHPCS clean.
 
-## M7: Release prep (pending)
+## M7: Release prep
 
-Planned: final `readme.txt` (External services, Privacy, FAQ), Plugin Check and PHPCS clean on the built zip, `build-zip` script, a manual test doc for real providers, and WordPress.org submission notes.
+**Delivered**
+- **Version 1.0.0** in the plugin header, the constant, `readme.txt` and `package.json`.
+- **Final `readme.txt`:**
+  - a 141-character short description and 5 tags;
+  - `Requires at least: 7.0`, `Tested up to: 7.1`, `Requires PHP: 7.4`;
+  - a plain-language description, installation steps, **External services** (what is sent, when, to whom, with terms and privacy links for each provider), **Privacy**, a cost and budget FAQ, a third-party libraries section (none), the changelog and an upgrade notice.
+- **`bin/build-zip.sh`** (also `composer build-zip`): turns `.distignore` into rsync excludes and refuses to build if tests, vendor, `node_modules` or dev configs would ship. It produces `dist/ai-internal-link-suggester.zip`: about 178 KB, 88 files, including `src/` and `package.json` as required.
+- **`uninstall.php` completed:** it now also removes the price-block, budget-period and debug-log options, the plugin's short-lived per-user transients, and every onboarding user meta key.
+- **`tests/MANUAL-real-providers.md`:** a 14-step checklist for testing with real providers.
+- **`SUBMISSION-NOTES.md`** at the repo root: steps you need to do yourself before submitting, the build command, a verification table, reviewer-facing explanations and known limitations.
+
+**Verified on a separate clean site** (WordPress 7.1, **PHP 7.4**, only Plugin Check installed, zip installed with `wp plugin install`)
+- **Plugin Check 2.1.0 on the installed zip, including experimental checks: no errors and no warnings.**
+- Activation: 9 tables, DB v4, an empty `debug.log`, and all 9 admin screens plus the editor return 200 with no notices.
+- **No provider connected** (acceptance criterion 4): the reason is shown, scans are blocked, the gateway refuses (`ailsug_unavailable`), and the index, link graph and orphans work.
+- **Uninstall without opt-in:** data kept. **With opt-in:** 0 tables, options, post meta, user meta or cron events left.
+- Dev environment: PHPCS clean, **104 PHPUnit tests passing**, and the concurrency race passes (cap never exceeded, 60 of 60 jobs claimed once each).
+- Final zip SHA-256: `e643968ecbc038ed14a4b714c3b6b82484e6f6bc8d3dce79507af38bdc46d66d`.
+
+**Needs you before submitting** (see `SUBMISSION-NOTES.md`): your real WordPress.org username in `Contributors`, the Author in the plugin header, a check that the slug is available, a run of the real-provider checklist, a re-check of prices, and optional screenshots.
+
+---
+
+## Acceptance criteria (spec §13): status
+
+| # | Criterion | Evidence |
+|---|---|---|
+| 1 | Scan → Review → Apply without docs | Onboarding checklist, dashboard Scan → Suggestions review → confirmation → applied; browser-tested with mock AI |
+| 2 | Estimate vs actual visible, close after calibration | Usage table "Estimated before / Actual"; calibrator switches on after 20 samples; mock runs land within or just under the range (real-provider check in the manual doc) |
+| 3 | No new AI job once the cap is reached; strict mode blocks unknown prices | `GatewayTest`, `CostTest`, the 30-process concurrency script, `PaidRunTest` |
+| 4 | No provider: clean activation, guidance, link graph and orphans | Verified on a clean PHP 7.4 site (above) |
+| 5 | Byte-identical apply→revert; edited posts never overwritten | 9-fixture corpus plus a 400-paragraph post; `ApplyTest` revert cases; dev-site hash check |
+| 6 | Plugin Check and PHPCS clean; the zip installs and uninstalls cleanly | Verified on the clean site (above) |
+| 7 | Every logged call stores and is priced from the model that answered | `GatewayTest::test_actual_model_differs_from_requested`; `usage.model` and `requested_model` columns |
+| 8 | No custom provider or HTTP fallback | All AI traffic goes through `Gateway::transport()` → `wp_ai_client_prompt()`; no other HTTP calls in the code |
 
 ---
 
