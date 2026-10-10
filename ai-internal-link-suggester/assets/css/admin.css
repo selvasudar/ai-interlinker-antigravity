@@ -85,3 +85,23 @@
 .wp-list-table .column-score { width: 110px; }
 .wp-list-table .column-status { width: 150px; }
 .wp-list-table .column-anchor { width: 34%; }
+
+/* Dashboard */
+.ailsug-steps { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 8px 0 16px; padding: 0; list-style: none; counter-reset: ailsug-step; }
+.ailsug-steps li { counter-increment: ailsug-step; }
+.ailsug-steps li::before { content: counter(ailsug-step) ". "; font-weight: 600; }
+.ailsug-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 16px 0; padding: 0; list-style: none; max-width: 1100px; }
+.ailsug-kpi { background: #fff; border: 1px solid #c3c4c7; padding: 12px 16px; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.ailsug-kpi-value { font-size: 24px; font-weight: 600; line-height: 1.2; color: #1d2327; }
+.ailsug-kpi-label { font-size: 13px; }
+.ailsug-kpi-hint { font-size: 12px; color: #50575e; }
+.ailsug-scan-box { background: #fff; border: 1px solid #c3c4c7; padding: 12px 16px 16px; max-width: 1100px; margin-bottom: 16px; }
+.ailsug-scan-box .button-hero { margin-top: 8px; }
+.ailsug-onboarding { background: #fff; border: 1px solid #c3c4c7; border-inline-start: 4px solid #2271b1; padding: 4px 16px 12px; max-width: 1100px; margin-bottom: 16px; }
+.ailsug-onboarding ol { list-style: none; margin: 0; padding: 0; }
+.ailsug-onboarding li { padding: 6px 0; }
+.ailsug-check { display: inline-block; width: 1.4em; font-weight: 700; }
+.ailsug-onboarding .is-done .ailsug-check { color: #00a32a; }
+.ailsug-onboarding .is-todo .ailsug-check { color: #b32d2e; }
+.ailsug-quick-wins { max-width: 1100px; }
+.ailsug-log { max-height: 320px; overflow: auto; max-width: 1100px; margin-bottom: 8px; }

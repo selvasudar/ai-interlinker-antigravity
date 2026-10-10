@@ -37,6 +37,10 @@ final class Plugin {
 			Admin\Cost_Panel::register();
 			Admin\Suggestions_Page::register();
 			Admin\Editor_Panel::register();
+			Admin\Dashboard::register();
+			Admin\Onboarding::register();
+			Admin\Site_Health::register();
+			Admin\Tools::register();
 		}
 	}
 

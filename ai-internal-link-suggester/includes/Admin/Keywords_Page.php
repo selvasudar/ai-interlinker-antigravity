@@ -89,11 +89,12 @@ final class Keywords_Page {
 	 */
 	public static function progress_box( $active = null ) {
 		printf(
-			'<div class="ailsug-progress" hidden data-active-run="%s"><p class="ailsug-progress-label" role="status" aria-live="polite"></p><progress class="ailsug-progress-bar" max="100" value="0"></progress> <button type="button" class="button ailsug-run-pause">%s</button> <button type="button" class="button ailsug-run-resume" hidden>%s</button> <button type="button" class="button-link ailsug-run-cancel">%s</button></div>',
+			'<div class="ailsug-progress" hidden data-active-run="%1$s"><p class="ailsug-progress-label" role="status" aria-live="polite"></p><progress class="ailsug-progress-bar" max="100" value="0" aria-label="%5$s"></progress> <button type="button" class="button ailsug-run-pause">%2$s</button> <button type="button" class="button ailsug-run-resume" hidden>%3$s</button> <button type="button" class="button-link ailsug-run-cancel">%4$s</button></div>',
 			esc_attr( $active ? $active['run_id'] : '' ),
 			esc_html__( 'Pause', 'ai-internal-link-suggester' ),
 			esc_html__( 'Resume', 'ai-internal-link-suggester' ),
-			esc_html__( 'Cancel', 'ai-internal-link-suggester' )
+			esc_html__( 'Cancel', 'ai-internal-link-suggester' ),
+			esc_attr__( 'Progress', 'ai-internal-link-suggester' )
 		);
 	}
 

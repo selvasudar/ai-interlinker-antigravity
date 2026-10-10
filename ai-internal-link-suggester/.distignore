@@ -13,5 +13,4 @@ phpunit.xml.dist
 composer.json
 composer.lock
 *.zip
-/languages/.gitkeep
 .DS_Store

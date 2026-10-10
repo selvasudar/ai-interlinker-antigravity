@@ -1,0 +1,1979 @@
+# Copyright (C) 2026 AI Internal Link Suggester contributors
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: AI Internal Link Suggester 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ai-internal-link-suggester\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-10-10T08:23:07+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: ai-internal-link-suggester\n"
+
+#. Plugin Name of the plugin
+#: ai-internal-link-suggester.php
+#: includes/Admin/Site_Health.php:84
+msgid "AI Internal Link Suggester"
+msgstr ""
+
+#. Description of the plugin
+#: ai-internal-link-suggester.php
+msgid "Finds each page's main keyword and suggests internal links you can review, apply and undo in bulk, with clear AI cost estimates and a monthly budget cap."
+msgstr ""
+
+#. Author of the plugin
+#: ai-internal-link-suggester.php
+msgid "AI Internal Link Suggester contributors"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:67
+#: build/index.js:1
+msgid "unknown"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:143
+msgid "Prices"
+msgstr ""
+
+#. translators: %s: date.
+#: includes/Admin/Cost_Panel.php:147
+#, php-format
+msgid "Prices are in US dollars per 1 million tokens (a token is roughly ¾ of a word). Built-in prices were checked on the providers' official pages on %s. Prices change: please verify them and correct any that are out of date."
+msgstr ""
+
+#. translators: %s: provider name.
+#: includes/Admin/Cost_Panel.php:159
+#, php-format
+msgid "Verify %s prices"
+msgstr ""
+
+#. translators: %s: provider name.
+#: includes/Admin/Cost_Panel.php:159
+msgid "(opens in a new tab)"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:167
+msgid "Model"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:168
+msgid "Input price ($ / 1M)"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:169
+msgid "Output price ($ / 1M)"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:170
+msgid "Source"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:171
+msgid "Reset"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:175
+msgid "Connect an AI provider to see the models you can use. You can still add a price below."
+msgstr ""
+
+#. translators: %s: model id.
+#: includes/Admin/Cost_Panel.php:188
+#, php-format
+msgid "Input price for %s"
+msgstr ""
+
+#. translators: %s: model id.
+#: includes/Admin/Cost_Panel.php:196
+#, php-format
+msgid "Output price for %s"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:201
+msgid "Unknown: cost shown as unknown, estimate unavailable"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:203
+msgid "Your price"
+msgstr ""
+
+#. translators: %s: date.
+#: includes/Admin/Cost_Panel.php:206
+#, php-format
+msgid "Built-in, as of %s"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:210
+msgid "Use built-in"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:218
+msgid "Model ID"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:220
+msgid "Add a model ID"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:221
+msgid "Provider"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:222
+msgid "provider"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:223
+msgid "Input price"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:224
+msgid "Output price"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:225
+msgid "Optional: add a price for another model."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:228
+msgid "Save prices"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:236
+msgid "All text models your connected providers offer"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:240
+msgid "price unknown"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:311
+msgid "Cost calculator"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:312
+msgid "Try different numbers to see what scanning your site would cost. Nothing is sent to AI here."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:320
+msgid "Pages to scan"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:321
+msgid "Average words per page"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:321
+msgid "Measured from your indexed pages."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:322
+msgid "New pages per month"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:322
+msgid "Based on the last 90 days."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:323
+#: includes/Admin/Settings_Page.php:376
+msgid "Candidate pages per page"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:324
+#: includes/Admin/Settings_Page.php:277
+msgid "Suggestions per page"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:335
+#: includes/Admin/Settings_Page.php:301
+msgid "Quality"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:337
+msgid "Economy"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:338
+msgid "Balanced"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:339
+msgid "Best quality"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:347
+msgid "First full scan"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:348
+msgid "Each newly published page"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:349
+msgid "Estimated monthly upkeep"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:350
+msgid "Cost per suggestion"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:357
+msgid "How is this calculated?"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:368
+msgid "AI spend this month"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:369
+msgid "Figures are estimates based on how much text (tokens: about ¾ of a word each) the provider reports reading and writing. Your provider's invoice is the source of truth."
+msgstr ""
+
+#. translators: 1: spent, 2: cap, 3: percent.
+#: includes/Admin/Cost_Panel.php:378
+#, php-format
+msgid "%1$s of %2$s estimated budget used (%3$s%%)"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:385
+msgid "Share of the monthly budget used"
+msgstr ""
+
+#. translators: %s: amount.
+#: includes/Admin/Cost_Panel.php:389
+#, php-format
+msgid "Plus %s set aside for AI requests in progress."
+msgstr ""
+
+#. translators: %s: amount.
+#: includes/Admin/Cost_Panel.php:397
+#, php-format
+msgid "Estimated spend: %s. No monthly cap is set."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:401
+msgid "Finding keywords"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:402
+msgid "Choosing links"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:406
+msgid "By task"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:407
+msgid "By model"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:408
+msgid "By day"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:413
+msgid "No AI use this month yet."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:417
+msgid "Requests"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:417
+msgid "Estimated cost"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:434
+msgid "Recent AI runs: estimate vs actual"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:436
+msgid "No AI runs yet."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:439
+msgid "Started"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:439
+msgid "Type"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:439
+msgid "Pages"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:439
+msgid "Estimated before"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:439
+msgid "Actual (estimated from usage)"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:439
+msgid "Model that answered"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:439
+#: includes/Admin/Settings_Page.php:64
+#: includes/Admin/Suggestions_Table.php:145
+msgid "Status"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:444
+msgid "unavailable"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:447
+msgid "(some prices unknown)"
+msgstr ""
+
+#. translators: 1: samples for keywords, 2: samples for links.
+#: includes/Admin/Cost_Panel.php:467
+#, php-format
+msgid "Estimates improve automatically after 20 real requests per task (so far: %1$d for keywords, %2$d for links)."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:474
+msgid "Export usage CSV"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:479
+msgid "Yes, reset this month's usage counters and log"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:480
+msgid "Reset counters"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:490
+msgid "Ways to spend less"
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:492
+msgid "Use the Economy quality setting. It is more than good enough for keywords and link choices."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:493
+msgid "Only include the content types that matter (for example posts and pages, not every custom type)."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:494
+msgid "Exclude thin or very old pages you do not want links to or from."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:495
+msgid "Set focus keywords in your SEO plugin or type them yourself: those pages skip the AI keyword step."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:496
+msgid "Leave automatic updates off and re-scan only pages that changed."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:511
+#: includes/Admin/Cost_Panel.php:564
+#: includes/Admin/Cost_Panel.php:585
+#: includes/Admin/Dashboard.php:209
+#: includes/Admin/Keywords_Page.php:109
+#: includes/Admin/Settings_Page.php:518
+#: includes/Admin/Settings_Page.php:535
+#: includes/Admin/Settings_Page.php:560
+#: includes/Admin/Suggestions_Page.php:353
+#: includes/Admin/Suggestions_Page.php:376
+#: includes/Admin/Tools.php:76
+#: includes/Admin/Tools.php:101
+msgid "You do not have permission to do that."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:551
+msgid "Prices saved."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:591
+msgid "This month's usage counters were reset."
+msgstr ""
+
+#: includes/Admin/Cost_Panel.php:612
+msgid "Settings → AI & Cost"
+msgstr ""
+
+#. translators: %s: link to settings.
+#: includes/Admin/Cost_Panel.php:615
+#, php-format
+msgid "Internal Links: the estimated monthly AI budget is used up, so no new AI work will start. Your page index and link map keep working. Raise the cap in %s or wait until next month."
+msgstr ""
+
+#. translators: 1: percent, 2: link to settings.
+#: includes/Admin/Cost_Panel.php:618
+#, php-format
+msgid "Internal Links: %1$s%% of the estimated monthly AI budget is used. See %2$s."
+msgstr ""
+
+#. translators: 1: model id, 2: link to settings.
+#: includes/Admin/Cost_Panel.php:623
+#, php-format
+msgid "Internal Links: the AI model \"%1$s\" answered, but its price is unknown. Paid AI runs are paused until you enter its price in %2$s."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:40
+#: includes/Admin/Keywords_Page.php:38
+#: includes/Admin/Suggestions_Page.php:197
+msgid "You do not have permission to view this page."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:46
+#: includes/Admin/Menu.php:66
+#: includes/Admin/Menu.php:67
+#: includes/Admin/Site_Health.php:58
+msgid "Internal Links"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:47
+msgid "How it works"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:47
+msgid "Scan"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:47
+msgid "AI reads your pages and suggests links."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:47
+#: includes/Admin/Dashboard.php:194
+msgid "Review"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:47
+msgid "Accept the ideas you like."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:47
+msgid "Apply"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:47
+msgid "Add them to your pages, with one-click undo."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:55
+msgid "The estimated monthly AI budget is used up. AI scans are paused until you raise the cap or a new month starts. Everything else keeps working."
+msgstr ""
+
+#. translators: %s: percent.
+#: includes/Admin/Dashboard.php:58
+#, php-format
+msgid "You have used %s%% of this month's estimated AI budget."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:66
+msgid "Scan for link suggestions…"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:67
+msgid "You will see the estimated cost and can cancel before anything is sent to AI. Pages that have not changed since the last scan are skipped for free."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:69
+msgid "AI is not ready yet."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:69
+msgid "Check the AI connection to start scanning."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:70
+#: includes/Admin/Onboarding.php:70
+msgid "Check AI connection"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:71
+#: includes/Admin/Keywords_Page.php:47
+msgid "Update page index (free, no AI)"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:72
+msgid "Your page index, link map and orphan report work without AI."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:74
+msgid "An administrator runs scans. You can review suggestions for your own pages."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:74
+msgid "Review suggestions"
+msgstr ""
+
+#. translators: 1: spent, 2: cap.
+#: includes/Admin/Dashboard.php:117
+#, php-format
+msgid "%1$s of %2$s"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:120
+msgid "Pages indexed"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:121
+msgid "Orphan pages"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:121
+msgid "No other page links to them."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:122
+msgid "Suggestions to review"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:123
+msgid "Links applied this month"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:124
+msgid "Estimated AI spend this month"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:170
+msgid "Quick wins"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:171
+msgid "The most useful links to add first: strong suggestions that point to pages with few or no links yet."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:173
+msgid "No suggestions to review yet. Run a scan to get link ideas."
+msgstr ""
+
+#: includes/Admin/Dashboard.php:177
+#: includes/Admin/Suggestions_Table.php:140
+msgid "Page to edit"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:177
+msgid "Link text"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:177
+#: includes/Admin/Suggestions_Table.php:142
+msgid "Links to"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:177
+#: includes/Admin/Suggestions_Table.php:143
+msgid "Relevance"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:177
+msgid "Action"
+msgstr ""
+
+#: includes/Admin/Dashboard.php:185
+#: includes/Admin/Suggestions_Table.php:465
+msgid "Orphan page"
+msgstr ""
+
+#. translators: %s: page title.
+#: includes/Admin/Dashboard.php:196
+#, php-format
+msgid "suggestions for %s"
+msgstr ""
+
+#: includes/Admin/Editor_Panel.php:73
+#: build/index.js:1
+#: build/index.js:4
+msgid "Internal links"
+msgstr ""
+
+#: includes/Admin/Editor_Panel.php:95
+#: build/index.js:1
+msgid "This page is added to the link index after it is published."
+msgstr ""
+
+#: includes/Admin/Editor_Panel.php:98
+msgid "Primary keyword:"
+msgstr ""
+
+#: includes/Admin/Editor_Panel.php:98
+msgid "not set yet"
+msgstr ""
+
+#. translators: 1: links in, 2: links out.
+#: includes/Admin/Editor_Panel.php:100
+#: build/index.js:2
+#, php-format,js-format
+msgid "Links to this page: %1$d · Links from this page: %2$d"
+msgstr ""
+
+#: includes/Admin/Editor_Panel.php:112
+#: build/index.js:2
+msgid "No link suggestions for this page yet."
+msgstr ""
+
+#: includes/Admin/Editor_Panel.php:122
+msgid "Review and apply"
+msgstr ""
+
+#: includes/Admin/Editor_Panel.php:123
+msgid "Save your changes before applying links."
+msgstr ""
+
+#: includes/Admin/Keywords_Page.php:45
+#: includes/Admin/Menu.php:45
+msgid "Keywords"
+msgstr ""
+
+#: includes/Admin/Keywords_Page.php:49
+msgid "Find missing keywords with AI…"
+msgstr ""
+
+#: includes/Admin/Keywords_Page.php:66
+#: includes/Admin/Suggestions_Page.php:226
+msgid "Export CSV"
+msgstr ""
+
+#: includes/Admin/Keywords_Page.php:69
+msgid "The primary keyword is the phrase people search to find a page. Other pages link to it using this phrase. Type your own to override the SEO plugin or AI."
+msgstr ""
+
+#: includes/Admin/Keywords_Page.php:79
+msgid "Search pages"
+msgstr ""
+
+#: includes/Admin/Keywords_Page.php:94
+msgid "Pause"
+msgstr ""
+
+#: includes/Admin/Keywords_Page.php:95
+msgid "Resume"
+msgstr ""
+
+#: includes/Admin/Keywords_Page.php:96
+#: includes/Admin/Suggestions_Page.php:284
+#: build/index.js:3
+#: build/index.js:4
+msgid "Cancel"
+msgstr ""
+
+#: includes/Admin/Keywords_Page.php:97
+msgid "Progress"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:101
+msgid "Page"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:102
+#: build/index.js:1
+msgid "Primary keyword"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:103
+msgid "Keyword from"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:104
+msgid "Links in"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:105
+msgid "Links out"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:106
+msgid "Words"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:138
+#: includes/Admin/Suggestions_Table.php:181
+msgid "All"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:139
+msgid "No keyword yet"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:140
+msgid "Orphan pages (no links in)"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:141
+msgid "Few links in (1–2)"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:175
+msgid "Filter by content type"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:176
+#: includes/Admin/Suggestions_Table.php:231
+msgid "All content types"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:182
+#: includes/Admin/Suggestions_Table.php:259
+msgid "Filter"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:222
+msgid "No pages here yet. Click \"Update page index\" above to read your site (free, no AI)."
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:233
+msgid "(no title)"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:238
+msgid "noindex"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:241
+msgid "page builder (view only)"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:246
+#: includes/Admin/Suggestions_Table.php:430
+msgid "Edit"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:248
+msgid "View"
+msgstr ""
+
+#. translators: %s: page title.
+#: includes/Admin/Keywords_Table.php:269
+#, php-format
+msgid "Primary keyword for %s"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:271
+msgid "Not set yet"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:272
+msgid "Save"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:294
+msgid "You"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:295
+msgid "SEO plugin"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:296
+msgid "AI"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:299
+msgid "Not set"
+msgstr ""
+
+#: includes/Admin/Keywords_Table.php:312
+msgid "0 · orphan"
+msgstr ""
+
+#: includes/Admin/Menu.php:43
+msgid "Dashboard"
+msgstr ""
+
+#: includes/Admin/Menu.php:44
+msgid "Suggestions"
+msgstr ""
+
+#: includes/Admin/Menu.php:46
+msgid "Settings"
+msgstr ""
+
+#: includes/Admin/Onboarding.php:65
+msgid "Connect an AI provider"
+msgstr ""
+
+#: includes/Admin/Onboarding.php:67
+#: includes/AI/Availability.php:151
+msgid "AI is connected and ready."
+msgstr ""
+
+#: includes/Admin/Onboarding.php:68
+msgid "Open the AI & Cost settings to check your connection. The plugin never asks for API keys: WordPress keeps them in Settings → Connectors."
+msgstr ""
+
+#: includes/Admin/Onboarding.php:74
+msgid "Choose which content to include"
+msgstr ""
+
+#: includes/Admin/Onboarding.php:75
+msgid "Pick the post types that should get links. Fewer types means a cheaper scan."
+msgstr ""
+
+#: includes/Admin/Onboarding.php:77
+msgid "Choose content"
+msgstr ""
+
+#: includes/Admin/Onboarding.php:81
+msgid "See what it will cost"
+msgstr ""
+
+#: includes/Admin/Onboarding.php:82
+msgid "Use the calculator and set a monthly budget cap so there are no surprises."
+msgstr ""
+
+#: includes/Admin/Onboarding.php:84
+msgid "Open the cost calculator"
+msgstr ""
+
+#: includes/Admin/Onboarding.php:88
+msgid "Run your first scan"
+msgstr ""
+
+#: includes/Admin/Onboarding.php:89
+msgid "Use the Scan button below. You will see the estimated cost first."
+msgstr ""
+
+#: includes/Admin/Onboarding.php:112
+msgid "Get started"
+msgstr ""
+
+#. translators: 1: done, 2: total.
+#: includes/Admin/Onboarding.php:114
+#, php-format
+msgid "%1$d of %2$d steps done."
+msgstr ""
+
+#: includes/Admin/Onboarding.php:118
+msgid "(done)"
+msgstr ""
+
+#: includes/Admin/Onboarding.php:118
+msgid "(not done yet)"
+msgstr ""
+
+#: includes/Admin/Onboarding.php:124
+msgid "Official provider plugins:"
+msgstr ""
+
+#: includes/Admin/Onboarding.php:138
+msgid "Hide this checklist"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:60
+msgid "General"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:61
+msgid "Linking rules"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:62
+msgid "AI & Cost"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:63
+msgid "Advanced"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:86
+msgid "You do not have permission to change these settings."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:90
+msgid "Internal Links Settings"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:93
+msgid "Settings sections"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:223
+msgid "Content to include"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:235
+msgid "Which kinds of content get keywords and link suggestions. Fewer types means a cheaper scan."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:237
+msgid "Statuses"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:240
+msgid "Published"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:241
+msgid "Scheduled"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:242
+msgid "Private"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:253
+msgid "Links are only ever suggested to published pages."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:255
+msgid "Never touch these pages"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:255
+msgid "Post IDs separated by commas. These pages are skipped as sources and as targets."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:256
+msgid "Skip these categories/tags"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:256
+msgid "Category or tag IDs separated by commas. Pages in them are skipped."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:259
+msgid "When content changes"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:260
+msgid "Do nothing until I scan again (recommended, no surprise costs)"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:261
+msgid "Re-check a page automatically when its text changes (uses AI, costs money)"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:264
+msgid "Use keywords from my SEO plugin"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:264
+msgid "If Yoast SEO, Rank Math, All in One SEO or SEOPress already has a focus keyword for a page, use it and skip the AI step for that page (saves money)."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:265
+msgid "Delete all plugin data when uninstalling"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:265
+msgid "Off by default. Links already added to your pages are never removed."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:277
+msgid "The most link ideas to show for one page."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:278
+msgid "New links per page at a time"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:278
+msgid "The most links added to one page in one go. Keeps pages readable."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:279
+msgid "Links to the same page"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:279
+msgid "How many times one page may link to the same target. 1 is best practice."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:280
+msgid "Minimum relevance score"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:280
+msgid "Hide suggestions scored below this (1–100). Higher means fewer but better ideas."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:281
+msgid "Words between links"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:281
+msgid "Keep at least this many words between two new links."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:282
+msgid "Open links in a new tab"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:282
+msgid "Usually not recommended for internal links."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:283
+msgid "Priority pages"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:283
+msgid "Post IDs of your most important pages (for example product or service pages). They are suggested more often."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:296
+msgid "Connected AI"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:303
+msgid "Economy (recommended): fast and cheapest. Finding keywords and matching pages does not need the most powerful AI."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:304
+msgid "Balanced: a bit smarter at choosing anchors, roughly 10–20× the cost of Economy."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:305
+msgid "Best quality: the most capable models, the highest cost. Rarely worth it for linking."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:310
+msgid "This is a preference. If a preferred model is not available, WordPress may use another one you have connected. Costs are always worked out from the model that actually answered."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:321
+msgid "(not currently available)"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:323
+msgid "Use only this model"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:325
+msgid "— No, follow the quality setting —"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:329
+msgid "Optional. Locks every request to one model so costs are predictable. If that model becomes unavailable, AI runs stop with a clear message instead of switching models."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:331
+msgid "Estimated monthly budget cap (USD)"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:333
+msgid "No new AI work starts once the estimated spend for this month reaches this amount. Set 0 for no cap. This is a cap on estimated spend: your provider's invoice is the source of truth."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:335
+msgid "Warn me at (% of budget)"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:335
+msgid "Show a warning on the dashboard when estimated spend reaches this share of the cap."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:337
+msgid "Ask me before runs above (USD)"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:341
+msgid "Strict budget mode"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:341
+msgid "Recommended. When the price of the AI model is unknown, paid AI runs are paused until you enter its price below. If you turn this off, the budget cap cannot be enforced for models with unknown prices."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:343
+msgid "Also show costs in"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:347
+msgid "1 USD ="
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:351
+msgid "Optional. Three-letter currency code and your own exchange rate. The plugin never looks rates up online."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:363
+msgid "Pages per batch"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:363
+msgid "How many pages are processed in each background step. Lower is gentler on slow hosting."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:366
+msgid "Automatic re-scan"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:368
+msgid "Off (recommended)"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:369
+msgid "Daily: changed pages only"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:370
+msgid "Weekly: changed pages only"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:374
+msgid "Scheduled scans use AI and count against your budget."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:376
+msgid "How many possible targets are shown to the AI for each page. More can find better links but costs more."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:377
+msgid "Paragraphs sent per page"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:377
+msgid "Only the most relevant paragraphs are sent, never the whole page."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:378
+msgid "Opening words read for keywords"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:378
+msgid "How much of the start of each page the AI reads to find its keyword."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:379
+#: includes/Admin/Tools.php:51
+#: includes/Admin/Tools.php:56
+msgid "Debug log"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:379
+msgid "Records errors and timings (never page content) to help with troubleshooting."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:380
+msgid "Verbose debug log"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:380
+msgid "Warning: also records the text sent to the AI. Turn off when you are done."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:390
+msgid "Tools"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:395
+msgid "Export settings"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:401
+msgid "Import settings file"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:403
+msgid "Import"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:421
+msgid "AI connection"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:428
+msgid "Likely model for the next run"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:428
+msgid "Unknown"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:429
+#: includes/Admin/Site_Health.php:99
+msgid "Model that answered last"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:429
+msgid "None yet"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:438
+msgid "Background queue"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:438
+msgid "Empty"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:442
+msgid "WordPress background tasks (WP-Cron) are turned off on this site. Use \"Run now\" on the dashboard, or ask your host to run cron."
+msgstr ""
+
+#. translators: %s: human time difference.
+#: includes/Admin/Settings_Page.php:446
+#, php-format
+msgid "Working. Next background step in %s."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:447
+msgid "Working. Nothing scheduled."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:449
+msgid "Background tasks"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:450
+#: includes/Admin/Site_Health.php:91
+msgid "Database version"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:450
+msgid "expected"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:451
+msgid "Plugin version"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:475
+msgid "✓ Ready"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:475
+msgid "✗ Not ready"
+msgstr ""
+
+#. translators: %s: comma separated provider ids.
+#: includes/Admin/Settings_Page.php:478
+#, php-format
+msgid "Connected providers: %s"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:481
+msgid "To use AI features, install one of the official provider plugins and add your key in Settings → Connectors:"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:486
+msgid "Everything else (page index, link map, orphan pages, keywords you type yourself) works without AI."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:490
+msgid "Open Settings → Connectors"
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:493
+msgid "Check again"
+msgstr ""
+
+#. translators: %s: human time difference.
+#: includes/Admin/Settings_Page.php:496
+#, php-format
+msgid "Checked %s ago."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:589
+msgid "Settings imported."
+msgstr ""
+
+#: includes/Admin/Settings_Page.php:589
+msgid "That file could not be imported. Choose a settings file exported by this plugin."
+msgstr ""
+
+#: includes/Admin/Site_Health.php:39
+msgid "AI provider for internal link suggestions"
+msgstr ""
+
+#: includes/Admin/Site_Health.php:53
+msgid "Internal Links → Settings → AI & Cost"
+msgstr ""
+
+#: includes/Admin/Site_Health.php:55
+msgid "An AI provider is available for internal link suggestions"
+msgstr ""
+
+#: includes/Admin/Site_Health.php:55
+msgid "No AI provider is available for internal link suggestions"
+msgstr ""
+
+#: includes/Admin/Site_Health.php:61
+msgid "Without an AI provider the page index, link map, orphan report and keyword editing still work."
+msgstr ""
+
+#. translators: %s: link to settings.
+#: includes/Admin/Site_Health.php:63
+#, php-format
+msgid "See %s."
+msgstr ""
+
+#: includes/Admin/Site_Health.php:87
+msgid "Version"
+msgstr ""
+
+#: includes/Admin/Site_Health.php:95
+msgid "AI status"
+msgstr ""
+
+#: includes/Admin/Site_Health.php:103
+msgid "Jobs waiting"
+msgstr ""
+
+#: includes/Admin/Site_Health.php:107
+msgid "Estimated spend / cap (micro-USD)"
+msgstr ""
+
+#: includes/Admin/Site_Health.php:111
+msgid "WP-Cron disabled"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:66
+#: includes/Admin/Suggestions_Page.php:277
+#: includes/Rest/Suggestions_Controller.php:306
+msgid "Applying many links at once is turned off on this site. Apply them one at a time."
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:71
+#: includes/Admin/Suggestions_Page.php:268
+msgid "This confirmation expired. Please select the links again."
+msgstr ""
+
+#. translators: 1: count, 2: score.
+#: includes/Admin/Suggestions_Page.php:77
+#, php-format
+msgid "%1$s suggestion with relevance %2$d or more was accepted."
+msgid_plural "%1$s suggestions with relevance %2$d or more were accepted."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: count.
+#: includes/Admin/Suggestions_Page.php:117
+#, php-format
+msgid "%s suggestion accepted. Apply it when you are ready."
+msgid_plural "%s suggestions accepted. Apply them when you are ready."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: count.
+#: includes/Admin/Suggestions_Page.php:119
+#, php-format
+msgid "%s suggestion rejected. It will not be suggested again."
+msgid_plural "%s suggestions rejected. They will not be suggested again."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Admin/Suggestions_Page.php:125
+msgid "Select at least one suggestion to apply."
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:209
+msgid "Link suggestions"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:227
+msgid "Export applied links"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:229
+msgid "Step 2 of 3: review each idea, accept the good ones, then apply them. Every change is saved as a page revision and can be undone here."
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:238
+msgid "Accept all with relevance of at least"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:240
+#: includes/Admin/Suggestions_Table.php:212
+#: includes/Admin/Suggestions_Table.php:413
+#: build/index.js:2
+msgid "Accept"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:253
+msgid "Search"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:266
+msgid "Apply links to your pages?"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:268
+msgid "Back to suggestions"
+msgstr ""
+
+#. translators: 1: links, 2: pages.
+#: includes/Admin/Suggestions_Page.php:274
+#, php-format
+msgid "%1$s links will be added to %2$s pages."
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:275
+msgid "Only the link is added; nothing else in your pages changes. Each page is saved as a new revision, and you can undo every link from the Applied list."
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:283
+msgid "Apply links"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:311
+msgid "added"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:312
+msgid "removed"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:313
+msgid "skipped"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:314
+msgid "out of date"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:315
+msgid "need your attention"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:316
+msgid "failed"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:324
+msgid "Links:"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:324
+msgid "nothing to do"
+msgstr ""
+
+#: includes/Admin/Suggestions_Page.php:336
+msgid "Open the saved revision"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:141
+msgid "Suggested link text (in context)"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:144
+msgid "Why"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:175
+#: includes/Admin/Suggestions_Table.php:501
+msgid "To review"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:176
+msgid "Accepted (ready to apply)"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:177
+#: includes/Admin/Suggestions_Table.php:503
+msgid "Applied"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:178
+#: includes/Admin/Suggestions_Table.php:504
+msgid "Rejected"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:179
+#: includes/Admin/Suggestions_Table.php:505
+msgid "Out of date"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:180
+#: includes/Admin/Suggestions_Table.php:506
+msgid "Undone"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:209
+msgid "Undo (remove links)"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:213
+#: includes/Admin/Suggestions_Table.php:416
+msgid "Reject"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:214
+msgid "Apply to pages…"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:231
+msgid "Content type"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:240
+msgid "All categories"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:251
+msgid "Min. relevance"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:257
+msgid "Only links to orphan pages"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:318
+msgid "Nothing to review. Run a scan from the Internal Links dashboard to get link ideas, or lower the minimum relevance filter."
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:320
+msgid "No suggestions match these filters."
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:336
+#: includes/Admin/Suggestions_Table.php:338
+msgid "Select"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:380
+msgid "Page builder: view only"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:383
+msgid "View page"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:392
+msgid "All for this page"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:395
+msgid "Re-generate…"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:418
+#: build/index.js:2
+msgid "Apply…"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:423
+msgid "Undo"
+msgstr ""
+
+#. translators: %d: number of links in the batch.
+#: includes/Admin/Suggestions_Table.php:426
+#, php-format
+msgid "Undo whole batch (%d links)"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:432
+msgid "Preview"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:440
+msgid "Link text (must appear in the page exactly)"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:442
+msgid "Target page (ID or address)"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:444
+msgid "Save changes"
+msgstr ""
+
+#. translators: %s: keyword.
+#: includes/Admin/Suggestions_Table.php:462
+#, php-format
+msgid "Keyword: %s"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:478
+msgid "strong"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:478
+msgid "good"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:478
+msgid "weak"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:502
+msgid "Accepted"
+msgstr ""
+
+#. translators: 1: date, 2: user name.
+#: includes/Admin/Suggestions_Table.php:513
+#, php-format
+msgid "%1$s by %2$s"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:515
+msgid "Compare revisions"
+msgstr ""
+
+#: includes/Admin/Suggestions_Table.php:519
+msgid "A page changed since this idea was made. Re-generate, or edit the link text."
+msgstr ""
+
+#: includes/Admin/Tools.php:38
+msgid "Reset the page index"
+msgstr ""
+
+#: includes/Admin/Tools.php:39
+msgid "Clears the stored keywords found by AI, the link map and all open suggestions, then you can rebuild the index for free. Applied links stay in your pages and can still be undone. Keywords you typed yourself are kept."
+msgstr ""
+
+#: includes/Admin/Tools.php:43
+msgid "Yes, reset the index"
+msgstr ""
+
+#: includes/Admin/Tools.php:44
+msgid "Reset index"
+msgstr ""
+
+#: includes/Admin/Tools.php:53
+msgid "Nothing logged yet."
+msgstr ""
+
+#: includes/Admin/Tools.php:64
+msgid "Clear log"
+msgstr ""
+
+#: includes/Admin/Tools.php:87
+msgid "The index was reset. Use \"Update page index\" on the Keywords screen to rebuild it (free)."
+msgstr ""
+
+#: includes/AI/Availability.php:111
+msgid "This version of WordPress has no built-in AI support. AI features need WordPress 7.0 or newer."
+msgstr ""
+
+#: includes/AI/Availability.php:117
+msgid "AI features are turned off on this site (by the site configuration or another plugin)."
+msgstr ""
+
+#: includes/AI/Availability.php:131
+msgid "WordPress could not check your AI connections. Try again in a moment."
+msgstr ""
+
+#: includes/AI/Availability.php:137
+msgid "No AI provider is connected. Open Settings → Connectors to add one."
+msgstr ""
+
+#: includes/AI/Availability.php:145
+msgid "Your connected AI provider cannot be used for text right now, or another plugin is blocking AI requests."
+msgstr ""
+
+#: includes/AI/Availability.php:222
+msgid "Test mode: AI answers are simulated and nothing is sent or billed."
+msgstr ""
+
+#. translators: %s: model id.
+#: includes/AI/Gateway.php:81
+#, php-format
+msgid "The AI model \"%s\" answered earlier but its price is unknown. Enter its price in Settings → AI & Cost to continue."
+msgstr ""
+
+#: includes/AI/Gateway.php:89
+msgid "The price of the AI model that may answer is unknown, so the budget cannot be enforced. Enter its price in Settings → AI & Cost, or pick a model with a known price."
+msgstr ""
+
+#: includes/AI/Gateway.php:110
+msgid "The estimated monthly AI budget is reached. Raise the cap in Settings → AI & Cost or wait until next month."
+msgstr ""
+
+#: includes/AI/Gateway.php:218
+msgid "The AI answer was not in the expected format, so this page was skipped."
+msgstr ""
+
+#: includes/AI/Gateway.php:229
+msgid "AI features need WordPress 7.0 or newer."
+msgstr ""
+
+#. translators: %s: model id.
+#: includes/AI/Gateway.php:247
+#, php-format
+msgid "The model \"%s\" you chose in Settings → AI & Cost is not available. Pick another model or turn off \"Use only this model\"."
+msgstr ""
+
+#: includes/AI/Gateway.php:275
+msgid "The AI answer could not be read."
+msgstr ""
+
+#: includes/AI/Gateway.php:305
+msgid "AI requests are currently blocked on this site (by the site configuration or another plugin). Nothing was sent."
+msgstr ""
+
+#: includes/AI/Gateway.php:308
+msgid "The AI provider is busy (rate limit). The plugin will try again later."
+msgstr ""
+
+#: includes/AI/Gateway.php:311
+msgid "Could not reach the AI provider. Check your internet connection and try again."
+msgstr ""
+
+#: includes/AI/Gateway.php:314
+msgid "No connected AI model can handle this request. Open Settings → Connectors to check your provider."
+msgstr ""
+
+#: includes/AI/Gateway.php:317
+msgid "The AI provider rejected the request. Check your key in Settings → Connectors."
+msgstr ""
+
+#: includes/AI/Gateway.php:322
+msgid "The AI request failed. Please try again later."
+msgstr ""
+
+#: includes/Queue/Runs.php:141
+msgid "The price of the AI model that may answer is unknown, so the budget cannot be enforced. Enter its price below the settings on the AI & Cost tab."
+msgstr ""
+
+#: includes/Queue/Runs.php:143
+msgid "The estimated monthly AI budget is reached. Raise the cap or wait until next month."
+msgstr ""
+
+#: includes/Queue/Runs.php:145
+msgid "Not even one page fits in the remaining monthly budget."
+msgstr ""
+
+#: includes/Queue/Runs.php:176
+#: includes/Rest/Runs_Controller.php:140
+msgid "Unknown run type."
+msgstr ""
+
+#. translators: %d: number of pages.
+#: includes/Queue/Runs.php:187
+#, php-format
+msgid "This run may exceed the remaining monthly budget. Only the first %d pages fit."
+msgstr ""
+
+#. translators: 1: required PHP version, 2: current PHP version.
+#: includes/Requirements.php:28
+#, php-format
+msgid "AI Internal Link Suggester needs PHP %1$s or newer. This site runs PHP %2$s."
+msgstr ""
+
+#. translators: %s: required WordPress version.
+#: includes/Requirements.php:37
+#, php-format
+msgid "AI Internal Link Suggester needs WordPress %s or newer. Please update WordPress."
+msgstr ""
+
+#: includes/Rest/Keywords_Controller.php:73
+msgid "This page is not in the index yet."
+msgstr ""
+
+#: includes/Rest/Keywords_Controller.php:87
+msgid "Page not found."
+msgstr ""
+
+#: includes/Rest/Keywords_Controller.php:94
+msgid "This page is not part of the index (check Settings → General)."
+msgstr ""
+
+#: includes/Rest/Runs_Controller.php:123
+msgid "Please review the cost estimate and confirm before starting an AI run."
+msgstr ""
+
+#: includes/Rest/Runs_Controller.php:158
+#: includes/Rest/Runs_Controller.php:173
+#: includes/Rest/Runs_Controller.php:190
+msgid "That run no longer exists."
+msgstr ""
+
+#: includes/Rest/Suggestions_Controller.php:218
+msgid "This link is already in the page. Undo it first to change it."
+msgstr ""
+
+#: includes/Rest/Suggestions_Controller.php:226
+msgid "That target page cannot be linked. Enter the ID or address of a published page on this site."
+msgstr ""
+
+#: includes/Rest/Suggestions_Controller.php:229
+msgid "The page already links to that target."
+msgstr ""
+
+#: includes/Rest/Suggestions_Controller.php:243
+msgid "That text is not in the page (or it is already a link, heading or code). Use words exactly as they appear in a paragraph."
+msgstr ""
+
+#: includes/Rest/Suggestions_Controller.php:303
+msgid "Please confirm before changing pages."
+msgstr ""
+
+#: includes/Rest/Suggestions_Controller.php:320
+msgid "Nothing to undo."
+msgstr ""
+
+#: includes/Suggest/Applier.php:74
+msgid "Suggestion not found."
+msgstr ""
+
+#: includes/Suggest/Applier.php:78
+msgid "Only open suggestions can be applied."
+msgstr ""
+
+#: includes/Suggest/Applier.php:89
+#: includes/Suggest/Reverter.php:64
+msgid "Unexpected error; this page was not changed."
+msgstr ""
+
+#: includes/Suggest/Applier.php:133
+msgid "This page is no longer published or included, so the suggestion is out of date."
+msgstr ""
+
+#: includes/Suggest/Applier.php:136
+#: includes/Suggest/Reverter.php:91
+msgid "You are not allowed to edit this page."
+msgstr ""
+
+#. translators: %s: user display name.
+#: includes/Suggest/Applier.php:145
+#, php-format
+msgid "%s is editing this page right now. Try again later."
+msgstr ""
+
+#. translators: %s: user display name.
+#: includes/Suggest/Applier.php:145
+msgid "Someone"
+msgstr ""
+
+#: includes/Suggest/Applier.php:148
+msgid "This page is built with a page builder. View only: copy the link and add it in the builder."
+msgstr ""
+
+#: includes/Suggest/Applier.php:175
+msgid "The target page is no longer published."
+msgstr ""
+
+#: includes/Suggest/Applier.php:179
+msgid "This page already links to the target."
+msgstr ""
+
+#: includes/Suggest/Applier.php:183
+msgid "The limit of new links per page for one apply was reached. Apply again to add more."
+msgstr ""
+
+#: includes/Suggest/Applier.php:197
+msgid "The anchor text is no longer in the page. Re-generate suggestions for this page."
+msgstr ""
+
+#: includes/Suggest/Applier.php:204
+msgid "Too close to another new link on this page."
+msgstr ""
+
+#: includes/Suggest/Applier.php:275
+msgid "Another plugin changed the page while saving; this link could not be confirmed."
+msgstr ""
+
+#: includes/Suggest/Applier.php:309
+msgid "Link added."
+msgstr ""
+
+#: includes/Suggest/Applier.php:309
+msgid "Link added (the paragraph had changed, so the first matching place was used)."
+msgstr ""
+
+#: includes/Suggest/Applier.php:311
+msgid "Note: another plugin also adjusted the page while saving."
+msgstr ""
+
+#: includes/Suggest/Content_Writer.php:64
+msgid "The page could not be read back after saving."
+msgstr ""
+
+#: includes/Suggest/Reverter.php:85
+msgid "The page no longer exists."
+msgstr ""
+
+#: includes/Suggest/Reverter.php:100
+msgid "Someone is editing this page right now. Try again later."
+msgstr ""
+
+#: includes/Suggest/Reverter.php:122
+msgid "The page changed around this link, so it was not removed automatically (your newer edits are safe). Remove it by hand or restore the saved revision."
+msgstr ""
+
+#: includes/Suggest/Reverter.php:151
+msgid "Link removed."
+msgstr ""
+
+#: build/index.js:1
+msgid "The phrase people search to find this page. Other pages link here using it."
+msgstr ""
+
+#: build/index.js:1
+msgid "Save keyword"
+msgstr ""
+
+#: build/index.js:2
+msgid "No other page links here yet (orphan page)."
+msgstr ""
+
+#: build/index.js:2
+msgid "This page uses a page builder. Suggestions are view only: copy the link and add it in the builder."
+msgstr ""
+
+#. translators: %d: score.
+#: build/index.js:2
+#, js-format
+msgid "Relevance %d"
+msgstr ""
+
+#: build/index.js:2
+msgid "Save your changes first"
+msgstr ""
+
+#: build/index.js:2
+msgid "Dismiss"
+msgstr ""
+
+#: build/index.js:2
+msgid "Save your changes before applying a link."
+msgstr ""
+
+#: build/index.js:2
+msgid "AI is reading this page…"
+msgstr ""
+
+#: build/index.js:2
+msgid "Find link suggestions for this post…"
+msgstr ""
+
+#: build/index.js:2
+msgid "Ask an administrator to scan for new link suggestions."
+msgstr ""
+
+#: build/index.js:2
+msgid "Add this link?"
+msgstr ""
+
+#. translators: 1: link text, 2: target title.
+#: build/index.js:3
+#, js-format
+msgid "The words \"%1$s\" will link to \"%2$s\". Only the link is added; the page is saved as a new revision and you can undo it from Internal Links → Suggestions."
+msgstr ""
+
+#: build/index.js:3
+msgid "Link added and saved as a new revision. Reloading the editor…"
+msgstr ""
+
+#: build/index.js:3
+msgid "Add link"
+msgstr ""
+
+#: build/index.js:3
+msgid "Before AI reads this page"
+msgstr ""
+
+#. translators: 1: low, 2: high.
+#: build/index.js:4
+#, js-format
+msgid "Estimated cost: %1$s – %2$s. This is only an estimate; your provider's invoice is the source of truth."
+msgstr ""
+
+#: build/index.js:4
+msgid "A cost estimate is not available because the AI model's price is unknown."
+msgstr ""
+
+#: build/index.js:4
+msgid "AI spending is paused (budget reached or price unknown). See Settings → AI & Cost."
+msgstr ""
+
+#: build/index.js:4
+msgid "Run"
+msgstr ""

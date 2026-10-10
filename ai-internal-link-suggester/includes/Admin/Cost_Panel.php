@@ -366,7 +366,7 @@ final class Cost_Panel {
 	private static function render_usage() {
 		$b = Budget::status();
 		echo '<hr /><h2 id="ailsug-usage">' . esc_html__( 'AI spend this month', 'ai-internal-link-suggester' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'Figures are estimates based on token usage reported by the provider. Your provider\'s invoice is the source of truth.', 'ai-internal-link-suggester' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Figures are estimates based on how much text (tokens: about ¾ of a word each) the provider reports reading and writing. Your provider\'s invoice is the source of truth.', 'ai-internal-link-suggester' ) . '</p>';
 
 		if ( $b['cap'] > 0 ) {
 			$pct = (int) round( $b['percent'] );

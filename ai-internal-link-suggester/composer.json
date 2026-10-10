@@ -24,6 +24,7 @@
 		"test": "phpunit",
 		"test:concurrency": "bash tests/concurrency/run.sh",
 		"plugin-check": "wp plugin check ai-internal-link-suggester --exclude-directories=vendor,tests,node_modules,src,bin",
+		"make-pot": "wp i18n make-pot . languages/ai-internal-link-suggester.pot --exclude=vendor,node_modules,tests,bin,src --domain=ai-internal-link-suggester",
 		"build-zip": "bash bin/build-zip.sh"
 	}
 }
