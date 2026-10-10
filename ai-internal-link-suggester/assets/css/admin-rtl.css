@@ -1,4 +1,5 @@
 /* AI Internal Link Suggester admin styles. Logical properties keep the layout RTL-safe. */
+.ailsug-wrap [hidden], .ailsug-dialog [hidden] { display: none !important; }
 .ailsug-wrap .ailsug-status-box {
 	background: #fff;
 	border: 1px solid #c3c4c7;
@@ -44,4 +45,29 @@
 
 @media screen and (max-width: 782px) {
 	.ailsug-kw-input { width: 100%; }
+}
+
+/* Cost UI */
+.ailsug-meter { max-width: 640px; margin: 8px 0 16px; }
+.ailsug-meter-track { height: 14px; background: #f0f0f1; border: 1px solid #c3c4c7; border-radius: 7px; overflow: hidden; }
+.ailsug-meter-track span { display: block; height: 100%; background: #2271b1; }
+.ailsug-meter.is-alert .ailsug-meter-track span { background: #996800; }
+.ailsug-meter.is-reached .ailsug-meter-track span { background: #b32d2e; }
+.ailsug-usage-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; max-width: 1100px; }
+.ailsug-bar { display: inline-block; height: 8px; background: #72aee6; vertical-align: middle; min-width: 2px; max-width: 60%; }
+.ailsug-price-table { max-width: 1000px; }
+.ailsug-calc { display: grid; grid-template-columns: minmax(220px, 320px) 1fr; gap: 24px; max-width: 1000px; background: #fff; border: 1px solid #c3c4c7; padding: 12px 16px; }
+.ailsug-calc-how { grid-column: 1 / -1; }
+.ailsug-calc-list { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; }
+.ailsug-calc-list dt { font-weight: 600; }
+.ailsug-calc-list dd { margin: 0; }
+.ailsug-dialog { max-width: 560px; width: calc(100% - 32px); border: 1px solid #c3c4c7; padding: 16px 24px; }
+.ailsug-dialog::backdrop { background: rgba(0, 0, 0, 0.4); }
+.ailsug-dialog-facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; }
+.ailsug-dialog-facts dt { font-weight: 600; }
+.ailsug-dialog-facts dd { margin: 0; }
+.ailsug-dialog-error { color: #8a2424; font-weight: 600; }
+.ailsug-dialog-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
+@media screen and (max-width: 782px) {
+	.ailsug-calc { grid-template-columns: 1fr; }
 }

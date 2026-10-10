@@ -116,6 +116,8 @@ final class Menu {
 		wp_style_add_data( 'ailsug-admin', 'rtl', 'replace' );
 		wp_enqueue_script( 'ailsug-admin', AILSUG_URL . 'assets/js/admin.js', array( 'wp-i18n' ), AILSUG_VERSION, true );
 		wp_set_script_translations( 'ailsug-admin', 'ai-internal-link-suggester', AILSUG_DIR . 'languages' );
+		wp_enqueue_script( 'ailsug-cost', AILSUG_URL . 'assets/js/cost.js', array( 'ailsug-admin', 'wp-i18n' ), AILSUG_VERSION, true );
+		wp_set_script_translations( 'ailsug-cost', 'ai-internal-link-suggester', AILSUG_DIR . 'languages' );
 		wp_localize_script(
 			'ailsug-admin',
 			'ailsugAdmin',

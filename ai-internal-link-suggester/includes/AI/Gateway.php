@@ -7,6 +7,12 @@
 
 namespace AILSUG\AI;
 
+use AILSUG\Cost\Budget;
+use AILSUG\Cost\Calibrator;
+use AILSUG\Cost\Estimator;
+use AILSUG\Cost\Pricing;
+use AILSUG\Cost\UsageLog;
+use AILSUG\Logger;
 use AILSUG\Settings;
 use WP_Error;
 
@@ -45,6 +51,171 @@ class Gateway {
 	 */
 	public static function set_instance( $gateway ) {
 		self::$instance = $gateway;
+	}
+
+	const PRICE_BLOCK = 'ailsug_price_block';
+
+	/**
+	 * Run one AI task end to end: checks → reserve budget → call → price → reconcile → log.
+	 *
+	 * @param string $task    keyword|rank.
+	 * @param array  $data    Payload for the prompt.
+	 * @param array  $context run_id, post_id.
+	 * @return array{data:array,provider:string,model:string,cost:int}|WP_Error WP_Error data may contain 'hold' or 'retry'.
+	 */
+	public function run( $task, array $data, array $context = array() ) {
+		$status = Availability::status();
+		if ( empty( $status['available'] ) ) {
+			return new WP_Error( 'ailsug_unavailable', $status['message'], array( 'retry' => false ) );
+		}
+
+		$strict = (bool) Settings::get( 'strict_budget' ) && Budget::cap() > 0;
+		$block  = (string) get_option( self::PRICE_BLOCK, '' );
+		if ( '' !== $block ) {
+			if ( Pricing::price_for( '', $block ) ) {
+				delete_option( self::PRICE_BLOCK );
+			} elseif ( $strict ) {
+				return new WP_Error(
+					'ailsug_price_unknown',
+					/* translators: %s: model id. */
+					sprintf( __( 'The AI model "%s" answered earlier but its price is unknown. Enter its price in Settings → AI & Cost to continue.', 'ai-internal-link-suggester' ), $block ),
+					array( 'hold' => 'budget' )
+				);
+			}
+		}
+
+		$worst = Estimator::worst_price();
+		if ( null === $worst && $strict ) {
+			return new WP_Error( 'ailsug_price_unknown', __( 'The price of the AI model that may answer is unknown, so the budget cannot be enforced. Enter its price in Settings → AI & Cost, or pick a model with a known price.', 'ai-internal-link-suggester' ), array( 'hold' => 'budget' ) );
+		}
+
+		$built      = Prompts::build( $task, $data );
+		$schema     = Schemas::get( $task );
+		$max_tokens = Estimator::max_output( $task, (int) ( $data['max'] ?? Settings::get( 'max_suggestions', 5 ) ) );
+		$factors    = Calibrator::factors( $task );
+		$est_raw    = Estimator::tokens( $built['system'] . "\n" . $built['prompt'] ) + 20;
+		$est_in     = (int) ceil( $est_raw * $factors['input'] );
+		$planned    = Estimator::planned_tokens( $task, array( 'suggestions' => (int) ( $data['max'] ?? 0 ) ) );
+		$est_out    = $planned['output'];
+		$prediction = ModelResolver::predict();
+		$requested  = $prediction['likely'] ? (string) $prediction['likely'][1] : '';
+		$pre_cost   = $prediction['likely'] ? (int) Pricing::call_cost( $prediction['likely'][0], $prediction['likely'][1], $est_in, $est_out ) : 0;
+
+		Logger::verbose( 'Prompt for ' . $task, $built['system'] . "\n---\n" . $built['prompt'] );
+
+		for ( $attempt = 1; $attempt <= 2; $attempt++ ) {
+			$reserve = $worst ? Pricing::cost( (int) ceil( $est_in * 1.3 ), $worst['input'] ) + Pricing::cost( $max_tokens, $worst['output'] ) : 0;
+			$res_id  = Budget::reserve( max( 1, $reserve ) );
+			if ( ! $res_id ) {
+				return new WP_Error( 'ailsug_budget', __( 'The estimated monthly AI budget is reached. Raise the cap in Settings → AI & Cost or wait until next month.', 'ai-internal-link-suggester' ), array( 'hold' => 'budget' ) );
+			}
+
+			$response = $this->transport(
+				array(
+					'system'     => $built['system'],
+					'prompt'     => $built['prompt'],
+					'schema'     => $schema,
+					'max_tokens' => $max_tokens,
+					'task'       => $task,
+					'data'       => $data,
+				)
+			);
+
+			if ( is_wp_error( $response ) ) {
+				if ( self::may_be_billed( $response ) ) {
+					Budget::hold( $res_id );
+				} else {
+					Budget::release( $res_id );
+				}
+				$err_data    = (array) $response->get_error_data();
+				$status_code = (int) ( $err_data['status'] ?? 0 );
+				Logger::debug(
+					'AI call failed',
+					array(
+						'task'   => $task,
+						'code'   => $response->get_error_code(),
+						'status' => $status_code,
+					)
+				);
+				$retry = 429 === $status_code || in_array( $response->get_error_code(), array( 'prompt_network_error', 'prompt_upstream_server_error' ), true );
+				return new WP_Error( $response->get_error_code(), self::friendly_error( $response ), array( 'retry' => $retry ) );
+			}
+
+			$is_estimate = false;
+			$in_tokens   = (int) $response['input_tokens'];
+			$out_tokens  = (int) $response['output_tokens'];
+			if ( $in_tokens <= 0 ) {
+				$in_tokens   = $est_in;
+				$is_estimate = true;
+			}
+			if ( $out_tokens <= 0 ) {
+				$out_tokens  = $est_out;
+				$is_estimate = true;
+			}
+
+			// Always price from the model that actually answered.
+			$cost        = Pricing::call_cost( $response['provider'], $response['model'], $in_tokens, $out_tokens );
+			$price_known = null !== $cost;
+			if ( ! $price_known ) {
+				// Unknown price: count the worst-case reservation so the cap stays conservative.
+				$cost = max( 1, $reserve );
+				if ( $strict ) {
+					update_option( self::PRICE_BLOCK, $response['model'], false );
+				}
+			}
+			Budget::reconcile( $res_id, (int) $cost );
+
+			UsageLog::log(
+				array(
+					'run_id'            => (string) ( $context['run_id'] ?? '' ),
+					'task'              => $task,
+					'provider'          => $response['provider'],
+					'model'             => $response['model'],
+					'requested_model'   => $requested,
+					'input_tokens'      => $in_tokens,
+					'output_tokens'     => $out_tokens,
+					'est_input_tokens'  => $est_in,
+					'est_output_tokens' => $est_out,
+					'pre_cost_micros'   => $pre_cost,
+					'est_cost_micros'   => (int) $cost,
+					'is_estimate'       => $is_estimate,
+					'price_known'       => $price_known,
+					'post_id'           => (int) ( $context['post_id'] ?? 0 ),
+				)
+			);
+			update_option(
+				'ailsug_last_model',
+				array(
+					'provider' => $response['provider'],
+					'model'    => $response['model'],
+					'time'     => time(),
+				),
+				false
+			);
+			if ( ! $is_estimate ) {
+				Calibrator::record( $task, $est_raw, $in_tokens, $planned['output'], $out_tokens );
+			}
+
+			$decoded = self::decode_json( $response['text'] );
+			$clean   = 'keyword' === $task ? Schemas::clean_keyword( $decoded ) : ( is_array( $decoded ) && isset( $decoded['suggestions'] ) && is_array( $decoded['suggestions'] ) ? $decoded : null );
+			if ( null !== $clean ) {
+				return array(
+					'data'     => $clean,
+					'provider' => $response['provider'],
+					'model'    => $response['model'],
+					'cost'     => (int) $cost,
+				);
+			}
+			Logger::debug(
+				'AI answer was not valid JSON',
+				array(
+					'task'    => $task,
+					'attempt' => $attempt,
+				)
+			);
+		}//end for
+
+		return new WP_Error( 'ailsug_bad_json', __( 'The AI answer was not in the expected format, so this page was skipped.', 'ai-internal-link-suggester' ), array( 'retry' => false ) );
 	}
 
 	/**

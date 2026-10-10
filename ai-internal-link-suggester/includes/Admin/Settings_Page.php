@@ -117,6 +117,12 @@ final class Settings_Page {
 		if ( 'advanced' === $tab ) {
 			self::render_tools();
 		}
+		if ( 'ai' === $tab ) {
+			/**
+			 * Renders additional AI & Cost sections (usage, prices, calculator), outside the settings form.
+			 */
+			do_action( 'ailsug_settings_ai_tab' );
+		}
 		echo '</div>';
 	}
 
@@ -344,11 +350,6 @@ final class Settings_Page {
 		);
 		echo '<p class="description">' . esc_html__( 'Optional. Three-letter currency code and your own exchange rate. The plugin never looks rates up online.', 'ai-internal-link-suggester' ) . '</p></td></tr>';
 		echo '</table>';
-
-		/**
-		 * Renders additional AI & Cost sections (price table, calculator, usage).
-		 */
-		do_action( 'ailsug_settings_ai_tab' );
 	}
 
 	/**

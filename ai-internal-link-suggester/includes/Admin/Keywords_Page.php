@@ -45,6 +45,9 @@ final class Keywords_Page {
 		echo '<h1 class="wp-heading-inline">' . esc_html__( 'Keywords', 'ai-internal-link-suggester' ) . '</h1>';
 		if ( current_user_can( 'manage_options' ) ) {
 			echo ' <button type="button" class="page-title-action ailsug-start-run" data-run-type="index">' . esc_html__( 'Update page index (free, no AI)', 'ai-internal-link-suggester' ) . '</button>';
+			if ( \AILSUG\AI\Availability::is_available() ) {
+				echo ' <button type="button" class="page-title-action ailsug-start-run" data-run-type="keywords">' . esc_html__( 'Find missing keywords with AI…', 'ai-internal-link-suggester' ) . '</button>';
+			}
 		}
 		$export = wp_nonce_url(
 			add_query_arg(
@@ -65,7 +68,7 @@ final class Keywords_Page {
 
 		echo '<p class="description">' . esc_html__( 'The primary keyword is the phrase people search to find a page. Other pages link to it using this phrase. Type your own to override the SEO plugin or AI.', 'ai-internal-link-suggester' ) . '</p>';
 
-		self::progress_box( Queue::active_run( array( 'index' ) ) );
+		self::progress_box( Queue::active_run( array( 'index', 'keywords' ) ) );
 
 		$table->views();
 		echo '<form method="get">';

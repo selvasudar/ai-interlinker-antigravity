@@ -47,6 +47,19 @@ class Runs_Controller extends Controller {
 						'type'  => 'array',
 						'items' => array( 'type' => 'string' ),
 					),
+					'post_ids'   => array(
+						'type'  => 'array',
+						'items' => array( 'type' => 'integer' ),
+					),
+					'limit'      => array(
+						'type'    => 'integer',
+						'minimum' => 0,
+						'default' => 0,
+					),
+					'confirmed'  => array(
+						'type'    => 'boolean',
+						'default' => false,
+					),
 				),
 			)
 		);
@@ -90,7 +103,7 @@ class Runs_Controller extends Controller {
 		 *
 		 * @param string[] $types Types.
 		 */
-		return (array) apply_filters( 'ailsug_run_types', array( 'index' ) );
+		return (array) apply_filters( 'ailsug_run_types', array_merge( array( 'index' ), array_keys( Runs::paid_types() ) ) );
 	}
 
 	/**
@@ -105,6 +118,15 @@ class Runs_Controller extends Controller {
 
 		if ( 'index' === $type ) {
 			$run_id = Runs::start_index( $post_types );
+		} elseif ( isset( Runs::paid_types()[ $type ] ) ) {
+			if ( ! $request['confirmed'] ) {
+				return new WP_Error( 'ailsug_confirm', __( 'Please review the cost estimate and confirm before starting an AI run.', 'ai-internal-link-suggester' ), array( 'status' => 400 ) );
+			}
+			$post_ids = $request['post_ids'] ? array_map( 'absint', (array) $request['post_ids'] ) : null;
+			$run_id   = Runs::start_paid( $type, $post_types, (int) $request['limit'], $post_ids );
+			if ( is_wp_error( $run_id ) ) {
+				return $run_id;
+			}
 		} else {
 			/**
 			 * Starts a run of a custom type. Return a run ID or WP_Error.
@@ -120,7 +142,7 @@ class Runs_Controller extends Controller {
 			if ( is_wp_error( $run_id ) ) {
 				return $run_id;
 			}
-		}
+		}//end if
 		return rest_ensure_response( Queue::progress( $run_id ) );
 	}
 

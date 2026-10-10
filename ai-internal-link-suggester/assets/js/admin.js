@@ -128,7 +128,7 @@
 			paused: __( 'Paused.', D ),
 			cancelled: __( 'Cancelled. Nothing more will run.', D ),
 			done: __( 'Done.', D ),
-			budget: __( 'Stopped: the estimated monthly budget is reached. Raise the cap in Settings → AI & Cost or wait for next month.', D )
+			budget: __( 'Paused: AI spending has stopped because the estimated monthly budget is reached or a model price is unknown. See Settings → AI & Cost; the run continues once that is fixed.', D )
 		}[ p.status ] || '';
 		this.say( status + ' ' + parts.join( ' · ' ) );
 

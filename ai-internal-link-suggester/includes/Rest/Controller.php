@@ -52,7 +52,7 @@ abstract class Controller {
 		 *
 		 * @param string[] $classes Class names.
 		 */
-		$classes = apply_filters( 'ailsug_rest_controllers', array( Runs_Controller::class, Keywords_Controller::class ) );
+		$classes = apply_filters( 'ailsug_rest_controllers', array( Runs_Controller::class, Keywords_Controller::class, Estimate_Controller::class ) );
 		foreach ( $classes as $class ) {
 			if ( class_exists( $class ) ) {
 				( new $class() )->register_routes();

@@ -22,6 +22,7 @@
 		"lint": "phpcs",
 		"lint:fix": "phpcbf",
 		"test": "phpunit",
+		"test:concurrency": "bash tests/concurrency/run.sh",
 		"plugin-check": "wp plugin check ai-internal-link-suggester --exclude-directories=vendor,tests,node_modules,src,bin",
 		"build-zip": "bash bin/build-zip.sh"
 	}

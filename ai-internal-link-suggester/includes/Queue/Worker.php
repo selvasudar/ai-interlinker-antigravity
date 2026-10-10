@@ -37,6 +37,11 @@ final class Worker {
 	 */
 	public static function cleanup() {
 		Queue::purge_old();
+		\AILSUG\Cost\Budget::release_stale();
+		if ( get_option( 'ailsug_budget_period' ) !== \AILSUG\Cost\Budget::period() ) {
+			update_option( 'ailsug_budget_period', \AILSUG\Cost\Budget::period(), false );
+			\AILSUG\Cost\Budget::on_change();
+		}
 
 		/**
 		 * Fires during daily housekeeping.
@@ -64,7 +69,8 @@ final class Worker {
 	 */
 	public static function handlers() {
 		$handlers = array(
-			'index' => array( Indexer::class, 'task' ),
+			'index'   => array( Indexer::class, 'task' ),
+			'keyword' => array( \AILSUG\Index\KeywordAi::class, 'task' ),
 		);
 
 		/**

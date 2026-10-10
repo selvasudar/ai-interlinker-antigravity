@@ -6,6 +6,7 @@
     "env:start": "wp-env start",
     "env:stop": "wp-env stop",
     "test": "wp-env run tests-cli --env-cwd=wp-content/plugins/ai-internal-link-suggester vendor/bin/phpunit",
+    "test:concurrency": "wp-env run cli bash wp-content/plugins/ai-internal-link-suggester/tests/concurrency/run.sh",
     "lint": "wp-env run tests-cli --env-cwd=wp-content/plugins/ai-internal-link-suggester vendor/bin/phpcs",
     "plugin-check": "wp-env run cli wp plugin check ai-internal-link-suggester --exclude-directories=vendor,tests,node_modules,src,bin"
   },

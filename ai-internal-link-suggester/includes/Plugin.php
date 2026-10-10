@@ -34,6 +34,7 @@ final class Plugin {
 			Admin\Menu::register();
 			Admin\Settings_Page::register();
 			Admin\Keywords_Page::register();
+			Admin\Cost_Panel::register();
 		}
 	}
 
