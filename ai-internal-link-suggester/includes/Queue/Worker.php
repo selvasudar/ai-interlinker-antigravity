@@ -71,6 +71,8 @@ final class Worker {
 		$handlers = array(
 			'index'   => array( Indexer::class, 'task' ),
 			'keyword' => array( \AILSUG\Index\KeywordAi::class, 'task' ),
+			'rank'    => array( \AILSUG\Suggest\Ranker::class, 'task' ),
+			'rerank'  => array( \AILSUG\Suggest\Ranker::class, 'task_force' ),
 		);
 
 		/**

@@ -17,7 +17,7 @@
 defined( 'ABSPATH' ) || exit;
 
 define( 'AILSUG_VERSION', '0.1.0' );
-define( 'AILSUG_DB_VERSION', '2' );
+define( 'AILSUG_DB_VERSION', '3' );
 define( 'AILSUG_FILE', __FILE__ );
 define( 'AILSUG_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AILSUG_URL', plugin_dir_url( __FILE__ ) );

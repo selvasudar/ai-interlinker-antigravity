@@ -54,7 +54,14 @@ final class Runs {
 		 *
 		 * @param array<string,string[]> $types Types.
 		 */
-		return (array) apply_filters( 'ailsug_paid_run_types', array( 'keywords' => array( 'keyword' ) ) );
+		return (array) apply_filters(
+			'ailsug_paid_run_types',
+			array(
+				'keywords'   => array( 'keyword' ),
+				'scan'       => array( 'keyword', 'rank' ),
+				'regenerate' => array( 'keyword', 'rerank' ),
+			)
+		);
 	}
 
 	/**
@@ -71,10 +78,17 @@ final class Runs {
 		foreach ( $ids as $id ) {
 			$row     = Indexer::get_row( $id );
 			$keyword = KeywordAi::needs_ai( $id );
-			$item    = array(
+			$rank    = false;
+			if ( 'regenerate' === $type ) {
+				$rank = true;
+			} elseif ( 'scan' === $type ) {
+				$post = get_post( $id );
+				$rank = ! $row || ! $post || \AILSUG\Index\Collector::content_hash( $post->post_content ) !== $row['rank_hash'];
+			}
+			$item = array(
 				'words'   => $row ? (int) $row['word_count'] : 800,
 				'keyword' => $keyword,
-				'rank'    => false,
+				'rank'    => $rank,
 			);
 
 			/**
@@ -184,12 +198,10 @@ final class Runs {
 		}
 		$jobs = array();
 		// All keyword jobs first: ranking needs the keywords of other pages.
-		foreach ( array( 'keyword', 'rank' ) as $task ) {
-			if ( ! in_array( $task, $tasks, true ) ) {
-				continue;
-			}
+		foreach ( $tasks as $task ) {
+			$need = 'rerank' === $task ? 'rank' : $task;
 			foreach ( $selection as $id => $needs ) {
-				if ( ! empty( $needs[ $task ] ) ) {
+				if ( ! empty( $needs[ $need ] ) ) {
 					$jobs[] = array( $task, $id );
 				}
 			}

@@ -90,6 +90,7 @@ final class Activator {
   summary varchar(255) NOT NULL DEFAULT '',
   content_hash char(32) NOT NULL DEFAULT '',
   ai_hash char(32) NOT NULL DEFAULT '',
+  rank_hash char(32) NOT NULL DEFAULT '',
   word_count int(10) unsigned NOT NULL DEFAULT 0,
   inbound_count int(10) unsigned NOT NULL DEFAULT 0,
   outbound_count int(10) unsigned NOT NULL DEFAULT 0,

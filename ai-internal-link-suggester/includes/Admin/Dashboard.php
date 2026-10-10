@@ -36,6 +36,11 @@ final class Dashboard {
 			}
 			echo '</p></div>';
 		}
+		if ( current_user_can( 'manage_options' ) && \AILSUG\AI\Availability::is_available() ) {
+			echo '<p><button type="button" class="button button-primary button-hero ailsug-start-run" data-run-type="scan">' . esc_html__( 'Scan for link suggestions…', 'ai-internal-link-suggester' ) . '</button></p>';
+			echo '<p class="description">' . esc_html__( 'Step 1 of 3: Scan → Review → Apply. You will see the estimated cost before anything is sent to AI.', 'ai-internal-link-suggester' ) . '</p>';
+		}
+		Keywords_Page::progress_box( \AILSUG\Queue\Queue::active_run( array( 'scan', 'regenerate', 'keywords', 'index' ) ) );
 		echo '</div>';
 	}
 }

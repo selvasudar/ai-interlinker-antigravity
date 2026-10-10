@@ -90,6 +90,7 @@ final class Indexer {
 			'summary'            => $existing ? (string) $existing['summary'] : '',
 			'content_hash'       => $data['content_hash'],
 			'ai_hash'            => $existing ? (string) $existing['ai_hash'] : '',
+			'rank_hash'          => $existing ? (string) $existing['rank_hash'] : '',
 			'word_count'         => $data['word_count'],
 			'inbound_count'      => $existing ? (int) $existing['inbound_count'] : 0,
 			'outbound_count'     => $existing ? (int) $existing['outbound_count'] : 0,
@@ -100,7 +101,7 @@ final class Indexer {
 			'status'             => 'indexed',
 		);
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$wpdb->replace( $t['index'], $row, array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%d', '%d', '%s', '%s' ) );
+		$wpdb->replace( $t['index'], $row, array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%d', '%d', '%s', '%s' ) );
 
 		$affected   = LinkGraph::replace_links( $post_id, $data['links'] );
 		$affected[] = $post_id;
