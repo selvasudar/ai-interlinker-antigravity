@@ -1,0 +1,14 @@
+/* AI Internal Link Suggester admin styles. Logical properties keep the layout RTL-safe. */
+.ailsug-wrap .ailsug-status-box {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-inline-start-width: 4px;
+	padding: 4px 16px;
+	margin: 12px 0 16px;
+	max-width: 900px;
+}
+.ailsug-wrap .ailsug-status-box.is-ok { border-inline-start-color: #00a32a; }
+.ailsug-wrap .ailsug-status-box.is-warning { border-inline-start-color: #dba617; }
+.ailsug-wrap .ailsug-status-table { max-width: 900px; margin-top: 12px; }
+.ailsug-wrap .ailsug-status-table th { width: 260px; font-weight: 600; }
+.ailsug-inline-form { display: inline-block; margin-inline-end: 16px; margin-block-end: 8px; }

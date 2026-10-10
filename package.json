@@ -1,0 +1,15 @@
+{
+  "name": "ai-internal-link-suggester-dev",
+  "private": true,
+  "description": "Dev environment for the AI Internal Link Suggester plugin (wp-env).",
+  "scripts": {
+    "env:start": "wp-env start",
+    "env:stop": "wp-env stop",
+    "test": "wp-env run tests-cli --env-cwd=wp-content/plugins/ai-internal-link-suggester vendor/bin/phpunit",
+    "lint": "wp-env run tests-cli --env-cwd=wp-content/plugins/ai-internal-link-suggester vendor/bin/phpcs",
+    "plugin-check": "wp-env run cli wp plugin check ai-internal-link-suggester --exclude-directories=vendor,tests,node_modules,src,bin"
+  },
+  "devDependencies": {
+    "@wordpress/env": "11.17.0"
+  }
+}
