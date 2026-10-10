@@ -25,10 +25,15 @@ final class Plugin {
 			return;
 		}
 
+		Hooks::register();
+		Queue\Worker::register();
+		add_action( 'rest_api_init', array( Rest\Controller::class, 'register_all' ) );
+
 		if ( is_admin() ) {
 			add_action( 'admin_init', array( Activator::class, 'maybe_upgrade' ) );
 			Admin\Menu::register();
 			Admin\Settings_Page::register();
+			Admin\Keywords_Page::register();
 		}
 	}
 

@@ -42,7 +42,7 @@ final class Menu {
 		$screens = array(
 			''             => array( __( 'Dashboard', 'ai-internal-link-suggester' ), 'edit_posts', array( Dashboard::class, 'render' ) ),
 			'-suggestions' => array( __( 'Suggestions', 'ai-internal-link-suggester' ), 'edit_posts', array( Suggestions_Page::class, 'render' ) ),
-			'-keywords'    => array( __( 'Keywords', 'ai-internal-link-suggester' ), 'edit_posts', array( Keywords_Page::class, 'render' ) ),
+			'-keywords'    => array( __( 'Keywords', 'ai-internal-link-suggester' ), 'edit_others_posts', array( Keywords_Page::class, 'render' ) ),
 			'-settings'    => array( __( 'Settings', 'ai-internal-link-suggester' ), 'manage_options', array( Settings_Page::class, 'render' ) ),
 		);
 		foreach ( $screens as $suffix => $screen ) {
@@ -120,9 +120,11 @@ final class Menu {
 			'ailsug-admin',
 			'ailsugAdmin',
 			array(
-				'restUrl' => esc_url_raw( rest_url( 'ai-internal-link-suggester/v1/' ) ),
-				'nonce'   => wp_create_nonce( 'wp_rest' ),
-				'screen'  => array_search( $hook_suffix, self::$hooks, true ),
+				'restUrl'       => esc_url_raw( rest_url( 'ai-internal-link-suggester/v1/' ) ),
+				'nonce'         => wp_create_nonce( 'wp_rest' ),
+				'screen'        => array_search( $hook_suffix, self::$hooks, true ),
+				'currency2'     => (string) \AILSUG\Settings::get( 'currency2' ),
+				'currency2Rate' => (float) \AILSUG\Settings::get( 'currency2_rate' ),
 			)
 		);
 	}

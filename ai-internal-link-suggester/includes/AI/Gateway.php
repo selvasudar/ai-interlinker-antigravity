@@ -50,14 +50,7 @@ class Gateway {
 	/**
 	 * Send one request to the AI Client.
 	 *
-	 * @param array $request Request. {
-	 *     @type string $system     System instruction.
-	 *     @type string $prompt     User prompt.
-	 *     @type array  $schema     JSON schema for the answer.
-	 *     @type int    $max_tokens Output ceiling.
-	 *     @type string $task       keyword|rank.
-	 *     @type array  $data       Structured payload (used by the mock).
-	 * }
+	 * @param array $request Request: system, prompt, schema, max_tokens, task (keyword|rank) and data (structured payload, used by the mock).
 	 * @return array{text:string,input_tokens:int,output_tokens:int,provider:string,model:string}|WP_Error
 	 */
 	protected function transport( array $request ) {

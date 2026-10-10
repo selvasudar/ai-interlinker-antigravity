@@ -16,3 +16,4 @@ composer.lock
 package-lock.json
 *.zip
 /languages/.gitkeep
+.DS_Store

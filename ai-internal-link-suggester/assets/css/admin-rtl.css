@@ -12,3 +12,36 @@
 .ailsug-wrap .ailsug-status-table { max-width: 900px; margin-top: 12px; }
 .ailsug-wrap .ailsug-status-table th { width: 260px; font-weight: 600; }
 .ailsug-inline-form { display: inline-block; margin-inline-end: 16px; margin-block-end: 8px; }
+
+/* Badges: always carry text, never color alone. */
+.ailsug-badge {
+	display: inline-block;
+	padding: 1px 8px;
+	border-radius: 10px;
+	font-size: 12px;
+	line-height: 1.6;
+	background: #f0f0f1;
+	color: #1d2327;
+	border: 1px solid #c3c4c7;
+}
+.ailsug-badge.is-manual { background: #e7f1fb; border-color: #72aee6; }
+.ailsug-badge.is-seo-plugin { background: #edfaef; border-color: #68de7c; }
+.ailsug-badge.is-ai { background: #f6f0fb; border-color: #b78ed6; }
+.ailsug-badge.is-orphan { background: #fcf0f1; border-color: #f86368; color: #8a2424; }
+
+.ailsug-kw-input { width: 18em; max-width: 100%; }
+.ailsug-kw-status { margin-inline-start: 4px; color: #50575e; }
+
+.ailsug-progress {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	padding: 8px 16px 12px;
+	margin: 12px 0;
+	max-width: 900px;
+}
+.ailsug-progress-bar { width: 100%; max-width: 480px; height: 16px; vertical-align: middle; }
+.ailsug-progress .button { vertical-align: middle; }
+
+@media screen and (max-width: 782px) {
+	.ailsug-kw-input { width: 100%; }
+}

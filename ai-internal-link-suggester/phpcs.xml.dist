@@ -41,5 +41,7 @@
 	<rule ref="Generic.Commenting.DocComment"><exclude-pattern>/tests/*</exclude-pattern></rule>
 	<rule ref="WordPress.Files.FileName"><exclude-pattern>/tests/*</exclude-pattern></rule>
 	<rule ref="WordPress.DB.DirectDatabaseQuery"><exclude-pattern>/tests/*</exclude-pattern></rule>
+	<rule ref="WordPress.DB.PreparedSQL"><exclude-pattern>/tests/*</exclude-pattern></rule>
+	<rule ref="WordPress.DB.SlowDBQuery"><exclude-pattern>/tests/*</exclude-pattern></rule>
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals"><exclude-pattern>/tests/*</exclude-pattern></rule>
 </ruleset>

@@ -170,10 +170,12 @@ final class Activator {
   attempts tinyint(3) unsigned NOT NULL DEFAULT 0,
   last_error varchar(255) NOT NULL DEFAULT '',
   locked_until datetime DEFAULT NULL,
+  claim_token varchar(32) NOT NULL DEFAULT '',
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
   PRIMARY KEY  (id),
   KEY status (status),
+  KEY claim_token (claim_token),
   KEY run_status (run_id,status),
   KEY post_task (post_id,task)
 ) $c;";

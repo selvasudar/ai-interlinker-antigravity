@@ -1,0 +1,325 @@
+<?php
+/**
+ * List table for the Keywords screen.
+ *
+ * @package AILSUG
+ */
+
+namespace AILSUG\Admin;
+
+use AILSUG\Activator;
+
+defined( 'ABSPATH' ) || exit;
+
+if ( ! class_exists( '\\WP_List_Table' ) ) {
+	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+}
+
+/**
+ * Every indexed URL with its keyword and link counts.
+ */
+class Keywords_Table extends \WP_List_Table {
+
+	const PER_PAGE = 50;
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		parent::__construct(
+			array(
+				'singular' => 'ailsug-keyword',
+				'plural'   => 'ailsug-keywords',
+				'ajax'     => false,
+			)
+		);
+	}
+
+	/**
+	 * Read and whitelist the current filters.
+	 *
+	 * @return array{view:string,post_type:string,s:string,orderby:string,order:string}
+	 */
+	public static function filters() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only filters.
+		$view      = isset( $_GET['view'] ) ? sanitize_key( wp_unslash( $_GET['view'] ) ) : 'all';
+		$post_type = isset( $_GET['post_type_filter'] ) ? sanitize_key( wp_unslash( $_GET['post_type_filter'] ) ) : '';
+		$search    = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+		$orderby   = isset( $_GET['orderby'] ) ? sanitize_key( wp_unslash( $_GET['orderby'] ) ) : 'inbound_count';
+		$order     = isset( $_GET['order'] ) && 'desc' === strtolower( sanitize_key( wp_unslash( $_GET['order'] ) ) ) ? 'DESC' : 'ASC';
+		// phpcs:enable
+		return array(
+			'view'      => in_array( $view, array( 'all', 'nokeyword', 'orphan', 'low' ), true ) ? $view : 'all',
+			'post_type' => $post_type,
+			's'         => $search,
+			'orderby'   => in_array( $orderby, array( 'title', 'primary_keyword', 'inbound_count', 'outbound_count', 'word_count' ), true ) ? $orderby : 'inbound_count',
+			'order'     => $order,
+		);
+	}
+
+	/**
+	 * Build a WHERE clause for filters.
+	 *
+	 * @param array $f Filters.
+	 * @return array{0:string,1:array} SQL and params.
+	 */
+	public static function where( array $f ) {
+		global $wpdb;
+		$sql    = array( '1=1' );
+		$params = array();
+		switch ( $f['view'] ) {
+			case 'nokeyword':
+				$sql[] = "primary_keyword = ''";
+				break;
+			case 'orphan':
+				$sql[] = 'inbound_count = 0';
+				break;
+			case 'low':
+				$sql[] = 'inbound_count BETWEEN 1 AND 2';
+				break;
+		}
+		if ( '' !== $f['post_type'] ) {
+			$sql[]    = 'post_type = %s';
+			$params[] = $f['post_type'];
+		}
+		if ( '' !== $f['s'] ) {
+			$like     = '%' . $wpdb->esc_like( $f['s'] ) . '%';
+			$sql[]    = '(title LIKE %s OR primary_keyword LIKE %s)';
+			$params[] = $like;
+			$params[] = $like;
+		}
+		return array( implode( ' AND ', $sql ), $params );
+	}
+
+	/**
+	 * Columns.
+	 *
+	 * @return array
+	 */
+	public function get_columns() {
+		return array(
+			'title'           => __( 'Page', 'ai-internal-link-suggester' ),
+			'primary_keyword' => __( 'Primary keyword', 'ai-internal-link-suggester' ),
+			'source'          => __( 'Keyword from', 'ai-internal-link-suggester' ),
+			'inbound_count'   => __( 'Links in', 'ai-internal-link-suggester' ),
+			'outbound_count'  => __( 'Links out', 'ai-internal-link-suggester' ),
+			'word_count'      => __( 'Words', 'ai-internal-link-suggester' ),
+		);
+	}
+
+	/**
+	 * Sortable columns.
+	 *
+	 * @return array
+	 */
+	protected function get_sortable_columns() {
+		return array(
+			'title'           => array( 'title', false ),
+			'primary_keyword' => array( 'primary_keyword', false ),
+			'inbound_count'   => array( 'inbound_count', false ),
+			'outbound_count'  => array( 'outbound_count', true ),
+			'word_count'      => array( 'word_count', true ),
+		);
+	}
+
+	/**
+	 * Views (All / No keyword / Orphans / Few links in).
+	 *
+	 * @return array
+	 */
+	protected function get_views() {
+		global $wpdb;
+		$t     = Activator::tables();
+		$f     = self::filters();
+		$table = esc_sql( $t['index'] );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
+		$counts = $wpdb->get_row( "SELECT COUNT(*) AS total, SUM(primary_keyword = '') AS nokeyword, SUM(inbound_count = 0) AS orphan, SUM(inbound_count BETWEEN 1 AND 2) AS low FROM {$table}", ARRAY_A );
+		$labels = array(
+			'all'       => __( 'All', 'ai-internal-link-suggester' ),
+			'nokeyword' => __( 'No keyword yet', 'ai-internal-link-suggester' ),
+			'orphan'    => __( 'Orphan pages (no links in)', 'ai-internal-link-suggester' ),
+			'low'       => __( 'Few links in (1–2)', 'ai-internal-link-suggester' ),
+		);
+		$keys   = array(
+			'all'       => 'total',
+			'nokeyword' => 'nokeyword',
+			'orphan'    => 'orphan',
+			'low'       => 'low',
+		);
+		$views  = array();
+		foreach ( $labels as $view => $label ) {
+			$url            = Menu::url( 'keywords', 'all' === $view ? array() : array( 'view' => $view ) );
+			$views[ $view ] = sprintf(
+				'<a href="%1$s"%2$s>%3$s <span class="count">(%4$s)</span></a>',
+				esc_url( $url ),
+				$f['view'] === $view ? ' class="current" aria-current="page"' : '',
+				esc_html( $label ),
+				esc_html( number_format_i18n( (int) ( $counts[ $keys[ $view ] ] ?? 0 ) ) )
+			);
+		}
+		return $views;
+	}
+
+	/**
+	 * Post type filter dropdown.
+	 *
+	 * @param string $which top|bottom.
+	 * @return void
+	 */
+	protected function extra_tablenav( $which ) {
+		if ( 'top' !== $which ) {
+			return;
+		}
+		$f = self::filters();
+		echo '<div class="alignleft actions">';
+		echo '<label class="screen-reader-text" for="ailsug-post-type-filter">' . esc_html__( 'Filter by content type', 'ai-internal-link-suggester' ) . '</label>';
+		echo '<select name="post_type_filter" id="ailsug-post-type-filter"><option value="">' . esc_html__( 'All content types', 'ai-internal-link-suggester' ) . '</option>';
+		foreach ( \AILSUG\Settings::default_post_types() as $type ) {
+			$object = get_post_type_object( $type );
+			printf( '<option value="%1$s" %2$s>%3$s</option>', esc_attr( $type ), selected( $f['post_type'], $type, false ), esc_html( $object ? $object->labels->name : $type ) );
+		}
+		echo '</select>';
+		submit_button( __( 'Filter', 'ai-internal-link-suggester' ), '', 'filter_action', false );
+		echo '</div>';
+	}
+
+	/**
+	 * Load items.
+	 *
+	 * @return void
+	 */
+	public function prepare_items() {
+		global $wpdb;
+		$t                      = Activator::tables();
+		$f                      = self::filters();
+		list( $where, $params ) = self::where( $f );
+		$table                  = esc_sql( $t['index'] );
+		$page                   = $this->get_pagenum();
+		$offset                 = ( $page - 1 ) * self::PER_PAGE;
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $where uses placeholders; orderby/order are whitelisted.
+		$count_sql   = "SELECT COUNT(*) FROM {$table} WHERE {$where}";
+		$total       = (int) ( $params ? $wpdb->get_var( $wpdb->prepare( $count_sql, $params ) ) : $wpdb->get_var( $count_sql ) );
+		$list_sql    = "SELECT * FROM {$table} WHERE {$where} ORDER BY {$f['orderby']} {$f['order']}, post_id ASC LIMIT %d OFFSET %d";
+		$this->items = $wpdb->get_results( $wpdb->prepare( $list_sql, array_merge( $params, array( self::PER_PAGE, $offset ) ) ), ARRAY_A );
+		// phpcs:enable
+
+		$this->_column_headers = array( $this->get_columns(), array(), $this->get_sortable_columns(), 'title' );
+		$this->set_pagination_args(
+			array(
+				'total_items' => $total,
+				'per_page'    => self::PER_PAGE,
+			)
+		);
+	}
+
+	/**
+	 * Empty state.
+	 *
+	 * @return void
+	 */
+	public function no_items() {
+		esc_html_e( 'No pages here yet. Click "Update page index" above to read your site (free, no AI).', 'ai-internal-link-suggester' );
+	}
+
+	/**
+	 * Title column.
+	 *
+	 * @param array $item Row.
+	 * @return string
+	 */
+	protected function column_title( $item ) {
+		$id    = (int) $item['post_id'];
+		$title = '' !== $item['title'] ? $item['title'] : __( '(no title)', 'ai-internal-link-suggester' );
+		$out   = '<strong>' . esc_html( $title ) . '</strong>';
+		$type  = get_post_type_object( $item['post_type'] );
+		$meta  = array( $type ? $type->labels->singular_name : $item['post_type'] );
+		if ( (int) $item['is_noindex'] ) {
+			$meta[] = __( 'noindex', 'ai-internal-link-suggester' );
+		}
+		if ( (int) $item['is_builder'] ) {
+			$meta[] = __( 'page builder (view only)', 'ai-internal-link-suggester' );
+		}
+		$out    .= '<br /><span class="description">' . esc_html( implode( ' · ', $meta ) ) . '</span>';
+		$actions = array();
+		if ( current_user_can( 'edit_post', $id ) ) {
+			$actions['edit'] = '<a href="' . esc_url( (string) get_edit_post_link( $id ) ) . '">' . esc_html__( 'Edit', 'ai-internal-link-suggester' ) . '</a>';
+		}
+		$actions['view'] = '<a href="' . esc_url( (string) get_permalink( $id ) ) . '">' . esc_html__( 'View', 'ai-internal-link-suggester' ) . '</a>';
+		return $out . $this->row_actions( $actions );
+	}
+
+	/**
+	 * Keyword column (inline editable).
+	 *
+	 * @param array $item Row.
+	 * @return string
+	 */
+	protected function column_primary_keyword( $item ) {
+		$id = (int) $item['post_id'];
+		if ( ! current_user_can( 'edit_post', $id ) ) {
+			return '' !== $item['primary_keyword'] ? esc_html( $item['primary_keyword'] ) : '<span aria-hidden="true">—</span>';
+		}
+		$input_id = 'ailsug-kw-' . $id;
+		return sprintf(
+			'<div class="ailsug-kw-edit" data-post-id="%1$d"><label class="screen-reader-text" for="%2$s">%3$s</label><input type="text" id="%2$s" class="ailsug-kw-input" value="%4$s" placeholder="%5$s" maxlength="120" /> <button type="button" class="button button-small ailsug-kw-save">%6$s</button> <span class="ailsug-kw-status" role="status" aria-live="polite"></span></div>',
+			$id,
+			esc_attr( $input_id ),
+			/* translators: %s: page title. */
+			esc_html( sprintf( __( 'Primary keyword for %s', 'ai-internal-link-suggester' ), $item['title'] ) ),
+			esc_attr( $item['primary_keyword'] ),
+			esc_attr__( 'Not set yet', 'ai-internal-link-suggester' ),
+			esc_html__( 'Save', 'ai-internal-link-suggester' )
+		);
+	}
+
+	/**
+	 * Source badge.
+	 *
+	 * @param array $item Row.
+	 * @return string
+	 */
+	protected function column_source( $item ) {
+		return self::source_badge( (string) $item['keyword_source'] );
+	}
+
+	/**
+	 * Badge markup for a keyword source (text, not color only).
+	 *
+	 * @param string $source Source.
+	 * @return string
+	 */
+	public static function source_badge( $source ) {
+		$labels = array(
+			'manual'     => __( 'You', 'ai-internal-link-suggester' ),
+			'seo_plugin' => __( 'SEO plugin', 'ai-internal-link-suggester' ),
+			'ai'         => __( 'AI', 'ai-internal-link-suggester' ),
+		);
+		if ( ! isset( $labels[ $source ] ) ) {
+			return '<span class="ailsug-badge is-none">' . esc_html__( 'Not set', 'ai-internal-link-suggester' ) . '</span>';
+		}
+		return '<span class="ailsug-badge is-' . esc_attr( str_replace( '_', '-', $source ) ) . '">' . esc_html( $labels[ $source ] ) . '</span>';
+	}
+
+	/**
+	 * Inbound column (orphans flagged in text).
+	 *
+	 * @param array $item Row.
+	 * @return string
+	 */
+	protected function column_inbound_count( $item ) {
+		$n = (int) $item['inbound_count'];
+		return 0 === $n ? '<span class="ailsug-badge is-orphan">' . esc_html__( '0 · orphan', 'ai-internal-link-suggester' ) . '</span>' : esc_html( number_format_i18n( $n ) );
+	}
+
+	/**
+	 * Default column.
+	 *
+	 * @param array  $item        Row.
+	 * @param string $column_name Column.
+	 * @return string
+	 */
+	protected function column_default( $item, $column_name ) {
+		return esc_html( number_format_i18n( (int) ( $item[ $column_name ] ?? 0 ) ) );
+	}
+}
