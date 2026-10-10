@@ -15,7 +15,7 @@ Reference record of what each milestone delivered, how it was verified, and any 
 | M4 Suggestion engine | `b9d9f40` | Done |
 | M5 Review and apply | `af97b6c` | Done |
 | M6 Polish | `507992b` | Done |
-| M7 Release prep | (see below) | Done |
+| M7 Release prep | `d58ebb3` | Done |
 
 ---
 
