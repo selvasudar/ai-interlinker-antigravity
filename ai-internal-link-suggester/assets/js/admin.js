@@ -186,6 +186,67 @@
 		runner.start( type );
 	} );
 
+	/* ---------- Suggestions: preview and inline edit ---------- */
+
+	function toggle( btn, panel ) {
+		var open = panel.hidden;
+		panel.hidden = ! open;
+		btn.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+		return open;
+	}
+
+	document.addEventListener( 'click', function ( ev ) {
+		var btn = ev.target.closest ? ev.target.closest( '.ailsug-preview-toggle' ) : null;
+		if ( btn ) {
+			var panel = document.getElementById( btn.getAttribute( 'aria-controls' ) );
+			if ( toggle( btn, panel ) && ! panel.getAttribute( 'data-loaded' ) ) {
+				panel.textContent = __( 'Loading…', D );
+				api( 'suggestions/' + btn.getAttribute( 'data-id' ) + '/preview' ).then( function ( p ) {
+					panel.textContent = '';
+					var para = document.createElement( 'p' );
+					para.className = 'ailsug-preview-text';
+					para.appendChild( document.createTextNode( '…' + p.context.before ) );
+					var mark = document.createElement( 'mark' );
+					mark.textContent = p.context.match;
+					para.appendChild( mark );
+					para.appendChild( document.createTextNode( p.context.after + '…' ) );
+					panel.appendChild( para );
+					var to = document.createElement( 'p' );
+					to.className = 'description';
+					to.textContent = ( p.found ? '' : __( 'This text is no longer in the page as shown. ', D ) ) + sprintf( /* translators: 1: page title, 2: address. */ __( 'The highlighted words will link to "%1$s" (%2$s).', D ), p.target.title, p.target.url );
+					panel.appendChild( to );
+					panel.setAttribute( 'data-loaded', '1' );
+				} ).catch( function ( e ) { panel.textContent = e.message; } );
+			}
+			return;
+		}
+		btn = ev.target.closest ? ev.target.closest( '.ailsug-edit-toggle' ) : null;
+		if ( btn ) {
+			var edit = document.getElementById( btn.getAttribute( 'aria-controls' ) );
+			if ( toggle( btn, edit ) ) {
+				edit.querySelector( 'input' ).focus();
+			}
+			return;
+		}
+		btn = ev.target.closest ? ev.target.closest( '.ailsug-edit-save' ) : null;
+		if ( btn ) {
+			var box = btn.closest( '.ailsug-edit' );
+			var status = box.querySelector( '.ailsug-edit-status' );
+			btn.disabled = true;
+			status.textContent = __( 'Checking…', D );
+			api( 'suggestions/' + box.getAttribute( 'data-id' ), 'POST', {
+				anchor_text: box.querySelector( '.ailsug-edit-anchor' ).value,
+				target: box.querySelector( '.ailsug-edit-target' ).value
+			} ).then( function () {
+				status.textContent = __( 'Saved. Updating the list…', D );
+				window.setTimeout( function () { window.location.reload(); }, 600 );
+			} ).catch( function ( e ) {
+				status.textContent = e.message;
+				btn.disabled = false;
+			} );
+		}
+	} );
+
 	/* ---------- Inline keyword edit ---------- */
 
 	function saveKeyword( wrap ) {

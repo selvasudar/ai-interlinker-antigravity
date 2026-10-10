@@ -1,0 +1,4 @@
+/* AI Internal Link Suggester: block editor panel. */
+.ailsug-panel-list { margin: 8px 0 12px; padding: 0; list-style: none; }
+.ailsug-panel-list li { border-block-end: 1px solid #e0e0e0; padding-block: 8px; }
+.ailsug-panel-list mark { background: #fcf9e8; padding: 0 2px; }

@@ -31,7 +31,7 @@ class Estimate_Controller extends Controller {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'calculator' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_run' ),
 				'args'                => array(
 					'posts'         => array(
 						'type'    => 'integer',
@@ -83,7 +83,7 @@ class Estimate_Controller extends Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'run' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_run' ),
 				'args'                => array(
 					'type'       => array(
 						'type'     => 'string',

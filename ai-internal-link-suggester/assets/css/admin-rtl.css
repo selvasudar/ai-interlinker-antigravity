@@ -71,3 +71,17 @@
 @media screen and (max-width: 782px) {
 	.ailsug-calc { grid-template-columns: 1fr; }
 }
+
+/* Suggestions screen */
+.ailsug-context { margin: 0 0 4px; }
+.ailsug-context mark, .ailsug-preview mark { background: #fcf9e8; outline: 1px solid #dba617; padding: 0 2px; }
+.ailsug-preview, .ailsug-edit { background: #f6f7f7; border: 1px solid #dcdcde; padding: 4px 12px; margin-top: 6px; }
+.ailsug-score { display: inline-block; padding: 1px 8px; border-radius: 10px; border: 1px solid #c3c4c7; font-weight: 600; white-space: nowrap; }
+.ailsug-score.is-strong { background: #edfaef; border-color: #00a32a; }
+.ailsug-score.is-good { background: #f0f6fc; border-color: #2271b1; }
+.ailsug-score.is-weak { background: #f6f7f7; }
+.ailsug-filters select, .ailsug-filters input { margin-inline-end: 6px; }
+.ailsug-accept-above { margin: 8px 0; }
+.wp-list-table .column-score { width: 110px; }
+.wp-list-table .column-status { width: 150px; }
+.wp-list-table .column-anchor { width: 34%; }

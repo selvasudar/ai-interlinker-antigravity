@@ -74,6 +74,9 @@ final class Menu {
 
 		foreach ( $screens as $suffix => $screen ) {
 			$hook = add_submenu_page( self::SLUG, $screen[0], $screen[0], $screen[1], self::SLUG . $suffix, $screen[2] );
+			if ( $hook && is_array( $screen[2] ) && method_exists( $screen[2][0], 'load' ) ) {
+				add_action( 'load-' . $hook, array( $screen[2][0], 'load' ) );
+			}
 			if ( $hook ) {
 				self::$hooks[ '' === $suffix ? 'dashboard' : ltrim( $suffix, '-' ) ] = $hook;
 			}

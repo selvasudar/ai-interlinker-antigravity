@@ -35,6 +35,8 @@ final class Plugin {
 			Admin\Settings_Page::register();
 			Admin\Keywords_Page::register();
 			Admin\Cost_Panel::register();
+			Admin\Suggestions_Page::register();
+			Admin\Editor_Panel::register();
 		}
 	}
 

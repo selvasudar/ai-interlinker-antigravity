@@ -72,12 +72,14 @@ final class Indexer {
 			);
 		}
 
-		$existing = self::get_row( $post_id );
-		$data     = Collector::collect( $post );
-		$keyword  = KeywordResolver::resolve( $post_id, $existing, $data['ai_hash'] );
-		$changed  = $existing && $existing['content_hash'] !== $data['content_hash'];
-		$title    = wp_strip_all_tags( get_the_title( $post ) );
-		$ai_side  = $changed || ( $existing && $existing['title'] !== $title );
+		$existing  = self::get_row( $post_id );
+		$data      = Collector::collect( $post );
+		$keyword   = KeywordResolver::resolve( $post_id, $existing, $data['ai_hash'] );
+		$changed   = $existing && $existing['content_hash'] !== $data['content_hash'];
+		$title     = wp_strip_all_tags( get_the_title( $post ) );
+		$text_hash = md5( $title . "\0" . $data['text'] );
+		// A target's topic changes when its words change; adding or removing links does not.
+		$ai_side = $existing && ( '' === (string) $existing['text_hash'] ? $changed : $existing['text_hash'] !== $text_hash );
 
 		$row = array(
 			'post_id'            => $post_id,
@@ -91,6 +93,7 @@ final class Indexer {
 			'content_hash'       => $data['content_hash'],
 			'ai_hash'            => $existing ? (string) $existing['ai_hash'] : '',
 			'rank_hash'          => $existing ? (string) $existing['rank_hash'] : '',
+			'text_hash'          => $text_hash,
 			'word_count'         => $data['word_count'],
 			'inbound_count'      => $existing ? (int) $existing['inbound_count'] : 0,
 			'outbound_count'     => $existing ? (int) $existing['outbound_count'] : 0,
@@ -101,7 +104,7 @@ final class Indexer {
 			'status'             => 'indexed',
 		);
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$wpdb->replace( $t['index'], $row, array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%d', '%d', '%s', '%s' ) );
+		$wpdb->replace( $t['index'], $row, array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%d', '%d', '%s', '%s' ) );
 
 		$affected   = LinkGraph::replace_links( $post_id, $data['links'] );
 		$affected[] = $post_id;

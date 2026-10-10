@@ -36,7 +36,7 @@ class Runs_Controller extends Controller {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'create' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_run' ),
 				'args'                => array(
 					'type'       => array(
 						'type'     => 'string',
@@ -69,7 +69,7 @@ class Runs_Controller extends Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'show' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_run' ),
 			)
 		);
 		register_rest_route(
@@ -78,7 +78,7 @@ class Runs_Controller extends Controller {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'process' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_run' ),
 			)
 		);
 		register_rest_route(
@@ -87,7 +87,7 @@ class Runs_Controller extends Controller {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'control' ),
-				'permission_callback' => array( $this, 'can_manage' ),
+				'permission_callback' => array( $this, 'can_run' ),
 			)
 		);
 	}
