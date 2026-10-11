@@ -103,7 +103,7 @@ class Gateway {
 
 		Logger::verbose( 'Prompt for ' . $task, $built['system'] . "\n---\n" . $built['prompt'] );
 
-		for ( $attempt = 1; $attempt <= 2; $attempt++ ) {
+		for ( $attempt = 1; $attempt <= 3; $attempt++ ) {
 			$reserve = $worst ? Pricing::cost( (int) ceil( $est_in * 1.3 ), $worst['input'] ) + Pricing::cost( $max_tokens, $worst['output'] ) : 0;
 			$res_id  = Budget::reserve( max( 1, $reserve ) );
 			if ( ! $res_id ) {
@@ -129,15 +129,39 @@ class Gateway {
 				}
 				$err_data    = (array) $response->get_error_data();
 				$status_code = (int) ( $err_data['status'] ?? 0 );
+				$err_msg     = $response->get_error_message();
+				$is_429      = 429 === $status_code
+					|| false !== strpos( $err_msg, '429' )
+					|| false !== stripos( $err_msg, 'rate limit' )
+					|| false !== stripos( $err_msg, 'quota' )
+					|| false !== stripos( $err_msg, 'resource has been exhausted' );
+
 				Logger::debug(
 					'AI call failed',
 					array(
-						'task'   => $task,
-						'code'   => $response->get_error_code(),
-						'status' => $status_code,
+						'task'    => $task,
+						'code'    => $response->get_error_code(),
+						'status'  => $status_code,
+						'attempt' => $attempt,
 					)
 				);
-				$retry = 429 === $status_code || in_array( $response->get_error_code(), array( 'prompt_network_error', 'prompt_upstream_server_error' ), true );
+
+				// If rate limited on earlier attempt, pause with backoff and retry.
+				if ( $is_429 && $attempt < 3 ) {
+					$delay_seconds = 2 * $attempt; // 2s on 1st attempt, 4s on 2nd attempt.
+					Logger::debug(
+						'Rate limited (429), pausing before retry',
+						array(
+							'task'    => $task,
+							'attempt' => $attempt,
+							'delay'   => $delay_seconds,
+						)
+					);
+					sleep( $delay_seconds );
+					continue;
+				}
+
+				$retry = $is_429 || in_array( $response->get_error_code(), array( 'prompt_network_error', 'prompt_upstream_server_error' ), true );
 				return new WP_Error( $response->get_error_code(), self::friendly_error( $response ), array( 'retry' => $retry ) );
 			}
 
@@ -304,7 +328,8 @@ class Gateway {
 		if ( 'prompt_prevented' === $code ) {
 			return __( 'AI requests are currently blocked on this site (by the site configuration or another plugin). Nothing was sent.', 'ai-internal-link-suggester' );
 		}
-		if ( 429 === $status ) {
+		$err_msg = $error->get_error_message();
+		if ( 429 === $status || false !== strpos( $err_msg, '429' ) || false !== stripos( $err_msg, 'rate limit' ) || false !== stripos( $err_msg, 'quota' ) || false !== stripos( $err_msg, 'resource has been exhausted' ) ) {
 			return __( 'The AI provider is busy (rate limit). The plugin will try again later.', 'ai-internal-link-suggester' );
 		}
 		if ( 'prompt_network_error' === $code ) {

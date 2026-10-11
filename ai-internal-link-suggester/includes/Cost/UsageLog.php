@@ -49,6 +49,23 @@ final class UsageLog {
 	}
 
 	/**
+	 * Total incoming and outgoing tokens for the current month.
+	 *
+	 * @return array{input_tokens:int,output_tokens:int,calls:int}
+	 */
+	public static function month_tokens() {
+		global $wpdb;
+		$t   = Activator::tables();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT COUNT(*) AS calls, COALESCE(SUM(input_tokens), 0) AS input_tokens, COALESCE(SUM(output_tokens), 0) AS output_tokens FROM ' . esc_sql( $t['usage'] ) . ' WHERE created_at >= %s', self::month_start() ), ARRAY_A );
+		return array(
+			'calls'         => (int) ( $row['calls'] ?? 0 ),
+			'input_tokens'  => (int) ( $row['input_tokens'] ?? 0 ),
+			'output_tokens' => (int) ( $row['output_tokens'] ?? 0 ),
+		);
+	}
+
+	/**
 	 * Start of the current UTC month.
 	 *
 	 * @return string

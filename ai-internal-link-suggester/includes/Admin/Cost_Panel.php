@@ -397,6 +397,29 @@ final class Cost_Panel {
 			echo '<p>' . esc_html( sprintf( __( 'Estimated spend: %s. No monthly cap is set.', 'ai-internal-link-suggester' ), self::money( $b['spent'] ) ) ) . '</p>';
 		}//end if
 
+		$tokens = UsageLog::month_tokens();
+		echo '<ul class="ailsug-kpis" style="margin: 12px 0 20px;">';
+		printf(
+			'<li class="ailsug-kpi"><span class="ailsug-kpi-value">%1$s</span><span class="ailsug-kpi-label">%2$s</span><span class="ailsug-kpi-hint">%3$s</span></li>',
+			esc_html( number_format_i18n( $tokens['input_tokens'] ) ),
+			esc_html__( 'Outgoing tokens (prompt)', 'ai-internal-link-suggester' ),
+			esc_html__( 'Sent to the AI model', 'ai-internal-link-suggester' )
+		);
+		printf(
+			'<li class="ailsug-kpi"><span class="ailsug-kpi-value">%1$s</span><span class="ailsug-kpi-label">%2$s</span><span class="ailsug-kpi-hint">%3$s</span></li>',
+			esc_html( number_format_i18n( $tokens['output_tokens'] ) ),
+			esc_html__( 'Incoming tokens (completion)', 'ai-internal-link-suggester' ),
+			esc_html__( 'Received from the AI model', 'ai-internal-link-suggester' )
+		);
+		printf(
+			'<li class="ailsug-kpi"><span class="ailsug-kpi-value">%1$s</span><span class="ailsug-kpi-label">%2$s</span><span class="ailsug-kpi-hint">%3$s</span></li>',
+			esc_html( number_format_i18n( $tokens['input_tokens'] + $tokens['output_tokens'] ) ),
+			esc_html__( 'Total tokens', 'ai-internal-link-suggester' ),
+			/* translators: %s: number of requests. */
+			esc_html( sprintf( __( 'Across %s requests this month', 'ai-internal-link-suggester' ), number_format_i18n( $tokens['calls'] ) ) )
+		);
+		echo '</ul>';
+
 		$labels = array(
 			'keyword' => __( 'Finding keywords', 'ai-internal-link-suggester' ),
 			'rank'    => __( 'Choosing links', 'ai-internal-link-suggester' ),
@@ -414,14 +437,16 @@ final class Cost_Panel {
 				continue;
 			}
 			$max = max( 1, max( array_map( 'intval', wp_list_pluck( $rows, 'cost' ) ) ) );
-			echo '<table class="widefat striped"><thead><tr><th scope="col">' . esc_html( $title ) . '</th><th scope="col">' . esc_html__( 'Requests', 'ai-internal-link-suggester' ) . '</th><th scope="col">' . esc_html__( 'Estimated cost', 'ai-internal-link-suggester' ) . '</th></tr></thead><tbody>';
+			echo '<table class="widefat striped"><thead><tr><th scope="col">' . esc_html( $title ) . '</th><th scope="col">' . esc_html__( 'Requests', 'ai-internal-link-suggester' ) . '</th><th scope="col">' . esc_html__( 'Tokens (in / out)', 'ai-internal-link-suggester' ) . '</th><th scope="col">' . esc_html__( 'Estimated cost', 'ai-internal-link-suggester' ) . '</th></tr></thead><tbody>';
 			foreach ( $rows as $row ) {
 				$label = 'task' === $by ? ( $labels[ $row['label'] ] ?? $row['label'] ) : $row['label'];
 				$width = (int) round( (int) $row['cost'] * 100 / $max );
 				printf(
-					'<tr><td>%1$s</td><td>%2$s</td><td><span class="ailsug-bar" style="width:%3$d%%" aria-hidden="true"></span> %4$s</td></tr>',
+					'<tr><td>%1$s</td><td>%2$s</td><td>%3$s / %4$s</td><td><span class="ailsug-bar" style="width:%5$d%%" aria-hidden="true"></span> %6$s</td></tr>',
 					esc_html( $label ),
 					esc_html( number_format_i18n( (int) $row['calls'] ) ),
+					esc_html( number_format_i18n( (int) ( $row['input_tokens'] ?? 0 ) ) ),
+					esc_html( number_format_i18n( (int) ( $row['output_tokens'] ?? 0 ) ) ),
 					(int) $width,
 					esc_html( self::money( (int) $row['cost'] ) )
 				);
