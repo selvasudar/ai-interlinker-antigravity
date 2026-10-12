@@ -61,7 +61,7 @@ final class Content_Writer {
 		}
 		clean_post_cache( (int) $post_id );
 		$post = get_post( (int) $post_id );
-		return $post ? (string) $post->post_content : new \WP_Error( 'ailsug_missing', __( 'The page could not be read back after saving.', 'ai-internal-link-suggester' ) );
+		return $post ? (string) $post->post_content : new \WP_Error( 'ailsug_missing', __( 'The page could not be read back after saving.', 'interlink-ai' ) );
 	}
 
 	/**

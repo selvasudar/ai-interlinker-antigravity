@@ -70,7 +70,7 @@ class Keywords_Controller extends Controller {
 	public function show( WP_REST_Request $request ) {
 		$row = Indexer::get_row( (int) $request['post_id'] );
 		if ( ! $row ) {
-			return new WP_Error( 'ailsug_not_indexed', __( 'This page is not in the index yet.', 'ai-internal-link-suggester' ), array( 'status' => 404 ) );
+			return new WP_Error( 'ailsug_not_indexed', __( 'This page is not in the index yet.', 'interlink-ai' ), array( 'status' => 404 ) );
 		}
 		return rest_ensure_response( self::format( $row ) );
 	}
@@ -84,14 +84,14 @@ class Keywords_Controller extends Controller {
 	public function update( WP_REST_Request $request ) {
 		$post_id = (int) $request['post_id'];
 		if ( ! get_post( $post_id ) ) {
-			return new WP_Error( 'ailsug_not_found', __( 'Page not found.', 'ai-internal-link-suggester' ), array( 'status' => 404 ) );
+			return new WP_Error( 'ailsug_not_found', __( 'Page not found.', 'interlink-ai' ), array( 'status' => 404 ) );
 		}
 		$before = Indexer::get_row( $post_id );
 		KeywordResolver::set_manual( $post_id, (string) $request['keyword'] );
 		Indexer::index_post( $post_id );
 		$row = Indexer::get_row( $post_id );
 		if ( ! $row ) {
-			return new WP_Error( 'ailsug_not_indexed', __( 'This page is not part of the index (check Settings → General).', 'ai-internal-link-suggester' ), array( 'status' => 409 ) );
+			return new WP_Error( 'ailsug_not_indexed', __( 'This page is not part of the index (check Settings → General).', 'interlink-ai' ), array( 'status' => 409 ) );
 		}
 		if ( ! $before || $before['primary_keyword'] !== $row['primary_keyword'] ) {
 			// Suggestions built on the old keyword may no longer fit.

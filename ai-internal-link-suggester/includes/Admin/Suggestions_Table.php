@@ -137,12 +137,12 @@ class Suggestions_Table extends \WP_List_Table {
 	public function get_columns() {
 		return array(
 			'cb'     => '<input type="checkbox" />',
-			'source' => __( 'Page to edit', 'ai-internal-link-suggester' ),
-			'anchor' => __( 'Suggested link text (in context)', 'ai-internal-link-suggester' ),
-			'target' => __( 'Links to', 'ai-internal-link-suggester' ),
-			'score'  => __( 'Relevance', 'ai-internal-link-suggester' ),
-			'reason' => __( 'Why', 'ai-internal-link-suggester' ),
-			'status' => __( 'Status', 'ai-internal-link-suggester' ),
+			'source' => __( 'Page to edit', 'interlink-ai' ),
+			'anchor' => __( 'Suggested link text (in context)', 'interlink-ai' ),
+			'target' => __( 'Links to', 'interlink-ai' ),
+			'score'  => __( 'Relevance', 'interlink-ai' ),
+			'reason' => __( 'Why', 'interlink-ai' ),
+			'status' => __( 'Status', 'interlink-ai' ),
 		);
 	}
 
@@ -172,14 +172,16 @@ class Suggestions_Table extends \WP_List_Table {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only.
 		$rows   = $params ? $wpdb->get_results( $wpdb->prepare( $sql, $params ), OBJECT_K ) : $wpdb->get_results( $sql, OBJECT_K );
 		$labels = array(
-			'pending'  => __( 'To review', 'ai-internal-link-suggester' ),
-			'accepted' => __( 'Accepted (ready to apply)', 'ai-internal-link-suggester' ),
-			'applied'  => __( 'Applied', 'ai-internal-link-suggester' ),
-			'rejected' => __( 'Rejected', 'ai-internal-link-suggester' ),
-			'stale'    => __( 'Out of date', 'ai-internal-link-suggester' ),
-			'reverted' => __( 'Undone', 'ai-internal-link-suggester' ),
-			'all'      => __( 'All', 'ai-internal-link-suggester' ),
+			'pending'  => __( 'To review', 'interlink-ai' ),
+			'applied'  => __( 'Applied', 'interlink-ai' ),
+			'rejected' => __( 'Rejected', 'interlink-ai' ),
+			'stale'    => __( 'Out of date', 'interlink-ai' ),
+			'reverted' => __( 'Undone', 'interlink-ai' ),
+			'all'      => __( 'All', 'interlink-ai' ),
 		);
+		if ( isset( $rows['accepted'] ) && (int) $rows['accepted']->n > 0 ) {
+			$labels = array_slice( $labels, 0, 1, true ) + array( 'accepted' => __( 'Accepted (legacy)', 'interlink-ai' ) ) + array_slice( $labels, 1, null, true );
+		}
 		$views  = array();
 		$total  = 0;
 		foreach ( (array) $rows as $row ) {
@@ -206,12 +208,11 @@ class Suggestions_Table extends \WP_List_Table {
 	protected function get_bulk_actions() {
 		$status = self::filters()['status'];
 		if ( 'applied' === $status ) {
-			return array( 'revert' => __( 'Undo (remove links)', 'ai-internal-link-suggester' ) );
+			return array( 'revert' => __( 'Undo (remove links)', 'interlink-ai' ) );
 		}
 		return array(
-			'accept' => __( 'Accept', 'ai-internal-link-suggester' ),
-			'reject' => __( 'Reject', 'ai-internal-link-suggester' ),
-			'apply'  => __( 'Apply to pages…', 'ai-internal-link-suggester' ),
+			'accept' => __( 'Accept & Apply', 'interlink-ai' ),
+			'reject' => __( 'Reject', 'interlink-ai' ),
 		);
 	}
 
@@ -228,7 +229,7 @@ class Suggestions_Table extends \WP_List_Table {
 		$f = self::filters();
 		echo '<div class="alignleft actions ailsug-filters">';
 
-		echo '<label class="screen-reader-text" for="ailsug-f-type">' . esc_html__( 'Content type', 'ai-internal-link-suggester' ) . '</label><select name="post_type_filter" id="ailsug-f-type"><option value="">' . esc_html__( 'All content types', 'ai-internal-link-suggester' ) . '</option>';
+		echo '<label class="screen-reader-text" for="ailsug-f-type">' . esc_html__( 'Content type', 'interlink-ai' ) . '</label><select name="post_type_filter" id="ailsug-f-type"><option value="">' . esc_html__( 'All content types', 'interlink-ai' ) . '</option>';
 		foreach ( Settings::default_post_types() as $type ) {
 			$obj = get_post_type_object( $type );
 			printf( '<option value="%1$s" %2$s>%3$s</option>', esc_attr( $type ), selected( $f['post_type'], $type, false ), esc_html( $obj ? $obj->labels->name : $type ) );
@@ -237,7 +238,7 @@ class Suggestions_Table extends \WP_List_Table {
 
 		wp_dropdown_categories(
 			array(
-				'show_option_all' => __( 'All categories', 'ai-internal-link-suggester' ),
+				'show_option_all' => __( 'All categories', 'interlink-ai' ),
 				'name'            => 'cat',
 				'id'              => 'ailsug-f-cat',
 				'selected'        => $f['cat'],
@@ -248,15 +249,15 @@ class Suggestions_Table extends \WP_List_Table {
 
 		printf(
 			'<label for="ailsug-f-score">%1$s</label> <input type="number" min="0" max="100" id="ailsug-f-score" name="min_score" value="%2$d" class="small-text" />',
-			esc_html__( 'Min. relevance', 'ai-internal-link-suggester' ),
+			esc_html__( 'Min. relevance', 'interlink-ai' ),
 			(int) $f['min_score']
 		);
 		printf(
 			' <label><input type="checkbox" name="orphan" value="1" %1$s /> %2$s</label> ',
 			checked( $f['orphan'], true, false ),
-			esc_html__( 'Only links to orphan pages', 'ai-internal-link-suggester' )
+			esc_html__( 'Only links to orphan pages', 'interlink-ai' )
 		);
-		submit_button( __( 'Filter', 'ai-internal-link-suggester' ), '', 'filter_action', false );
+		submit_button( __( 'Filter', 'interlink-ai' ), '', 'filter_action', false );
 		echo '</div>';
 	}
 
@@ -315,9 +316,9 @@ class Suggestions_Table extends \WP_List_Table {
 	public function no_items() {
 		$status = self::filters()['status'];
 		if ( 'pending' === $status ) {
-			esc_html_e( 'Nothing to review. Run a scan from the Internal Links dashboard to get link ideas, or lower the minimum relevance filter.', 'ai-internal-link-suggester' );
+			esc_html_e( 'Nothing to review. Run a scan from the Interlink AI dashboard to get link ideas, or lower the minimum relevance filter.', 'interlink-ai' );
 		} else {
-			esc_html_e( 'No suggestions match these filters.', 'ai-internal-link-suggester' );
+			esc_html_e( 'No suggestions match these filters.', 'interlink-ai' );
 		}
 	}
 
@@ -333,9 +334,9 @@ class Suggestions_Table extends \WP_List_Table {
 			if ( ! $rec ) {
 				return '';
 			}
-			return sprintf( '<label class="screen-reader-text" for="ailsug-cb-%1$d">%2$s</label><input type="checkbox" id="ailsug-cb-%1$d" name="applied_ids[]" value="%3$d" />', (int) $item['id'], esc_html__( 'Select', 'ai-internal-link-suggester' ), (int) $rec['id'] );
+			return sprintf( '<label class="screen-reader-text" for="ailsug-cb-%1$d">%2$s</label><input type="checkbox" id="ailsug-cb-%1$d" name="applied_ids[]" value="%3$d" />', (int) $item['id'], esc_html__( 'Select', 'interlink-ai' ), (int) $rec['id'] );
 		}
-		return sprintf( '<label class="screen-reader-text" for="ailsug-cb-%1$d">%2$s</label><input type="checkbox" id="ailsug-cb-%1$d" name="ids[]" value="%1$d" />', (int) $item['id'], esc_html__( 'Select', 'ai-internal-link-suggester' ) );
+		return sprintf( '<label class="screen-reader-text" for="ailsug-cb-%1$d">%2$s</label><input type="checkbox" id="ailsug-cb-%1$d" name="ids[]" value="%1$d" />', (int) $item['id'], esc_html__( 'Select', 'interlink-ai' ) );
 	}
 
 	/**
@@ -377,10 +378,10 @@ class Suggestions_Table extends \WP_List_Table {
 		$title = '' !== (string) $item['source_title'] ? $item['source_title'] : get_the_title( $id );
 		$out   = '<strong><a href="' . esc_url( (string) get_edit_post_link( $id ) ) . '">' . esc_html( $title ) . '</a></strong>';
 		if ( (int) $item['source_builder'] ) {
-			$out .= '<br /><span class="ailsug-badge">' . esc_html__( 'Page builder: view only', 'ai-internal-link-suggester' ) . '</span>';
+			$out .= '<br /><span class="ailsug-badge">' . esc_html__( 'Page builder: view only', 'interlink-ai' ) . '</span>';
 		}
 		$actions = array(
-			'view' => '<a href="' . esc_url( (string) get_permalink( $id ) ) . '">' . esc_html__( 'View page', 'ai-internal-link-suggester' ) . '</a>',
+			'view' => '<a href="' . esc_url( (string) get_permalink( $id ) ) . '">' . esc_html__( 'View page', 'interlink-ai' ) . '</a>',
 			'only' => '<a href="' . esc_url(
 				Menu::url(
 					'suggestions',
@@ -389,10 +390,10 @@ class Suggestions_Table extends \WP_List_Table {
 						'status' => 'all',
 					)
 				)
-			) . '">' . esc_html__( 'All for this page', 'ai-internal-link-suggester' ) . '</a>',
+			) . '">' . esc_html__( 'All for this page', 'interlink-ai' ) . '</a>',
 		);
 		if ( current_user_can( (string) apply_filters( 'ailsug_run_capability', 'manage_options' ) ) ) {
-			$actions['regen'] = '<button type="button" class="button-link ailsug-start-run" data-run-type="regenerate" data-post-ids="' . esc_attr( (string) wp_json_encode( array( $id ) ) ) . '">' . esc_html__( 'Re-generate…', 'ai-internal-link-suggester' ) . '</button>';
+			$actions['regen'] = '<button type="button" class="button-link ailsug-start-run" data-run-type="regenerate" data-post-ids="' . esc_attr( (string) wp_json_encode( array( $id ) ) ) . '">' . esc_html__( 'Re-generate…', 'interlink-ai' ) . '</button>';
 		}
 		return $out . $this->row_actions( $actions );
 	}
@@ -409,27 +410,26 @@ class Suggestions_Table extends \WP_List_Table {
 		$out = '<p class="ailsug-context">…' . esc_html( $ctx['before'] ) . '<mark>' . esc_html( '' !== $ctx['match'] ? $ctx['match'] : $item['anchor_text'] ) . '</mark>' . esc_html( $ctx['after'] ) . '…</p>';
 
 		$actions = array();
-		if ( in_array( $item['status'], array( 'pending', 'stale', 'rejected', 'reverted' ), true ) ) {
-			$actions['accept'] = '<a href="' . esc_url( self::action_url( 'accept', array( 'id' => $id ) ) ) . '">' . esc_html__( 'Accept', 'ai-internal-link-suggester' ) . '</a>';
+		if ( in_array( $item['status'], array( 'pending', 'stale', 'rejected', 'reverted', 'accepted' ), true ) ) {
+			if ( ! (int) $item['source_builder'] ) {
+				$actions['accept'] = '<a href="' . esc_url( self::action_url( 'accept', array( 'ids' => $id ) ) ) . '">' . esc_html__( 'Accept & Apply', 'interlink-ai' ) . '</a>';
+			}
 		}
 		if ( in_array( $item['status'], array( 'pending', 'accepted' ), true ) ) {
-			$actions['reject'] = '<a href="' . esc_url( self::action_url( 'reject', array( 'id' => $id ) ) ) . '">' . esc_html__( 'Reject', 'ai-internal-link-suggester' ) . '</a>';
-			if ( ! (int) $item['source_builder'] ) {
-				$actions['apply'] = '<a href="' . esc_url( self::action_url( 'apply', array( 'ids' => $id ) ) ) . '">' . esc_html__( 'Apply…', 'ai-internal-link-suggester' ) . '</a>';
-			}
+			$actions['reject'] = '<a href="' . esc_url( self::action_url( 'reject', array( 'ids' => $id ) ) ) . '">' . esc_html__( 'Reject', 'interlink-ai' ) . '</a>';
 		}
 		if ( 'applied' === $item['status'] && isset( $this->applied[ $id ] ) ) {
 			$rec             = $this->applied[ $id ];
-			$actions['undo'] = '<a href="' . esc_url( self::action_url( 'revert', array( 'applied_ids' => (int) $rec['id'] ) ) ) . '">' . esc_html__( 'Undo', 'ai-internal-link-suggester' ) . '</a>';
+			$actions['undo'] = '<a href="' . esc_url( self::action_url( 'revert', array( 'applied_ids' => (int) $rec['id'] ) ) ) . '">' . esc_html__( 'Undo', 'interlink-ai' ) . '</a>';
 			if ( (int) $rec['batch_size'] > 1 ) {
 				/* translators: %d: number of links in the batch. */
-				$actions['undo_batch'] = '<a href="' . esc_url( self::action_url( 'revert_batch', array( 'batch' => $rec['batch_id'] ) ) ) . '">' . esc_html( sprintf( __( 'Undo whole batch (%d links)', 'ai-internal-link-suggester' ), (int) $rec['batch_size'] ) ) . '</a>';
+				$actions['undo_batch'] = '<a href="' . esc_url( self::action_url( 'revert_batch', array( 'batch' => $rec['batch_id'] ) ) ) . '">' . esc_html( sprintf( __( 'Undo whole batch (%d links)', 'interlink-ai' ), (int) $rec['batch_size'] ) ) . '</a>';
 			}
 		}
 		if ( ! in_array( $item['status'], array( 'applied' ), true ) ) {
-			$actions['edit'] = '<button type="button" class="button-link ailsug-edit-toggle" aria-expanded="false" aria-controls="ailsug-edit-' . $id . '">' . esc_html__( 'Edit', 'ai-internal-link-suggester' ) . '</button>';
+			$actions['edit'] = '<button type="button" class="button-link ailsug-edit-toggle" aria-expanded="false" aria-controls="ailsug-edit-' . $id . '">' . esc_html__( 'Edit', 'interlink-ai' ) . '</button>';
 		}
-		$actions['preview'] = '<button type="button" class="button-link ailsug-preview-toggle" data-id="' . $id . '" aria-expanded="false" aria-controls="ailsug-preview-' . $id . '">' . esc_html__( 'Preview', 'ai-internal-link-suggester' ) . '</button>';
+		$actions['preview'] = '<button type="button" class="button-link ailsug-preview-toggle" data-id="' . $id . '" aria-expanded="false" aria-controls="ailsug-preview-' . $id . '">' . esc_html__( 'Preview', 'interlink-ai' ) . '</button>';
 
 		$out .= $this->row_actions( $actions, true );
 		$out .= '<div class="ailsug-preview" id="ailsug-preview-' . $id . '" hidden aria-live="polite"></div>';
@@ -437,11 +437,11 @@ class Suggestions_Table extends \WP_List_Table {
 			$out .= sprintf(
 				'<div class="ailsug-edit" id="ailsug-edit-%1$d" data-id="%1$d" hidden><p><label for="ailsug-anchor-%1$d">%2$s</label><br /><input type="text" id="ailsug-anchor-%1$d" class="regular-text ailsug-edit-anchor" value="%3$s" maxlength="100" /></p><p><label for="ailsug-target-%1$d">%4$s</label><br /><input type="text" id="ailsug-target-%1$d" class="regular-text ailsug-edit-target" value="%5$s" /></p><p><button type="button" class="button button-small ailsug-edit-save">%6$s</button> <span class="ailsug-edit-status" role="status" aria-live="polite"></span></p></div>',
 				$id,
-				esc_html__( 'Link text (must appear in the page exactly)', 'ai-internal-link-suggester' ),
+				esc_html__( 'Link text (must appear in the page exactly)', 'interlink-ai' ),
 				esc_attr( $item['anchor_text'] ),
-				esc_html__( 'Target page (ID or address)', 'ai-internal-link-suggester' ),
+				esc_html__( 'Target page (ID or address)', 'interlink-ai' ),
 				esc_attr( (string) get_permalink( (int) $item['target_post_id'] ) ),
-				esc_html__( 'Save changes', 'ai-internal-link-suggester' )
+				esc_html__( 'Save changes', 'interlink-ai' )
 			);
 		}
 		return $out;
@@ -459,10 +459,10 @@ class Suggestions_Table extends \WP_List_Table {
 		$out   = '<a href="' . esc_url( (string) get_permalink( $id ) ) . '">' . esc_html( $title ) . '</a>';
 		if ( '' !== (string) $item['target_keyword'] ) {
 			/* translators: %s: keyword. */
-			$out .= '<br /><span class="description">' . esc_html( sprintf( __( 'Keyword: %s', 'ai-internal-link-suggester' ), $item['target_keyword'] ) ) . '</span>';
+			$out .= '<br /><span class="description">' . esc_html( sprintf( __( 'Keyword: %s', 'interlink-ai' ), $item['target_keyword'] ) ) . '</span>';
 		}
 		if ( null !== $item['target_inbound'] && 0 === (int) $item['target_inbound'] ) {
-			$out .= '<br /><span class="ailsug-badge is-orphan">' . esc_html__( 'Orphan page', 'ai-internal-link-suggester' ) . '</span>';
+			$out .= '<br /><span class="ailsug-badge is-orphan">' . esc_html__( 'Orphan page', 'interlink-ai' ) . '</span>';
 		}
 		return $out;
 	}
@@ -475,7 +475,7 @@ class Suggestions_Table extends \WP_List_Table {
 	 */
 	protected function column_score( $item ) {
 		$score = (int) $item['score'];
-		$label = $score >= 80 ? __( 'strong', 'ai-internal-link-suggester' ) : ( $score >= 60 ? __( 'good', 'ai-internal-link-suggester' ) : __( 'weak', 'ai-internal-link-suggester' ) );
+		$label = $score >= 80 ? __( 'strong', 'interlink-ai' ) : ( $score >= 60 ? __( 'good', 'interlink-ai' ) : __( 'weak', 'interlink-ai' ) );
 		$class = $score >= 80 ? 'is-strong' : ( $score >= 60 ? 'is-good' : 'is-weak' );
 		return '<span class="ailsug-score ' . esc_attr( $class ) . '">' . esc_html( $score . ' · ' . $label ) . '</span>';
 	}
@@ -498,25 +498,25 @@ class Suggestions_Table extends \WP_List_Table {
 	 */
 	protected function column_status( $item ) {
 		$labels = array(
-			'pending'  => __( 'To review', 'ai-internal-link-suggester' ),
-			'accepted' => __( 'Accepted', 'ai-internal-link-suggester' ),
-			'applied'  => __( 'Applied', 'ai-internal-link-suggester' ),
-			'rejected' => __( 'Rejected', 'ai-internal-link-suggester' ),
-			'stale'    => __( 'Out of date', 'ai-internal-link-suggester' ),
-			'reverted' => __( 'Undone', 'ai-internal-link-suggester' ),
+			'pending'  => __( 'To review', 'interlink-ai' ),
+			'accepted' => __( 'Accepted', 'interlink-ai' ),
+			'applied'  => __( 'Applied', 'interlink-ai' ),
+			'rejected' => __( 'Rejected', 'interlink-ai' ),
+			'stale'    => __( 'Out of date', 'interlink-ai' ),
+			'reverted' => __( 'Undone', 'interlink-ai' ),
 		);
 		$out    = '<span class="ailsug-badge is-status-' . esc_attr( $item['status'] ) . '">' . esc_html( $labels[ $item['status'] ] ?? $item['status'] ) . '</span>';
 		if ( 'applied' === $item['status'] && isset( $this->applied[ (int) $item['id'] ] ) ) {
 			$rec  = $this->applied[ (int) $item['id'] ];
 			$user = get_userdata( (int) $rec['applied_by'] );
 			/* translators: 1: date, 2: user name. */
-			$out .= '<br /><span class="description">' . esc_html( sprintf( __( '%1$s by %2$s', 'ai-internal-link-suggester' ), get_date_from_gmt( $rec['applied_at'], get_option( 'date_format' ) ), $user ? $user->display_name : '—' ) ) . '</span>';
+			$out .= '<br /><span class="description">' . esc_html( sprintf( __( '%1$s by %2$s', 'interlink-ai' ), get_date_from_gmt( $rec['applied_at'], get_option( 'date_format' ) ), $user ? $user->display_name : '—' ) ) . '</span>';
 			if ( (int) $rec['revision_id'] && get_post( (int) $rec['revision_id'] ) ) {
-				$out .= '<br /><a href="' . esc_url( admin_url( 'revision.php?revision=' . (int) $rec['revision_id'] ) ) . '">' . esc_html__( 'Compare revisions', 'ai-internal-link-suggester' ) . '</a>';
+				$out .= '<br /><a href="' . esc_url( admin_url( 'revision.php?revision=' . (int) $rec['revision_id'] ) ) . '">' . esc_html__( 'Compare revisions', 'interlink-ai' ) . '</a>';
 			}
 		}
 		if ( 'stale' === $item['status'] ) {
-			$out .= '<br /><span class="description">' . esc_html__( 'A page changed since this idea was made. Re-generate, or edit the link text.', 'ai-internal-link-suggester' ) . '</span>';
+			$out .= '<br /><span class="description">' . esc_html__( 'A page changed since this idea was made. Re-generate, or edit the link text.', 'interlink-ai' ) . '</span>';
 		}
 		return $out;
 	}

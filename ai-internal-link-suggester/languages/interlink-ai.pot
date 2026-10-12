@@ -1,9 +1,9 @@
-# Copyright (C) 2026 AI Internal Link Suggester contributors
+# Copyright (C) 2026 Interlink AI contributors
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Internal Link Suggester 1.0.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ai-internal-link-suggester\n"
+"Project-Id-Version: Interlink AI 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/interlink-ai\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -12,21 +12,21 @@ msgstr ""
 "POT-Creation-Date: 2026-10-10T08:36:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
-"X-Domain: ai-internal-link-suggester\n"
+"X-Domain: interlink-ai\n"
 
 #. Plugin Name of the plugin
-#: ai-internal-link-suggester.php
+#: interlink-ai.php
 #: includes/Admin/Site_Health.php:84
-msgid "AI Internal Link Suggester"
+msgid "Interlink AI"
 msgstr ""
 
 #. Description of the plugin
-#: ai-internal-link-suggester.php
+#: interlink-ai.php
 msgid "Finds each page's main keyword and suggests internal links you can review, apply and undo in bulk, with clear AI cost estimates and a monthly budget cap."
 msgstr ""
 
 #. Author of the plugin
-#: ai-internal-link-suggester.php
+#: interlink-ai.php
 msgid "AI Internal Link Suggester contributors"
 msgstr ""
 

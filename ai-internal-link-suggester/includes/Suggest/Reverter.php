@@ -61,7 +61,7 @@ final class Reverter {
 				$out = array_merge( $out, self::revert_post( $post_id, $rows ) );
 			} catch ( \Throwable $e ) {
 				foreach ( $rows as $r ) {
-					$out[] = self::result( $r, 'error', __( 'Unexpected error; this page was not changed.', 'ai-internal-link-suggester' ) );
+					$out[] = self::result( $r, 'error', __( 'Unexpected error; this page was not changed.', 'interlink-ai' ) );
 				}
 			}
 		}
@@ -82,13 +82,13 @@ final class Reverter {
 		$out  = array();
 		if ( ! $post ) {
 			foreach ( $rows as $r ) {
-				$out[] = self::result( $r, 'manual', __( 'The page no longer exists.', 'ai-internal-link-suggester' ) );
+				$out[] = self::result( $r, 'manual', __( 'The page no longer exists.', 'interlink-ai' ) );
 			}
 			return $out;
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			foreach ( $rows as $r ) {
-				$out[] = self::result( $r, 'skipped', __( 'You are not allowed to edit this page.', 'ai-internal-link-suggester' ) );
+				$out[] = self::result( $r, 'skipped', __( 'You are not allowed to edit this page.', 'interlink-ai' ) );
 			}
 			return $out;
 		}
@@ -97,7 +97,7 @@ final class Reverter {
 		}
 		if ( wp_check_post_lock( $post_id ) ) {
 			foreach ( $rows as $r ) {
-				$out[] = self::result( $r, 'skipped', __( 'Someone is editing this page right now. Try again later.', 'ai-internal-link-suggester' ) );
+				$out[] = self::result( $r, 'skipped', __( 'Someone is editing this page right now. Try again later.', 'interlink-ai' ) );
 			}
 			return $out;
 		}
@@ -119,7 +119,7 @@ final class Reverter {
 			$inner  = Content_Writer::inner( $markup );
 			$pos    = null === $inner ? null : self::locate( $content, $r, $active );
 			if ( null === $pos ) {
-				$out[] = self::result( $r, 'manual', __( 'The page changed around this link, so it was not removed automatically (your newer edits are safe). Remove it by hand or restore the saved revision.', 'ai-internal-link-suggester' ) );
+				$out[] = self::result( $r, 'manual', __( 'The page changed around this link, so it was not removed automatically (your newer edits are safe). Remove it by hand or restore the saved revision.', 'interlink-ai' ) );
 				continue;
 			}
 			$content = substr( $content, 0, $pos ) . $inner . substr( $content, $pos + strlen( $markup ) );
@@ -148,7 +148,7 @@ final class Reverter {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
 			$wpdb->update( $t['applied'], array( 'reverted_at' => $now ), array( 'id' => (int) $r['id'] ), array( '%s' ), array( '%d' ) );
 			Store::update( (int) $r['suggestion_id'], array( 'status' => 'reverted' ) );
-			$out[] = self::result( $r, 'reverted', __( 'Link removed.', 'ai-internal-link-suggester' ) );
+			$out[] = self::result( $r, 'reverted', __( 'Link removed.', 'interlink-ai' ) );
 		}
 		Applier::refresh_open_suggestions( $post_id, $saved );
 		Indexer::index_post( $post_id );

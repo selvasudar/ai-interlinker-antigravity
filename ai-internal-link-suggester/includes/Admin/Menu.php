@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin menu: "Internal Links".
+ * Admin menu: "Interlink AI".
  *
  * @package AILSUG
  */
@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Menu {
 
-	const SLUG = 'ailsug';
+	const SLUG = 'interlink-ai';
 
 	/**
 	 * Screen hook suffixes keyed by short name.
@@ -31,6 +31,8 @@ final class Menu {
 	public static function register() {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'assets' ) );
+		add_filter( 'plugin_row_meta', array( __CLASS__, 'plugin_row_meta' ), 10, 2 );
+		add_filter( 'admin_footer_text', array( __CLASS__, 'admin_footer_text' ) );
 	}
 
 	/**
@@ -40,10 +42,10 @@ final class Menu {
 	 */
 	public static function screens() {
 		$screens = array(
-			''             => array( __( 'Dashboard', 'ai-internal-link-suggester' ), 'edit_posts', array( Dashboard::class, 'render' ) ),
-			'-suggestions' => array( __( 'Suggestions', 'ai-internal-link-suggester' ), 'edit_posts', array( Suggestions_Page::class, 'render' ) ),
-			'-keywords'    => array( __( 'Keywords', 'ai-internal-link-suggester' ), 'edit_others_posts', array( Keywords_Page::class, 'render' ) ),
-			'-settings'    => array( __( 'Settings', 'ai-internal-link-suggester' ), 'manage_options', array( Settings_Page::class, 'render' ) ),
+			''             => array( __( 'Dashboard', 'interlink-ai' ), 'edit_posts', array( Dashboard::class, 'render' ) ),
+			'-suggestions' => array( __( 'Suggestions', 'interlink-ai' ), 'edit_posts', array( Suggestions_Page::class, 'render' ) ),
+			'-keywords'    => array( __( 'Keywords', 'interlink-ai' ), 'edit_others_posts', array( Keywords_Page::class, 'render' ) ),
+			'-settings'    => array( __( 'Settings', 'interlink-ai' ), 'manage_options', array( Settings_Page::class, 'render' ) ),
 		);
 		foreach ( $screens as $suffix => $screen ) {
 			if ( ! is_callable( $screen[2] ) ) {
@@ -63,8 +65,8 @@ final class Menu {
 		$first   = reset( $screens );
 
 		self::$hooks['dashboard'] = add_menu_page(
-			__( 'Internal Links', 'ai-internal-link-suggester' ),
-			__( 'Internal Links', 'ai-internal-link-suggester' ),
+			__( 'Interlink AI', 'interlink-ai' ),
+			__( 'Interlink AI', 'interlink-ai' ),
 			'edit_posts',
 			self::SLUG,
 			$first[2],
@@ -118,19 +120,52 @@ final class Menu {
 		wp_enqueue_style( 'ailsug-admin', AILSUG_URL . 'assets/css/admin.css', array(), AILSUG_VERSION );
 		wp_style_add_data( 'ailsug-admin', 'rtl', 'replace' );
 		wp_enqueue_script( 'ailsug-admin', AILSUG_URL . 'assets/js/admin.js', array( 'wp-i18n' ), AILSUG_VERSION, true );
-		wp_set_script_translations( 'ailsug-admin', 'ai-internal-link-suggester', AILSUG_DIR . 'languages' );
+		wp_set_script_translations( 'ailsug-admin', 'interlink-ai', AILSUG_DIR . 'languages' );
 		wp_enqueue_script( 'ailsug-cost', AILSUG_URL . 'assets/js/cost.js', array( 'ailsug-admin', 'wp-i18n' ), AILSUG_VERSION, true );
-		wp_set_script_translations( 'ailsug-cost', 'ai-internal-link-suggester', AILSUG_DIR . 'languages' );
+		wp_set_script_translations( 'ailsug-cost', 'interlink-ai', AILSUG_DIR . 'languages' );
 		wp_localize_script(
 			'ailsug-admin',
 			'ailsugAdmin',
 			array(
-				'restUrl'       => esc_url_raw( rest_url( 'ai-internal-link-suggester/v1/' ) ),
+				'restUrl'       => esc_url_raw( rest_url( 'interlink-ai/v1/' ) ),
 				'nonce'         => wp_create_nonce( 'wp_rest' ),
 				'screen'        => array_search( $hook_suffix, self::$hooks, true ),
 				'currency2'     => (string) \AILSUG\Settings::get( 'currency2' ),
 				'currency2Rate' => (float) \AILSUG\Settings::get( 'currency2_rate' ),
 			)
 		);
+	}
+
+	/**
+	 * Add Buy me a coffee link in Plugins table.
+	 *
+	 * @param string[] $links Link array.
+	 * @param string   $file  Plugin basename.
+	 * @return string[]
+	 */
+	public static function plugin_row_meta( array $links, $file ) {
+		if ( plugin_basename( AILSUG_FILE ) === $file ) {
+			$links[] = '<a href="https://buymeacoffee.com/selvakumarduraipandian" target="_blank" rel="noopener noreferrer">☕ ' . esc_html__( 'Buy me a coffee', 'interlink-ai' ) . '</a>';
+		}
+		return $links;
+	}
+
+	/**
+	 * Friendly footer credit on this plugin's admin screens.
+	 *
+	 * @param string $text Existing footer text.
+	 * @return string
+	 */
+	public static function admin_footer_text( $text ) {
+		$screen = get_current_screen();
+		if ( $screen && in_array( $screen->id, self::$hooks, true ) ) {
+			return sprintf(
+				/* translators: 1: plugin name, 2: Buy me a coffee link. */
+				__( 'Enjoying %1$s? %2$s to support development.', 'interlink-ai' ),
+				'<strong>' . esc_html__( 'Interlink AI', 'interlink-ai' ) . '</strong>',
+				'<a href="https://buymeacoffee.com/selvakumarduraipandian" target="_blank" rel="noopener noreferrer">☕ ' . esc_html__( 'Buy me a coffee', 'interlink-ai' ) . '</a>'
+			);
+		}
+		return $text;
 	}
 }

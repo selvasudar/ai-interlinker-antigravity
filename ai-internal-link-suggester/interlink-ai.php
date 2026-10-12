@@ -1,17 +1,18 @@
 <?php
 /**
- * Plugin Name:       AI Internal Link Suggester
+ * Plugin Name:       Interlink AI
  * Description:       Finds each page's main keyword and suggests internal links you can review, apply and undo in bulk, with clear AI cost estimates and a monthly budget cap.
  * Version:           1.0.0
  * Requires at least: 7.0
  * Requires PHP:      7.4
- * Author:            AI Internal Link Suggester contributors
+ * Author:            Selvakumar Duraipandian, Mayakrishnan Ramar
+ * Author URI:        https://profiles.wordpress.org/selvasudar/
  * License:           GPLv2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       ai-internal-link-suggester
+ * Text Domain:       interlink-ai
  * Domain Path:       /languages
  *
- * @package AILSUG
+ * @package interlink-ai
  */
 
 defined( 'ABSPATH' ) || exit;

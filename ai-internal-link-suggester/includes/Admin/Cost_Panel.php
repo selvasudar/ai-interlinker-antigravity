@@ -64,7 +64,7 @@ final class Cost_Panel {
 	 */
 	public static function money( $micros ) {
 		if ( null === $micros ) {
-			return __( 'unknown', 'ai-internal-link-suggester' );
+			return __( 'unknown', 'interlink-ai' );
 		}
 		$usd  = $micros / 1000000;
 		$text = '$' . number_format_i18n( $usd, ( $usd > 0 && $usd < 0.01 ) ? 4 : 2 );
@@ -140,11 +140,11 @@ final class Cost_Panel {
 		$models    = self::relevant_models();
 		$connected = Availability::text_models();
 
-		echo '<hr /><h2 id="ailsug-prices">' . esc_html__( 'Prices', 'ai-internal-link-suggester' ) . '</h2>';
+		echo '<hr /><h2 id="ailsug-prices">' . esc_html__( 'Prices', 'interlink-ai' ) . '</h2>';
 		echo '<p>' . esc_html(
 			sprintf(
 				/* translators: %s: date. */
-				__( 'Prices are in US dollars per 1 million tokens (a token is roughly ¾ of a word). Built-in prices were checked on the providers\' official pages on %s. Prices change: please verify them and correct any that are out of date.', 'ai-internal-link-suggester' ),
+				__( 'Prices are in US dollars per 1 million tokens (a token is roughly ¾ of a word). Built-in prices were checked on the providers\' official pages on %s. Prices change: please verify them and correct any that are out of date.', 'interlink-ai' ),
 				Pricing::as_of()
 			)
 		) . '</p>';
@@ -156,7 +156,7 @@ final class Cost_Panel {
 		);
 		foreach ( Pricing::sources() as $provider => $url ) {
 			/* translators: %s: provider name. */
-			echo '<a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( sprintf( __( 'Verify %s prices', 'ai-internal-link-suggester' ), $names[ $provider ] ?? ucfirst( $provider ) ) ) . '<span class="screen-reader-text"> ' . esc_html__( '(opens in a new tab)', 'ai-internal-link-suggester' ) . '</span></a> &nbsp; ';
+			echo '<a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( sprintf( __( 'Verify %s prices', 'interlink-ai' ), $names[ $provider ] ?? ucfirst( $provider ) ) ) . '<span class="screen-reader-text"> ' . esc_html__( '(opens in a new tab)', 'interlink-ai' ) . '</span></a> &nbsp; ';
 		}
 		echo '</p>';
 
@@ -164,15 +164,15 @@ final class Cost_Panel {
 		wp_nonce_field( 'ailsug_save_prices' );
 		echo '<input type="hidden" name="action" value="ailsug_save_prices" />';
 		echo '<table class="widefat striped ailsug-price-table"><thead><tr>';
-		echo '<th scope="col">' . esc_html__( 'Model', 'ai-internal-link-suggester' ) . '</th>';
-		echo '<th scope="col">' . esc_html__( 'Input price ($ / 1M)', 'ai-internal-link-suggester' ) . '</th>';
-		echo '<th scope="col">' . esc_html__( 'Output price ($ / 1M)', 'ai-internal-link-suggester' ) . '</th>';
-		echo '<th scope="col">' . esc_html__( 'Source', 'ai-internal-link-suggester' ) . '</th>';
-		echo '<th scope="col">' . esc_html__( 'Reset', 'ai-internal-link-suggester' ) . '</th>';
+		echo '<th scope="col">' . esc_html__( 'Model', 'interlink-ai' ) . '</th>';
+		echo '<th scope="col">' . esc_html__( 'Input price ($ / 1M)', 'interlink-ai' ) . '</th>';
+		echo '<th scope="col">' . esc_html__( 'Output price ($ / 1M)', 'interlink-ai' ) . '</th>';
+		echo '<th scope="col">' . esc_html__( 'Source', 'interlink-ai' ) . '</th>';
+		echo '<th scope="col">' . esc_html__( 'Reset', 'interlink-ai' ) . '</th>';
 		echo '</tr></thead><tbody>';
 
 		if ( ! $models ) {
-			echo '<tr><td colspan="5">' . esc_html__( 'Connect an AI provider to see the models you can use. You can still add a price below.', 'ai-internal-link-suggester' ) . '</td></tr>';
+			echo '<tr><td colspan="5">' . esc_html__( 'Connect an AI provider to see the models you can use. You can still add a price below.', 'interlink-ai' ) . '</td></tr>';
 		}
 		$i = 0;
 		foreach ( $models as $model => $provider ) {
@@ -185,7 +185,7 @@ final class Cost_Panel {
 				'<td><label class="screen-reader-text" for="%1$s-in">%2$s</label><input type="text" inputmode="decimal" id="%1$s-in" name="prices[%3$d][input]" value="%4$s" class="small-text" /></td>',
 				esc_attr( $key ),
 				/* translators: %s: model id. */
-				esc_html( sprintf( __( 'Input price for %s', 'ai-internal-link-suggester' ), $model ) ),
+				esc_html( sprintf( __( 'Input price for %s', 'interlink-ai' ), $model ) ),
 				(int) $i,
 				esc_attr( $price ? self::decimal( $price['input'] ) : '' )
 			);
@@ -193,21 +193,21 @@ final class Cost_Panel {
 				'<td><label class="screen-reader-text" for="%1$s-out">%2$s</label><input type="text" inputmode="decimal" id="%1$s-out" name="prices[%3$d][output]" value="%4$s" class="small-text" /></td>',
 				esc_attr( $key ),
 				/* translators: %s: model id. */
-				esc_html( sprintf( __( 'Output price for %s', 'ai-internal-link-suggester' ), $model ) ),
+				esc_html( sprintf( __( 'Output price for %s', 'interlink-ai' ), $model ) ),
 				(int) $i,
 				esc_attr( $price ? self::decimal( $price['output'] ) : '' )
 			);
 			if ( ! $price ) {
-				$source = '<span class="ailsug-badge is-orphan">' . esc_html__( 'Unknown: cost shown as unknown, estimate unavailable', 'ai-internal-link-suggester' ) . '</span>';
+				$source = '<span class="ailsug-badge is-orphan">' . esc_html__( 'Unknown: cost shown as unknown, estimate unavailable', 'interlink-ai' ) . '</span>';
 			} elseif ( 'user' === $price['origin'] ) {
-				$source = '<span class="ailsug-badge is-manual">' . esc_html__( 'Your price', 'ai-internal-link-suggester' ) . '</span>';
+				$source = '<span class="ailsug-badge is-manual">' . esc_html__( 'Your price', 'interlink-ai' ) . '</span>';
 			} else {
 				/* translators: %s: date. */
-				$source = esc_html( sprintf( __( 'Built-in, as of %s', 'ai-internal-link-suggester' ), Pricing::as_of() ) );
+				$source = esc_html( sprintf( __( 'Built-in, as of %s', 'interlink-ai' ), Pricing::as_of() ) );
 			}
 			echo '<td>' . wp_kses_post( $source ) . '</td><td>';
 			if ( isset( $overrides[ $model ] ) ) {
-				printf( '<label><input type="checkbox" name="prices[%1$d][reset]" value="1" /> %2$s</label>', (int) $i, esc_html__( 'Use built-in', 'ai-internal-link-suggester' ) );
+				printf( '<label><input type="checkbox" name="prices[%1$d][reset]" value="1" /> %2$s</label>', (int) $i, esc_html__( 'Use built-in', 'interlink-ai' ) );
 			}
 			echo '</td></tr>';
 			++$i;
@@ -215,17 +215,17 @@ final class Cost_Panel {
 		// Empty row to add a model.
 		printf(
 			'<tr><th scope="row"><label class="screen-reader-text" for="ailsug-new-model">%1$s</label><input type="text" id="ailsug-new-model" name="prices[%2$d][model]" placeholder="%3$s" class="regular-text" /><br /><label class="screen-reader-text" for="ailsug-new-provider">%4$s</label><input type="text" id="ailsug-new-provider" name="prices[%2$d][provider]" placeholder="%5$s" class="regular-text" /></th><td><label class="screen-reader-text" for="ailsug-new-in">%6$s</label><input type="text" inputmode="decimal" id="ailsug-new-in" name="prices[%2$d][input]" class="small-text" /></td><td><label class="screen-reader-text" for="ailsug-new-out">%7$s</label><input type="text" inputmode="decimal" id="ailsug-new-out" name="prices[%2$d][output]" class="small-text" /></td><td colspan="2">%8$s</td></tr>',
-			esc_html__( 'Model ID', 'ai-internal-link-suggester' ),
+			esc_html__( 'Model ID', 'interlink-ai' ),
 			(int) $i,
-			esc_attr__( 'Add a model ID', 'ai-internal-link-suggester' ),
-			esc_html__( 'Provider', 'ai-internal-link-suggester' ),
-			esc_attr__( 'provider', 'ai-internal-link-suggester' ),
-			esc_html__( 'Input price', 'ai-internal-link-suggester' ),
-			esc_html__( 'Output price', 'ai-internal-link-suggester' ),
-			esc_html__( 'Optional: add a price for another model.', 'ai-internal-link-suggester' )
+			esc_attr__( 'Add a model ID', 'interlink-ai' ),
+			esc_html__( 'Provider', 'interlink-ai' ),
+			esc_attr__( 'provider', 'interlink-ai' ),
+			esc_html__( 'Input price', 'interlink-ai' ),
+			esc_html__( 'Output price', 'interlink-ai' ),
+			esc_html__( 'Optional: add a price for another model.', 'interlink-ai' )
 		);
 		echo '</tbody></table>';
-		submit_button( __( 'Save prices', 'ai-internal-link-suggester' ), 'secondary' );
+		submit_button( __( 'Save prices', 'interlink-ai' ), 'secondary' );
 		echo '</form>';
 
 		$all = 0;
@@ -233,11 +233,11 @@ final class Cost_Panel {
 			$all += count( $list );
 		}
 		if ( $all > count( $models ) ) {
-			echo '<details><summary>' . esc_html__( 'All text models your connected providers offer', 'ai-internal-link-suggester' ) . '</summary><ul class="ul-disc">';
+			echo '<details><summary>' . esc_html__( 'All text models your connected providers offer', 'interlink-ai' ) . '</summary><ul class="ul-disc">';
 			foreach ( $connected as $provider => $list ) {
 				foreach ( $list as $model ) {
 					$price = Pricing::price_for( $provider, $model );
-					echo '<li>' . esc_html( $provider . ' — ' . $model . ': ' . ( $price ? '$' . self::decimal( $price['input'] ) . ' / $' . self::decimal( $price['output'] ) : __( 'price unknown', 'ai-internal-link-suggester' ) ) ) . '</li>';
+					echo '<li>' . esc_html( $provider . ' — ' . $model . ': ' . ( $price ? '$' . self::decimal( $price['input'] ) . ' / $' . self::decimal( $price['output'] ) : __( 'price unknown', 'interlink-ai' ) ) ) . '</li>';
 				}
 			}
 			echo '</ul></details>';
@@ -308,8 +308,8 @@ final class Cost_Panel {
 	 */
 	private static function render_calculator() {
 		$s = self::site_stats();
-		echo '<hr /><h2 id="ailsug-calculator">' . esc_html__( 'Cost calculator', 'ai-internal-link-suggester' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Try different numbers to see what scanning your site would cost. Nothing is sent to AI here.', 'ai-internal-link-suggester' ) . '</p>';
+		echo '<hr /><h2 id="ailsug-calculator">' . esc_html__( 'Cost calculator', 'interlink-ai' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Try different numbers to see what scanning your site would cost. Nothing is sent to AI here.', 'interlink-ai' ) . '</p>';
 		echo '<div class="ailsug-calc" data-stats="' . esc_attr( (string) wp_json_encode( $s ) ) . '"><div class="ailsug-calc-inputs">';
 
 		$per_type = array();
@@ -317,11 +317,11 @@ final class Cost_Panel {
 			$per_type[] = $type['label'] . ': ' . number_format_i18n( $type['count'] );
 		}
 		$fields = array(
-			'posts'         => array( __( 'Pages to scan', 'ai-internal-link-suggester' ), $s['posts'], implode( ' · ', $per_type ) ),
-			'words'         => array( __( 'Average words per page', 'ai-internal-link-suggester' ), $s['words'], __( 'Measured from your indexed pages.', 'ai-internal-link-suggester' ) ),
-			'new_per_month' => array( __( 'New pages per month', 'ai-internal-link-suggester' ), $s['new_per_month'], __( 'Based on the last 90 days.', 'ai-internal-link-suggester' ) ),
-			'candidates'    => array( __( 'Candidate pages per page', 'ai-internal-link-suggester' ), $s['candidates'], '' ),
-			'suggestions'   => array( __( 'Suggestions per page', 'ai-internal-link-suggester' ), $s['suggestions'], '' ),
+			'posts'         => array( __( 'Pages to scan', 'interlink-ai' ), $s['posts'], implode( ' · ', $per_type ) ),
+			'words'         => array( __( 'Average words per page', 'interlink-ai' ), $s['words'], __( 'Measured from your indexed pages.', 'interlink-ai' ) ),
+			'new_per_month' => array( __( 'New pages per month', 'interlink-ai' ), $s['new_per_month'], __( 'Based on the last 90 days.', 'interlink-ai' ) ),
+			'candidates'    => array( __( 'Candidate pages per page', 'interlink-ai' ), $s['candidates'], '' ),
+			'suggestions'   => array( __( 'Suggestions per page', 'interlink-ai' ), $s['suggestions'], '' ),
 		);
 		foreach ( $fields as $key => $f ) {
 			printf(
@@ -332,11 +332,11 @@ final class Cost_Panel {
 				'' !== $f[2] ? ' <span class="description">' . esc_html( $f[2] ) . '</span>' : ''
 			);
 		}
-		echo '<p><label for="ailsug-calc-tier">' . esc_html__( 'Quality', 'ai-internal-link-suggester' ) . '</label><br /><select id="ailsug-calc-tier" data-calc="tier">';
+		echo '<p><label for="ailsug-calc-tier">' . esc_html__( 'Quality', 'interlink-ai' ) . '</label><br /><select id="ailsug-calc-tier" data-calc="tier">';
 		foreach ( array(
-			'economy'  => __( 'Economy', 'ai-internal-link-suggester' ),
-			'balanced' => __( 'Balanced', 'ai-internal-link-suggester' ),
-			'best'     => __( 'Best quality', 'ai-internal-link-suggester' ),
+			'economy'  => __( 'Economy', 'interlink-ai' ),
+			'balanced' => __( 'Balanced', 'interlink-ai' ),
+			'best'     => __( 'Best quality', 'interlink-ai' ),
 		) as $tier => $label ) {
 			printf( '<option value="%1$s" %2$s>%3$s</option>', esc_attr( $tier ), selected( $s['tier'], $tier, false ), esc_html( $label ) );
 		}
@@ -344,17 +344,17 @@ final class Cost_Panel {
 
 		echo '<div class="ailsug-calc-results" aria-live="polite"><p class="ailsug-calc-sentence"><strong></strong></p><dl class="ailsug-calc-list">';
 		$outputs = array(
-			'full_scan' => __( 'First full scan', 'ai-internal-link-suggester' ),
-			'per_post'  => __( 'Each newly published page', 'ai-internal-link-suggester' ),
-			'monthly'   => __( 'Estimated monthly upkeep', 'ai-internal-link-suggester' ),
-			'per_sugg'  => __( 'Cost per suggestion', 'ai-internal-link-suggester' ),
+			'full_scan' => __( 'First full scan', 'interlink-ai' ),
+			'per_post'  => __( 'Each newly published page', 'interlink-ai' ),
+			'monthly'   => __( 'Estimated monthly upkeep', 'interlink-ai' ),
+			'per_sugg'  => __( 'Cost per suggestion', 'interlink-ai' ),
 		);
 		foreach ( $outputs as $key => $label ) {
 			echo '<dt>' . esc_html( $label ) . '</dt><dd data-out="' . esc_attr( $key ) . '">—</dd>';
 		}
 		echo '</dl><p class="description ailsug-calc-note"></p></div>';
 
-		echo '<details class="ailsug-calc-how"><summary>' . esc_html__( 'How is this calculated?', 'ai-internal-link-suggester' ) . '</summary><div class="ailsug-calc-assumptions"></div></details>';
+		echo '<details class="ailsug-calc-how"><summary>' . esc_html__( 'How is this calculated?', 'interlink-ai' ) . '</summary><div class="ailsug-calc-assumptions"></div></details>';
 		echo '</div>';
 	}
 
@@ -365,8 +365,8 @@ final class Cost_Panel {
 	 */
 	private static function render_usage() {
 		$b = Budget::status();
-		echo '<hr /><h2 id="ailsug-usage">' . esc_html__( 'AI spend this month', 'ai-internal-link-suggester' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'Figures are estimates based on how much text (tokens: about ¾ of a word each) the provider reports reading and writing. Your provider\'s invoice is the source of truth.', 'ai-internal-link-suggester' ) . '</p>';
+		echo '<hr /><h2 id="ailsug-usage">' . esc_html__( 'AI spend this month', 'interlink-ai' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Figures are estimates based on how much text (tokens: about ¾ of a word each) the provider reports reading and writing. Your provider\'s invoice is the source of truth.', 'interlink-ai' ) . '</p>';
 
 		if ( $b['cap'] > 0 ) {
 			$pct = (int) round( $b['percent'] );
@@ -375,18 +375,18 @@ final class Cost_Panel {
 				esc_html(
 					sprintf(
 						/* translators: 1: spent, 2: cap, 3: percent. */
-						__( '%1$s of %2$s estimated budget used (%3$s%%)', 'ai-internal-link-suggester' ),
+						__( '%1$s of %2$s estimated budget used (%3$s%%)', 'interlink-ai' ),
 						self::money( $b['spent'] ),
 						self::money( $b['cap'] ),
 						number_format_i18n( $pct )
 					)
 				),
 				(int) $pct,
-				esc_attr__( 'Share of the monthly budget used', 'ai-internal-link-suggester' ),
+				esc_attr__( 'Share of the monthly budget used', 'interlink-ai' ),
 				$b['reserved'] > 0 ? esc_html(
 					sprintf(
 						/* translators: %s: amount. */
-						__( 'Plus %s set aside for AI requests in progress.', 'ai-internal-link-suggester' ),
+						__( 'Plus %s set aside for AI requests in progress.', 'interlink-ai' ),
 						self::money( $b['reserved'] )
 					)
 				) : '',
@@ -394,7 +394,7 @@ final class Cost_Panel {
 			);
 		} else {
 			/* translators: %s: amount. */
-			echo '<p>' . esc_html( sprintf( __( 'Estimated spend: %s. No monthly cap is set.', 'ai-internal-link-suggester' ), self::money( $b['spent'] ) ) ) . '</p>';
+			echo '<p>' . esc_html( sprintf( __( 'Estimated spend: %s. No monthly cap is set.', 'interlink-ai' ), self::money( $b['spent'] ) ) ) . '</p>';
 		}//end if
 
 		$tokens = UsageLog::month_tokens();
@@ -402,42 +402,42 @@ final class Cost_Panel {
 		printf(
 			'<li class="ailsug-kpi"><span class="ailsug-kpi-value">%1$s</span><span class="ailsug-kpi-label">%2$s</span><span class="ailsug-kpi-hint">%3$s</span></li>',
 			esc_html( number_format_i18n( $tokens['input_tokens'] ) ),
-			esc_html__( 'Outgoing tokens (prompt)', 'ai-internal-link-suggester' ),
-			esc_html__( 'Sent to the AI model', 'ai-internal-link-suggester' )
+			esc_html__( 'Outgoing tokens (prompt)', 'interlink-ai' ),
+			esc_html__( 'Sent to the AI model', 'interlink-ai' )
 		);
 		printf(
 			'<li class="ailsug-kpi"><span class="ailsug-kpi-value">%1$s</span><span class="ailsug-kpi-label">%2$s</span><span class="ailsug-kpi-hint">%3$s</span></li>',
 			esc_html( number_format_i18n( $tokens['output_tokens'] ) ),
-			esc_html__( 'Incoming tokens (completion)', 'ai-internal-link-suggester' ),
-			esc_html__( 'Received from the AI model', 'ai-internal-link-suggester' )
+			esc_html__( 'Incoming tokens (completion)', 'interlink-ai' ),
+			esc_html__( 'Received from the AI model', 'interlink-ai' )
 		);
 		printf(
 			'<li class="ailsug-kpi"><span class="ailsug-kpi-value">%1$s</span><span class="ailsug-kpi-label">%2$s</span><span class="ailsug-kpi-hint">%3$s</span></li>',
 			esc_html( number_format_i18n( $tokens['input_tokens'] + $tokens['output_tokens'] ) ),
-			esc_html__( 'Total tokens', 'ai-internal-link-suggester' ),
+			esc_html__( 'Total tokens', 'interlink-ai' ),
 			/* translators: %s: number of requests. */
-			esc_html( sprintf( __( 'Across %s requests this month', 'ai-internal-link-suggester' ), number_format_i18n( $tokens['calls'] ) ) )
+			esc_html( sprintf( __( 'Across %s requests this month', 'interlink-ai' ), number_format_i18n( $tokens['calls'] ) ) )
 		);
 		echo '</ul>';
 
 		$labels = array(
-			'keyword' => __( 'Finding keywords', 'ai-internal-link-suggester' ),
-			'rank'    => __( 'Choosing links', 'ai-internal-link-suggester' ),
+			'keyword' => __( 'Finding keywords', 'interlink-ai' ),
+			'rank'    => __( 'Choosing links', 'interlink-ai' ),
 		);
 		echo '<div class="ailsug-usage-grid">';
 		foreach ( array(
-			'task'  => __( 'By task', 'ai-internal-link-suggester' ),
-			'model' => __( 'By model', 'ai-internal-link-suggester' ),
-			'day'   => __( 'By day', 'ai-internal-link-suggester' ),
+			'task'  => __( 'By task', 'interlink-ai' ),
+			'model' => __( 'By model', 'interlink-ai' ),
+			'day'   => __( 'By day', 'interlink-ai' ),
 		) as $by => $title ) {
 			$rows = UsageLog::summary( $by );
 			echo '<div><h3>' . esc_html( $title ) . '</h3>';
 			if ( ! $rows ) {
-				echo '<p class="description">' . esc_html__( 'No AI use this month yet.', 'ai-internal-link-suggester' ) . '</p></div>';
+				echo '<p class="description">' . esc_html__( 'No AI use this month yet.', 'interlink-ai' ) . '</p></div>';
 				continue;
 			}
 			$max = max( 1, max( array_map( 'intval', wp_list_pluck( $rows, 'cost' ) ) ) );
-			echo '<table class="widefat striped"><thead><tr><th scope="col">' . esc_html( $title ) . '</th><th scope="col">' . esc_html__( 'Requests', 'ai-internal-link-suggester' ) . '</th><th scope="col">' . esc_html__( 'Tokens (in / out)', 'ai-internal-link-suggester' ) . '</th><th scope="col">' . esc_html__( 'Estimated cost', 'ai-internal-link-suggester' ) . '</th></tr></thead><tbody>';
+			echo '<table class="widefat striped"><thead><tr><th scope="col">' . esc_html( $title ) . '</th><th scope="col">' . esc_html__( 'Requests', 'interlink-ai' ) . '</th><th scope="col">' . esc_html__( 'Tokens (in / out)', 'interlink-ai' ) . '</th><th scope="col">' . esc_html__( 'Estimated cost', 'interlink-ai' ) . '</th></tr></thead><tbody>';
 			foreach ( $rows as $row ) {
 				$label = 'task' === $by ? ( $labels[ $row['label'] ] ?? $row['label'] ) : $row['label'];
 				$width = (int) round( (int) $row['cost'] * 100 / $max );
@@ -456,20 +456,20 @@ final class Cost_Panel {
 		echo '</div>';
 
 		$runs = UsageLog::recent_runs( 10 );
-		echo '<h3>' . esc_html__( 'Recent AI runs: estimate vs actual', 'ai-internal-link-suggester' ) . '</h3>';
+		echo '<h3>' . esc_html__( 'Recent AI runs: estimate vs actual', 'interlink-ai' ) . '</h3>';
 		if ( ! $runs ) {
-			echo '<p class="description">' . esc_html__( 'No AI runs yet.', 'ai-internal-link-suggester' ) . '</p>';
+			echo '<p class="description">' . esc_html__( 'No AI runs yet.', 'interlink-ai' ) . '</p>';
 		} else {
 			echo '<table class="widefat striped"><thead><tr>';
-			foreach ( array( __( 'Started', 'ai-internal-link-suggester' ), __( 'Type', 'ai-internal-link-suggester' ), __( 'Pages', 'ai-internal-link-suggester' ), __( 'Estimated before', 'ai-internal-link-suggester' ), __( 'Actual (estimated from usage)', 'ai-internal-link-suggester' ), __( 'Model that answered', 'ai-internal-link-suggester' ), __( 'Status', 'ai-internal-link-suggester' ) ) as $h ) {
+			foreach ( array( __( 'Started', 'interlink-ai' ), __( 'Type', 'interlink-ai' ), __( 'Pages', 'interlink-ai' ), __( 'Estimated before', 'interlink-ai' ), __( 'Actual (estimated from usage)', 'interlink-ai' ), __( 'Model that answered', 'interlink-ai' ), __( 'Status', 'interlink-ai' ) ) as $h ) {
 				echo '<th scope="col">' . esc_html( $h ) . '</th>';
 			}
 			echo '</tr></thead><tbody>';
 			foreach ( $runs as $run ) {
-				$est = $run['est_high_micros'] > 0 ? self::money( (int) $run['est_low_micros'] ) . ' – ' . self::money( (int) $run['est_high_micros'] ) : __( 'unavailable', 'ai-internal-link-suggester' );
+				$est = $run['est_high_micros'] > 0 ? self::money( (int) $run['est_low_micros'] ) . ' – ' . self::money( (int) $run['est_high_micros'] ) : __( 'unavailable', 'interlink-ai' );
 				$act = self::money( (int) $run['actual'] );
 				if ( (int) $run['calls'] > 0 && ! (int) $run['price_known'] ) {
-					$act .= ' ' . __( '(some prices unknown)', 'ai-internal-link-suggester' );
+					$act .= ' ' . __( '(some prices unknown)', 'interlink-ai' );
 				}
 				printf(
 					'<tr><td>%1$s</td><td>%2$s</td><td>%3$s</td><td>%4$s</td><td>%5$s</td><td>%6$s</td><td>%7$s</td></tr>',
@@ -489,20 +489,20 @@ final class Cost_Panel {
 		echo '<p class="description">' . esc_html(
 			sprintf(
 				/* translators: 1: samples for keywords, 2: samples for links. */
-				__( 'Estimates improve automatically after 20 real requests per task (so far: %1$d for keywords, %2$d for links).', 'ai-internal-link-suggester' ),
+				__( 'Estimates improve automatically after 20 real requests per task (so far: %1$d for keywords, %2$d for links).', 'interlink-ai' ),
 				$cal[0]['samples'],
 				$cal[1]['samples']
 			)
 		) . '</p>';
 
 		$export = wp_nonce_url( admin_url( 'admin-post.php?action=ailsug_export_usage' ), 'ailsug_export_usage' );
-		echo '<p><a class="button" href="' . esc_url( $export ) . '">' . esc_html__( 'Export usage CSV', 'ai-internal-link-suggester' ) . '</a></p>';
+		echo '<p><a class="button" href="' . esc_url( $export ) . '">' . esc_html__( 'Export usage CSV', 'interlink-ai' ) . '</a></p>';
 
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="ailsug-inline-form">';
 		wp_nonce_field( 'ailsug_reset_usage' );
 		echo '<input type="hidden" name="action" value="ailsug_reset_usage" />';
-		echo '<label><input type="checkbox" name="confirm" value="1" required /> ' . esc_html__( 'Yes, reset this month\'s usage counters and log', 'ai-internal-link-suggester' ) . '</label> ';
-		submit_button( __( 'Reset counters', 'ai-internal-link-suggester' ), 'delete small', 'submit', false );
+		echo '<label><input type="checkbox" name="confirm" value="1" required /> ' . esc_html__( 'Yes, reset this month\'s usage counters and log', 'interlink-ai' ) . '</label> ';
+		submit_button( __( 'Reset counters', 'interlink-ai' ), 'delete small', 'submit', false );
 		echo '</form>';
 	}
 
@@ -512,13 +512,13 @@ final class Cost_Panel {
 	 * @return void
 	 */
 	private static function render_tips() {
-		echo '<hr /><h2>' . esc_html__( 'Ways to spend less', 'ai-internal-link-suggester' ) . '</h2><ul class="ul-disc">';
+		echo '<hr /><h2>' . esc_html__( 'Ways to spend less', 'interlink-ai' ) . '</h2><ul class="ul-disc">';
 		$tips = array(
-			__( 'Use the Economy quality setting. It is more than good enough for keywords and link choices.', 'ai-internal-link-suggester' ),
-			__( 'Only include the content types that matter (for example posts and pages, not every custom type).', 'ai-internal-link-suggester' ),
-			__( 'Exclude thin or very old pages you do not want links to or from.', 'ai-internal-link-suggester' ),
-			__( 'Set focus keywords in your SEO plugin or type them yourself: those pages skip the AI keyword step.', 'ai-internal-link-suggester' ),
-			__( 'Leave automatic updates off and re-scan only pages that changed.', 'ai-internal-link-suggester' ),
+			__( 'Use the Economy quality setting. It is more than good enough for keywords and link choices.', 'interlink-ai' ),
+			__( 'Only include the content types that matter (for example posts and pages, not every custom type).', 'interlink-ai' ),
+			__( 'Exclude thin or very old pages you do not want links to or from.', 'interlink-ai' ),
+			__( 'Set focus keywords in your SEO plugin or type them yourself: those pages skip the AI keyword step.', 'interlink-ai' ),
+			__( 'Leave automatic updates off and re-scan only pages that changed.', 'interlink-ai' ),
 		);
 		foreach ( $tips as $tip ) {
 			echo '<li>' . esc_html( $tip ) . '</li>';
@@ -533,7 +533,7 @@ final class Cost_Panel {
 	 */
 	public static function save_prices() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'ai-internal-link-suggester' ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'interlink-ai' ) );
 		}
 		check_admin_referer( 'ailsug_save_prices' );
 		$overrides = Pricing::overrides();
@@ -573,7 +573,7 @@ final class Cost_Panel {
 		}//end foreach
 		Pricing::save_overrides( $overrides );
 		Budget::on_change();
-		add_settings_error( 'ailsug', 'prices', __( 'Prices saved.', 'ai-internal-link-suggester' ), 'success' );
+		add_settings_error( 'ailsug', 'prices', __( 'Prices saved.', 'interlink-ai' ), 'success' );
 		set_transient( 'settings_errors', get_settings_errors(), 30 );
 		wp_safe_redirect( add_query_arg( 'settings-updated', 'true', Menu::url( 'settings', array( 'tab' => 'ai' ) ) ) . '#ailsug-prices' );
 		exit;
@@ -586,7 +586,7 @@ final class Cost_Panel {
 	 */
 	public static function export_usage() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'ai-internal-link-suggester' ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'interlink-ai' ) );
 		}
 		check_admin_referer( 'ailsug_export_usage' );
 		$out = array();
@@ -607,13 +607,13 @@ final class Cost_Panel {
 	 */
 	public static function reset_usage() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'ai-internal-link-suggester' ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'interlink-ai' ) );
 		}
 		check_admin_referer( 'ailsug_reset_usage' );
 		if ( ! empty( $_POST['confirm'] ) ) {
 			UsageLog::reset_month();
 			Budget::reset_period();
-			add_settings_error( 'ailsug', 'reset', __( 'This month\'s usage counters were reset.', 'ai-internal-link-suggester' ), 'success' );
+			add_settings_error( 'ailsug', 'reset', __( 'This month\'s usage counters were reset.', 'interlink-ai' ), 'success' );
 			set_transient( 'settings_errors', get_settings_errors(), 30 );
 		}
 		wp_safe_redirect( add_query_arg( 'settings-updated', 'true', Menu::url( 'settings', array( 'tab' => 'ai' ) ) ) . '#ailsug-usage' );
@@ -634,18 +634,18 @@ final class Cost_Panel {
 			return;
 		}
 		$b    = Budget::status();
-		$link = '<a href="' . esc_url( Menu::url( 'settings', array( 'tab' => 'ai' ) ) ) . '">' . esc_html__( 'Settings → AI & Cost', 'ai-internal-link-suggester' ) . '</a>';
+		$link = '<a href="' . esc_url( Menu::url( 'settings', array( 'tab' => 'ai' ) ) ) . '">' . esc_html__( 'Settings → AI & Cost', 'interlink-ai' ) . '</a>';
 		if ( $b['reached'] ) {
 			/* translators: %s: link to settings. */
-			echo '<div class="notice notice-error"><p>' . wp_kses_post( sprintf( __( 'Internal Links: the estimated monthly AI budget is used up, so no new AI work will start. Your page index and link map keep working. Raise the cap in %s or wait until next month.', 'ai-internal-link-suggester' ), $link ) ) . '</p></div>';
+			echo '<div class="notice notice-error"><p>' . wp_kses_post( sprintf( __( 'Interlink AI: the estimated monthly AI budget is used up, so no new AI work will start. Your page index and link map keep working. Raise the cap in %s or wait until next month.', 'interlink-ai' ), $link ) ) . '</p></div>';
 		} elseif ( $b['alert'] ) {
 			/* translators: 1: percent, 2: link to settings. */
-			echo '<div class="notice notice-warning"><p>' . wp_kses_post( sprintf( __( 'Internal Links: %1$s%% of the estimated monthly AI budget is used. See %2$s.', 'ai-internal-link-suggester' ), number_format_i18n( (int) round( $b['percent'] ) ), $link ) ) . '</p></div>';
+			echo '<div class="notice notice-warning"><p>' . wp_kses_post( sprintf( __( 'Interlink AI: %1$s%% of the estimated monthly AI budget is used. See %2$s.', 'interlink-ai' ), number_format_i18n( (int) round( $b['percent'] ) ), $link ) ) . '</p></div>';
 		}
 		$block = (string) get_option( Gateway::PRICE_BLOCK, '' );
 		if ( '' !== $block && ! Pricing::price_for( '', $block ) ) {
 			/* translators: 1: model id, 2: link to settings. */
-			echo '<div class="notice notice-warning"><p>' . wp_kses_post( sprintf( __( 'Internal Links: the AI model "%1$s" answered, but its price is unknown. Paid AI runs are paused until you enter its price in %2$s.', 'ai-internal-link-suggester' ), esc_html( $block ), $link ) ) . '</p></div>';
+			echo '<div class="notice notice-warning"><p>' . wp_kses_post( sprintf( __( 'Interlink AI: the AI model "%1$s" answered, but its price is unknown. Paid AI runs are paused until you enter its price in %2$s.', 'interlink-ai' ), esc_html( $block ), $link ) ) . '</p></div>';
 		}
 	}
 }

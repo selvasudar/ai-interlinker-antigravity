@@ -108,13 +108,13 @@ final class Availability {
 
 		if ( ! self::core_present() ) {
 			$status['code']    = 'no_core';
-			$status['message'] = __( 'This version of WordPress has no built-in AI support. AI features need WordPress 7.0 or newer.', 'ai-internal-link-suggester' );
+			$status['message'] = __( 'This version of WordPress has no built-in AI support. AI features need WordPress 7.0 or newer.', 'interlink-ai' );
 			return $status;
 		}
 
 		if ( function_exists( 'wp_supports_ai' ) && ! wp_supports_ai() ) {
 			$status['code']    = 'disabled';
-			$status['message'] = __( 'AI features are turned off on this site (by the site configuration or another plugin).', 'ai-internal-link-suggester' );
+			$status['message'] = __( 'AI features are turned off on this site (by the site configuration or another plugin).', 'interlink-ai' );
 			return $status;
 		}
 
@@ -128,13 +128,13 @@ final class Availability {
 			}
 		} catch ( \Throwable $e ) {
 			$status['code']    = 'registry_error';
-			$status['message'] = __( 'WordPress could not check your AI connections. Try again in a moment.', 'ai-internal-link-suggester' );
+			$status['message'] = __( 'WordPress could not check your AI connections. Try again in a moment.', 'interlink-ai' );
 			return $status;
 		}
 
 		if ( ! $status['providers'] ) {
 			$status['code']    = 'no_provider';
-			$status['message'] = __( 'No AI provider is connected. Open Settings → Connectors to add one.', 'ai-internal-link-suggester' );
+			$status['message'] = __( 'No AI provider is connected. Open Settings → Connectors to add one.', 'interlink-ai' );
 			return $status;
 		}
 
@@ -142,13 +142,13 @@ final class Availability {
 		$supported = wp_ai_client_prompt( 'ping' )->is_supported_for_text_generation();
 		if ( ! $supported ) {
 			$status['code']    = 'unsupported';
-			$status['message'] = __( 'Your connected AI provider cannot be used for text right now, or another plugin is blocking AI requests.', 'ai-internal-link-suggester' );
+			$status['message'] = __( 'Your connected AI provider cannot be used for text right now, or another plugin is blocking AI requests.', 'interlink-ai' );
 			return $status;
 		}
 
 		$status['available'] = true;
 		$status['code']      = 'ok';
-		$status['message']   = __( 'AI is connected and ready.', 'ai-internal-link-suggester' );
+		$status['message']   = __( 'AI is connected and ready.', 'interlink-ai' );
 		return $status;
 	}
 
@@ -219,7 +219,7 @@ final class Availability {
 		return array(
 			'available'  => true,
 			'code'       => 'mock',
-			'message'    => __( 'Test mode: AI answers are simulated and nothing is sent or billed.', 'ai-internal-link-suggester' ),
+			'message'    => __( 'Test mode: AI answers are simulated and nothing is sent or billed.', 'interlink-ai' ),
 			'providers'  => array( 'mock' ),
 			'registered' => array( 'mock' ),
 			'checked_at' => time(),

@@ -12,7 +12,7 @@
 		var args = Array.prototype.slice.call( arguments, 1 );
 		return s.replace( /%(\d+\$)?[sd]/g, function () { return args.shift(); } );
 	};
-	var D = 'ai-internal-link-suggester';
+	var D = 'interlink-ai';
 	var num = function ( n ) { return Number( n || 0 ).toLocaleString(); };
 
 	function el( tag, attrs, text ) {

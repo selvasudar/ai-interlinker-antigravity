@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 abstract class Controller {
 
-	const NS = 'ai-internal-link-suggester/v1';
+	const NS = 'interlink-ai/v1';
 
 	/**
 	 * Register routes.

@@ -35,18 +35,18 @@ final class Keywords_Page {
 	 */
 	public static function render() {
 		if ( ! current_user_can( self::CAP ) ) {
-			wp_die( esc_html__( 'You do not have permission to view this page.', 'ai-internal-link-suggester' ) );
+			wp_die( esc_html__( 'You do not have permission to view this page.', 'interlink-ai' ) );
 		}
 		$table = new Keywords_Table();
 		$table->prepare_items();
 		$f = Keywords_Table::filters();
 
 		echo '<div class="wrap ailsug-wrap">';
-		echo '<h1 class="wp-heading-inline">' . esc_html__( 'Keywords', 'ai-internal-link-suggester' ) . '</h1>';
+		echo '<h1 class="wp-heading-inline">' . esc_html__( 'Keywords', 'interlink-ai' ) . '</h1>';
 		if ( current_user_can( 'manage_options' ) ) {
-			echo ' <button type="button" class="page-title-action ailsug-start-run" data-run-type="index">' . esc_html__( 'Update page index (free, no AI)', 'ai-internal-link-suggester' ) . '</button>';
+			echo ' <button type="button" class="page-title-action ailsug-start-run" data-run-type="index">' . esc_html__( 'Update page index (free, no AI)', 'interlink-ai' ) . '</button>';
 			if ( \AILSUG\AI\Availability::is_available() ) {
-				echo ' <button type="button" class="page-title-action ailsug-start-run" data-run-type="keywords">' . esc_html__( 'Find missing keywords with AI…', 'ai-internal-link-suggester' ) . '</button>';
+				echo ' <button type="button" class="page-title-action ailsug-start-run" data-run-type="keywords">' . esc_html__( 'Find missing keywords with AI…', 'interlink-ai' ) . '</button>';
 			}
 		}
 		$export = wp_nonce_url(
@@ -63,10 +63,10 @@ final class Keywords_Page {
 			),
 			'ailsug_export_keywords'
 		);
-		echo ' <a class="page-title-action" href="' . esc_url( $export ) . '">' . esc_html__( 'Export CSV', 'ai-internal-link-suggester' ) . '</a>';
+		echo ' <a class="page-title-action" href="' . esc_url( $export ) . '">' . esc_html__( 'Export CSV', 'interlink-ai' ) . '</a>';
 		echo '<hr class="wp-header-end" />';
 
-		echo '<p class="description">' . esc_html__( 'The primary keyword is the phrase people search to find a page. Other pages link to it using this phrase. Type your own to override the SEO plugin or AI.', 'ai-internal-link-suggester' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'The primary keyword is the phrase people search to find a page. Other pages link to it using this phrase. Type your own to override the SEO plugin or AI.', 'interlink-ai' ) . '</p>';
 
 		self::progress_box( Queue::active_run( array( 'index', 'keywords' ) ) );
 
@@ -76,7 +76,7 @@ final class Keywords_Page {
 		if ( 'all' !== $f['view'] ) {
 			echo '<input type="hidden" name="view" value="' . esc_attr( $f['view'] ) . '" />';
 		}
-		$table->search_box( __( 'Search pages', 'ai-internal-link-suggester' ), 'ailsug-kw-search' );
+		$table->search_box( __( 'Search pages', 'interlink-ai' ), 'ailsug-kw-search' );
 		$table->display();
 		echo '</form></div>';
 	}
@@ -91,10 +91,10 @@ final class Keywords_Page {
 		printf(
 			'<div class="ailsug-progress" hidden data-active-run="%1$s"><p class="ailsug-progress-label" role="status" aria-live="polite"></p><progress class="ailsug-progress-bar" max="100" value="0" aria-label="%5$s"></progress> <button type="button" class="button ailsug-run-pause">%2$s</button> <button type="button" class="button ailsug-run-resume" hidden>%3$s</button> <button type="button" class="button-link ailsug-run-cancel">%4$s</button></div>',
 			esc_attr( $active ? $active['run_id'] : '' ),
-			esc_html__( 'Pause', 'ai-internal-link-suggester' ),
-			esc_html__( 'Resume', 'ai-internal-link-suggester' ),
-			esc_html__( 'Cancel', 'ai-internal-link-suggester' ),
-			esc_attr__( 'Progress', 'ai-internal-link-suggester' )
+			esc_html__( 'Pause', 'interlink-ai' ),
+			esc_html__( 'Resume', 'interlink-ai' ),
+			esc_html__( 'Cancel', 'interlink-ai' ),
+			esc_attr__( 'Progress', 'interlink-ai' )
 		);
 	}
 
@@ -106,7 +106,7 @@ final class Keywords_Page {
 	public static function export() {
 		global $wpdb;
 		if ( ! current_user_can( self::CAP ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'ai-internal-link-suggester' ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'interlink-ai' ) );
 		}
 		check_admin_referer( 'ailsug_export_keywords' );
 		$t                      = Activator::tables();

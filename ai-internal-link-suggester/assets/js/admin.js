@@ -14,7 +14,7 @@
 		var args = Array.prototype.slice.call( arguments, 1 );
 		return s.replace( /%(\d+\$)?[sd]/g, function () { return args.shift(); } );
 	};
-	var D = 'ai-internal-link-suggester';
+	var D = 'interlink-ai';
 
 	function api( path, method, body ) {
 		return window.fetch( cfg.restUrl + path, {

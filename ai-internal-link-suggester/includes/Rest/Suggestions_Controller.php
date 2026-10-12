@@ -215,7 +215,7 @@ class Suggestions_Controller extends Controller {
 		$id = (int) $request['id'];
 		$s  = Store::get( $id );
 		if ( in_array( $s['status'], array( 'applied' ), true ) ) {
-			return new WP_Error( 'ailsug_applied', __( 'This link is already in the page. Undo it first to change it.', 'ai-internal-link-suggester' ), array( 'status' => 409 ) );
+			return new WP_Error( 'ailsug_applied', __( 'This link is already in the page. Undo it first to change it.', 'interlink-ai' ), array( 'status' => 409 ) );
 		}
 		$fields = array();
 
@@ -223,10 +223,10 @@ class Suggestions_Controller extends Controller {
 			$raw    = trim( (string) $request['target'] );
 			$target = ctype_digit( $raw ) ? (int) $raw : url_to_postid( esc_url_raw( $raw ) );
 			if ( ! $target || $target === (int) $s['source_post_id'] || ! Eligibility::is_linkable_target( $target ) ) {
-				return new WP_Error( 'ailsug_bad_target', __( 'That target page cannot be linked. Enter the ID or address of a published page on this site.', 'ai-internal-link-suggester' ), array( 'status' => 400 ) );
+				return new WP_Error( 'ailsug_bad_target', __( 'That target page cannot be linked. Enter the ID or address of a published page on this site.', 'interlink-ai' ), array( 'status' => 400 ) );
 			}
 			if ( LinkGraph::links_to( (int) $s['source_post_id'], $target ) ) {
-				return new WP_Error( 'ailsug_already_linked', __( 'The page already links to that target.', 'ai-internal-link-suggester' ), array( 'status' => 409 ) );
+				return new WP_Error( 'ailsug_already_linked', __( 'The page already links to that target.', 'interlink-ai' ), array( 'status' => 409 ) );
 			}
 			$fields['target_post_id'] = $target;
 		}
@@ -240,7 +240,7 @@ class Suggestions_Controller extends Controller {
 				$occ = $map->find( $anchor );
 			}
 			if ( '' === $anchor || ! $occ ) {
-				return new WP_Error( 'ailsug_anchor_missing', __( 'That text is not in the page (or it is already a link, heading or code). Use words exactly as they appear in a paragraph.', 'ai-internal-link-suggester' ), array( 'status' => 400 ) );
+				return new WP_Error( 'ailsug_anchor_missing', __( 'That text is not in the page (or it is already a link, heading or code). Use words exactly as they appear in a paragraph.', 'interlink-ai' ), array( 'status' => 400 ) );
 			}
 			$ctx                       = $map->context( $occ[0] );
 			$fields['anchor_text']     = $occ[0]['text'];
@@ -249,6 +249,17 @@ class Suggestions_Controller extends Controller {
 		}
 
 		if ( null !== $request['status'] ) {
+			if ( 'accepted' === (string) $request['status'] ) {
+				if ( $fields ) {
+					Store::update( $id, $fields );
+				}
+				$applied = Applier::apply( array( $id ) );
+				if ( ! empty( $applied['results'][0] ) && 'applied' === $applied['results'][0]['status'] ) {
+					return rest_ensure_response( self::format( Store::get( $id ) ) );
+				}
+				$msg = ! empty( $applied['results'][0]['message'] ) ? $applied['results'][0]['message'] : __( 'Could not apply suggestion to post.', 'interlink-ai' );
+				return new WP_Error( 'ailsug_apply_failed', $msg, array( 'status' => 400 ) );
+			}
 			$fields['status'] = (string) $request['status'];
 		} elseif ( $fields && 'stale' === $s['status'] ) {
 			$fields['status'] = 'pending';
@@ -300,10 +311,10 @@ class Suggestions_Controller extends Controller {
 	public function apply( WP_REST_Request $request ) {
 		$ids = array_map( 'intval', (array) $request['ids'] );
 		if ( ! $request['confirmed'] ) {
-			return new WP_Error( 'ailsug_confirm', __( 'Please confirm before changing pages.', 'ai-internal-link-suggester' ), array( 'status' => 400 ) );
+			return new WP_Error( 'ailsug_confirm', __( 'Please confirm before changing pages.', 'interlink-ai' ), array( 'status' => 400 ) );
 		}
 		if ( count( $ids ) > 1 && ! Applier::bulk_enabled() ) {
-			return new WP_Error( 'ailsug_bulk_disabled', __( 'Applying many links at once is turned off on this site. Apply them one at a time.', 'ai-internal-link-suggester' ), array( 'status' => 403 ) );
+			return new WP_Error( 'ailsug_bulk_disabled', __( 'Applying many links at once is turned off on this site. Apply them one at a time.', 'interlink-ai' ), array( 'status' => 403 ) );
 		}
 		return rest_ensure_response( Applier::apply( $ids ) );
 	}
@@ -317,7 +328,7 @@ class Suggestions_Controller extends Controller {
 	public function revert( WP_REST_Request $request ) {
 		$records = Reverter::records( array_map( 'intval', (array) $request['ids'] ), $request['batch_id'] ? (string) $request['batch_id'] : null );
 		if ( ! $records ) {
-			return new WP_Error( 'ailsug_nothing', __( 'Nothing to undo.', 'ai-internal-link-suggester' ), array( 'status' => 404 ) );
+			return new WP_Error( 'ailsug_nothing', __( 'Nothing to undo.', 'interlink-ai' ), array( 'status' => 404 ) );
 		}
 		return rest_ensure_response( array( 'results' => Reverter::revert( $records ) ) );
 	}

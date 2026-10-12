@@ -36,7 +36,7 @@ final class Site_Health {
 	 */
 	public static function tests( $tests ) {
 		$tests['direct']['ailsug_ai_provider'] = array(
-			'label' => __( 'AI provider for internal link suggestions', 'ai-internal-link-suggester' ),
+			'label' => __( 'AI provider for internal link suggestions', 'interlink-ai' ),
 			'test'  => array( __CLASS__, 'test_ai' ),
 		);
 		return $tests;
@@ -50,17 +50,17 @@ final class Site_Health {
 	public static function test_ai() {
 		$status = Availability::status( true );
 		$ok     = ! empty( $status['available'] );
-		$link   = '<a href="' . esc_url( Menu::url( 'settings', array( 'tab' => 'ai' ) ) ) . '">' . esc_html__( 'Internal Links → Settings → AI & Cost', 'ai-internal-link-suggester' ) . '</a>';
+		$link   = '<a href="' . esc_url( Menu::url( 'settings', array( 'tab' => 'ai' ) ) ) . '">' . esc_html__( 'Interlink AI → Settings → AI & Cost', 'interlink-ai' ) . '</a>';
 		return array(
-			'label'       => $ok ? __( 'An AI provider is available for internal link suggestions', 'ai-internal-link-suggester' ) : __( 'No AI provider is available for internal link suggestions', 'ai-internal-link-suggester' ),
+			'label'       => $ok ? __( 'An AI provider is available for internal link suggestions', 'interlink-ai' ) : __( 'No AI provider is available for internal link suggestions', 'interlink-ai' ),
 			'status'      => $ok ? 'good' : 'recommended',
 			'badge'       => array(
-				'label' => __( 'Internal Links', 'ai-internal-link-suggester' ),
+				'label' => __( 'Interlink AI', 'interlink-ai' ),
 				'color' => 'blue',
 			),
-			'description' => '<p>' . esc_html( $status['message'] ) . '</p><p>' . esc_html__( 'Without an AI provider the page index, link map, orphan report and keyword editing still work.', 'ai-internal-link-suggester' ) . '</p>',
+			'description' => '<p>' . esc_html( $status['message'] ) . '</p><p>' . esc_html__( 'Without an AI provider the page index, link map, orphan report and keyword editing still work.', 'interlink-ai' ) . '</p>',
 			/* translators: %s: link to settings. */
-			'actions'     => '<p>' . wp_kses_post( sprintf( __( 'See %s.', 'ai-internal-link-suggester' ), $link ) ) . '</p>',
+			'actions'     => '<p>' . wp_kses_post( sprintf( __( 'See %s.', 'interlink-ai' ), $link ) ) . '</p>',
 			'test'        => 'ailsug_ai_provider',
 		);
 	}
@@ -80,35 +80,35 @@ final class Site_Health {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
 		$queue = (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . esc_sql( $t['queue'] ) . " WHERE status IN ('pending','running','budget')" );
 
-		$info['ai-internal-link-suggester'] = array(
-			'label'  => __( 'AI Internal Link Suggester', 'ai-internal-link-suggester' ),
+		$info['interlink-ai'] = array(
+			'label'  => __( 'Interlink AI', 'interlink-ai' ),
 			'fields' => array(
 				'version'    => array(
-					'label' => __( 'Version', 'ai-internal-link-suggester' ),
+					'label' => __( 'Version', 'interlink-ai' ),
 					'value' => AILSUG_VERSION,
 				),
 				'db'         => array(
-					'label' => __( 'Database version', 'ai-internal-link-suggester' ),
+					'label' => __( 'Database version', 'interlink-ai' ),
 					'value' => (string) get_option( Activator::DB_OPTION ),
 				),
 				'ai'         => array(
-					'label' => __( 'AI status', 'ai-internal-link-suggester' ),
+					'label' => __( 'AI status', 'interlink-ai' ),
 					'value' => $status ? $status['code'] : 'unchecked',
 				),
 				'last_model' => array(
-					'label' => __( 'Model that answered last', 'ai-internal-link-suggester' ),
+					'label' => __( 'Model that answered last', 'interlink-ai' ),
 					'value' => is_array( $last ) && ! empty( $last['model'] ) ? $last['provider'] . ' / ' . $last['model'] : '—',
 				),
 				'queue'      => array(
-					'label' => __( 'Jobs waiting', 'ai-internal-link-suggester' ),
+					'label' => __( 'Jobs waiting', 'interlink-ai' ),
 					'value' => $queue,
 				),
 				'budget'     => array(
-					'label' => __( 'Estimated spend / cap (micro-USD)', 'ai-internal-link-suggester' ),
+					'label' => __( 'Estimated spend / cap (micro-USD)', 'interlink-ai' ),
 					'value' => $budget['spent'] . ' / ' . $budget['cap'],
 				),
 				'cron'       => array(
-					'label' => __( 'WP-Cron disabled', 'ai-internal-link-suggester' ),
+					'label' => __( 'WP-Cron disabled', 'interlink-ai' ),
 					'value' => defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ? 'yes' : 'no',
 				),
 			),
