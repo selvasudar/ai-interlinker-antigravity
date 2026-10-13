@@ -98,12 +98,12 @@ class Keywords_Table extends \WP_List_Table {
 	 */
 	public function get_columns() {
 		return array(
-			'title'           => __( 'Page', 'interlink-ai' ),
-			'primary_keyword' => __( 'Primary keyword', 'interlink-ai' ),
-			'source'          => __( 'Keyword from', 'interlink-ai' ),
-			'inbound_count'   => __( 'Links in', 'interlink-ai' ),
-			'outbound_count'  => __( 'Links out', 'interlink-ai' ),
-			'word_count'      => __( 'Words', 'interlink-ai' ),
+			'title'           => __( 'Page', 'linkcortex' ),
+			'primary_keyword' => __( 'Primary keyword', 'linkcortex' ),
+			'source'          => __( 'Keyword from', 'linkcortex' ),
+			'inbound_count'   => __( 'Links in', 'linkcortex' ),
+			'outbound_count'  => __( 'Links out', 'linkcortex' ),
+			'word_count'      => __( 'Words', 'linkcortex' ),
 		);
 	}
 
@@ -135,10 +135,10 @@ class Keywords_Table extends \WP_List_Table {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
 		$counts = $wpdb->get_row( "SELECT COUNT(*) AS total, SUM(primary_keyword = '') AS nokeyword, SUM(inbound_count = 0) AS orphan, SUM(inbound_count BETWEEN 1 AND 2) AS low FROM {$table}", ARRAY_A );
 		$labels = array(
-			'all'       => __( 'All', 'interlink-ai' ),
-			'nokeyword' => __( 'No keyword yet', 'interlink-ai' ),
-			'orphan'    => __( 'Orphan pages (no links in)', 'interlink-ai' ),
-			'low'       => __( 'Few links in (1–2)', 'interlink-ai' ),
+			'all'       => __( 'All', 'linkcortex' ),
+			'nokeyword' => __( 'No keyword yet', 'linkcortex' ),
+			'orphan'    => __( 'Orphan pages (no links in)', 'linkcortex' ),
+			'low'       => __( 'Few links in (1–2)', 'linkcortex' ),
 		);
 		$keys   = array(
 			'all'       => 'total',
@@ -172,14 +172,14 @@ class Keywords_Table extends \WP_List_Table {
 		}
 		$f = self::filters();
 		echo '<div class="alignleft actions">';
-		echo '<label class="screen-reader-text" for="ailsug-post-type-filter">' . esc_html__( 'Filter by content type', 'interlink-ai' ) . '</label>';
-		echo '<select name="post_type_filter" id="ailsug-post-type-filter"><option value="">' . esc_html__( 'All content types', 'interlink-ai' ) . '</option>';
+		echo '<label class="screen-reader-text" for="ailsug-post-type-filter">' . esc_html__( 'Filter by content type', 'linkcortex' ) . '</label>';
+		echo '<select name="post_type_filter" id="ailsug-post-type-filter"><option value="">' . esc_html__( 'All content types', 'linkcortex' ) . '</option>';
 		foreach ( \AILSUG\Settings::default_post_types() as $type ) {
 			$object = get_post_type_object( $type );
 			printf( '<option value="%1$s" %2$s>%3$s</option>', esc_attr( $type ), selected( $f['post_type'], $type, false ), esc_html( $object ? $object->labels->name : $type ) );
 		}
 		echo '</select>';
-		submit_button( __( 'Filter', 'interlink-ai' ), '', 'filter_action', false );
+		submit_button( __( 'Filter', 'linkcortex' ), '', 'filter_action', false );
 		echo '</div>';
 	}
 
@@ -219,7 +219,7 @@ class Keywords_Table extends \WP_List_Table {
 	 * @return void
 	 */
 	public function no_items() {
-		esc_html_e( 'No pages here yet. Click "Update page index" above to read your site (free, no AI).', 'interlink-ai' );
+		esc_html_e( 'No pages here yet. Click "Update page index" above to read your site (free, no AI).', 'linkcortex' );
 	}
 
 	/**
@@ -230,22 +230,22 @@ class Keywords_Table extends \WP_List_Table {
 	 */
 	protected function column_title( $item ) {
 		$id    = (int) $item['post_id'];
-		$title = '' !== $item['title'] ? $item['title'] : __( '(no title)', 'interlink-ai' );
+		$title = '' !== $item['title'] ? $item['title'] : __( '(no title)', 'linkcortex' );
 		$out   = '<strong>' . esc_html( $title ) . '</strong>';
 		$type  = get_post_type_object( $item['post_type'] );
 		$meta  = array( $type ? $type->labels->singular_name : $item['post_type'] );
 		if ( (int) $item['is_noindex'] ) {
-			$meta[] = __( 'noindex', 'interlink-ai' );
+			$meta[] = __( 'noindex', 'linkcortex' );
 		}
 		if ( (int) $item['is_builder'] ) {
-			$meta[] = __( 'page builder (view only)', 'interlink-ai' );
+			$meta[] = __( 'page builder (view only)', 'linkcortex' );
 		}
 		$out    .= '<br /><span class="description">' . esc_html( implode( ' · ', $meta ) ) . '</span>';
 		$actions = array();
 		if ( current_user_can( 'edit_post', $id ) ) {
-			$actions['edit'] = '<a href="' . esc_url( (string) get_edit_post_link( $id ) ) . '">' . esc_html__( 'Edit', 'interlink-ai' ) . '</a>';
+			$actions['edit'] = '<a href="' . esc_url( (string) get_edit_post_link( $id ) ) . '">' . esc_html__( 'Edit', 'linkcortex' ) . '</a>';
 		}
-		$actions['view'] = '<a href="' . esc_url( (string) get_permalink( $id ) ) . '">' . esc_html__( 'View', 'interlink-ai' ) . '</a>';
+		$actions['view'] = '<a href="' . esc_url( (string) get_permalink( $id ) ) . '">' . esc_html__( 'View', 'linkcortex' ) . '</a>';
 		return $out . $this->row_actions( $actions );
 	}
 
@@ -266,10 +266,10 @@ class Keywords_Table extends \WP_List_Table {
 			$id,
 			esc_attr( $input_id ),
 			/* translators: %s: page title. */
-			esc_html( sprintf( __( 'Primary keyword for %s', 'interlink-ai' ), $item['title'] ) ),
+			esc_html( sprintf( __( 'Primary keyword for %s', 'linkcortex' ), $item['title'] ) ),
 			esc_attr( $item['primary_keyword'] ),
-			esc_attr__( 'Not set yet', 'interlink-ai' ),
-			esc_html__( 'Save', 'interlink-ai' )
+			esc_attr__( 'Not set yet', 'linkcortex' ),
+			esc_html__( 'Save', 'linkcortex' )
 		);
 	}
 
@@ -291,12 +291,12 @@ class Keywords_Table extends \WP_List_Table {
 	 */
 	public static function source_badge( $source ) {
 		$labels = array(
-			'manual'     => __( 'You', 'interlink-ai' ),
-			'seo_plugin' => __( 'SEO plugin', 'interlink-ai' ),
-			'ai'         => __( 'AI', 'interlink-ai' ),
+			'manual'     => __( 'You', 'linkcortex' ),
+			'seo_plugin' => __( 'SEO plugin', 'linkcortex' ),
+			'ai'         => __( 'AI', 'linkcortex' ),
 		);
 		if ( ! isset( $labels[ $source ] ) ) {
-			return '<span class="ailsug-badge is-none">' . esc_html__( 'Not set', 'interlink-ai' ) . '</span>';
+			return '<span class="ailsug-badge is-none">' . esc_html__( 'Not set', 'linkcortex' ) . '</span>';
 		}
 		return '<span class="ailsug-badge is-' . esc_attr( str_replace( '_', '-', $source ) ) . '">' . esc_html( $labels[ $source ] ) . '</span>';
 	}
@@ -309,7 +309,7 @@ class Keywords_Table extends \WP_List_Table {
 	 */
 	protected function column_inbound_count( $item ) {
 		$n = (int) $item['inbound_count'];
-		return 0 === $n ? '<span class="ailsug-badge is-orphan">' . esc_html__( '0 · orphan', 'interlink-ai' ) . '</span>' : esc_html( number_format_i18n( $n ) );
+		return 0 === $n ? '<span class="ailsug-badge is-orphan">' . esc_html__( '0 · orphan', 'linkcortex' ) . '</span>' : esc_html( number_format_i18n( $n ) );
 	}
 
 	/**

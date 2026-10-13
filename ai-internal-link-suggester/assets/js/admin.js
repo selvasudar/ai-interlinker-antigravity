@@ -1,5 +1,5 @@
 /**
- * AI Internal Link Suggester admin script (vanilla JS, no external libraries).
+ * LinkCortex admin script (vanilla JS, no external libraries).
  *
  * - Run loop: starts a run and processes it batch by batch over REST, so it works without WP-Cron.
  * - Inline keyword editing on the Keywords screen.
@@ -14,7 +14,7 @@
 		var args = Array.prototype.slice.call( arguments, 1 );
 		return s.replace( /%(\d+\$)?[sd]/g, function () { return args.shift(); } );
 	};
-	var D = 'interlink-ai';
+	var D = 'linkcortex';
 
 	function api( path, method, body ) {
 		return window.fetch( cfg.restUrl + path, {

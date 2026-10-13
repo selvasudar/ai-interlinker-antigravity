@@ -37,14 +37,14 @@ final class Dashboard {
 	 */
 	public static function render() {
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_die( esc_html__( 'You do not have permission to view this page.', 'interlink-ai' ) );
+			wp_die( esc_html__( 'You do not have permission to view this page.', 'linkcortex' ) );
 		}
 		$is_admin = current_user_can( 'manage_options' );
 		$kpis     = self::kpis();
 
 		echo '<div class="wrap ailsug-wrap">';
-		echo '<h1>' . esc_html__( 'Interlink AI', 'interlink-ai' ) . '</h1>';
-		echo '<ol class="ailsug-steps" aria-label="' . esc_attr__( 'How it works', 'interlink-ai' ) . '"><li><strong>' . esc_html__( 'Scan', 'interlink-ai' ) . '</strong> ' . esc_html__( 'AI reads your pages and suggests links.', 'interlink-ai' ) . '</li><li><strong>' . esc_html__( 'Review & Apply', 'interlink-ai' ) . '</strong> ' . esc_html__( 'Accept suggestions to instantly write links to your pages.', 'interlink-ai' ) . '</li><li><strong>' . esc_html__( 'Undo anytime', 'interlink-ai' ) . '</strong> ' . esc_html__( 'One-click undo from the Applied list.', 'interlink-ai' ) . '</li></ol>';
+		echo '<h1>' . esc_html__( 'LinkCortex', 'linkcortex' ) . '</h1>';
+		echo '<ol class="ailsug-steps" aria-label="' . esc_attr__( 'How it works', 'linkcortex' ) . '"><li><strong>' . esc_html__( 'Scan', 'linkcortex' ) . '</strong> ' . esc_html__( 'AI reads your pages and suggests links.', 'linkcortex' ) . '</li><li><strong>' . esc_html__( 'Review & Apply', 'linkcortex' ) . '</strong> ' . esc_html__( 'Accept suggestions to instantly write links to your pages.', 'linkcortex' ) . '</li><li><strong>' . esc_html__( 'Undo anytime', 'linkcortex' ) . '</strong> ' . esc_html__( 'One-click undo from the Applied list.', 'linkcortex' ) . '</li></ol>';
 
 		if ( $is_admin ) {
 			Onboarding::render( $kpis );
@@ -52,10 +52,10 @@ final class Dashboard {
 
 		$budget = $kpis['budget'];
 		if ( $budget['reached'] ) {
-			echo '<div class="notice notice-error inline"><p>' . esc_html__( 'The estimated monthly AI budget is used up. AI scans are paused until you raise the cap or a new month starts. Everything else keeps working.', 'interlink-ai' ) . '</p></div>';
+			echo '<div class="notice notice-error inline"><p>' . esc_html__( 'The estimated monthly AI budget is used up. AI scans are paused until you raise the cap or a new month starts. Everything else keeps working.', 'linkcortex' ) . '</p></div>';
 		} elseif ( $budget['alert'] ) {
 			/* translators: %s: percent. */
-			echo '<div class="notice notice-warning inline"><p>' . esc_html( sprintf( __( 'You have used %s%% of this month\'s estimated AI budget.', 'interlink-ai' ), number_format_i18n( (int) round( $budget['percent'] ) ) ) ) . '</p></div>';
+			echo '<div class="notice notice-warning inline"><p>' . esc_html( sprintf( __( 'You have used %s%% of this month\'s estimated AI budget.', 'linkcortex' ), number_format_i18n( (int) round( $budget['percent'] ) ) ) ) . '</p></div>';
 		}
 
 		self::render_kpis( $kpis );
@@ -63,15 +63,15 @@ final class Dashboard {
 		$status = Availability::cached();
 		echo '<div class="ailsug-scan-box">';
 		if ( $is_admin && Availability::is_available() ) {
-			echo '<button type="button" class="button button-primary button-hero ailsug-start-run" data-run-type="scan">' . esc_html__( 'Scan for link suggestions…', 'interlink-ai' ) . '</button>';
-			echo '<p class="description">' . esc_html__( 'You will see the estimated cost and can cancel before anything is sent to AI. Pages that have not changed since the last scan are skipped for free.', 'interlink-ai' ) . '</p>';
+			echo '<button type="button" class="button button-primary button-hero ailsug-start-run" data-run-type="scan">' . esc_html__( 'Scan for link suggestions…', 'linkcortex' ) . '</button>';
+			echo '<p class="description">' . esc_html__( 'You will see the estimated cost and can cancel before anything is sent to AI. Pages that have not changed since the last scan are skipped for free.', 'linkcortex' ) . '</p>';
 		} elseif ( $is_admin ) {
-			echo '<p><strong>' . esc_html__( 'AI is not ready yet.', 'interlink-ai' ) . '</strong> ' . esc_html( $status ? $status['message'] : __( 'Check the AI connection to start scanning.', 'interlink-ai' ) ) . '</p>';
-			echo '<p><a class="button" href="' . esc_url( Menu::url( 'settings', array( 'tab' => 'ai' ) ) ) . '">' . esc_html__( 'Check AI connection', 'interlink-ai' ) . '</a> ';
-			echo '<button type="button" class="button ailsug-start-run" data-run-type="index">' . esc_html__( 'Update page index (free, no AI)', 'interlink-ai' ) . '</button></p>';
-			echo '<p class="description">' . esc_html__( 'Your page index, link map and orphan report work without AI.', 'interlink-ai' ) . '</p>';
+			echo '<p><strong>' . esc_html__( 'AI is not ready yet.', 'linkcortex' ) . '</strong> ' . esc_html( $status ? $status['message'] : __( 'Check the AI connection to start scanning.', 'linkcortex' ) ) . '</p>';
+			echo '<p><a class="button" href="' . esc_url( Menu::url( 'settings', array( 'tab' => 'ai' ) ) ) . '">' . esc_html__( 'Check AI connection', 'linkcortex' ) . '</a> ';
+			echo '<button type="button" class="button ailsug-start-run" data-run-type="index">' . esc_html__( 'Update page index (free, no AI)', 'linkcortex' ) . '</button></p>';
+			echo '<p class="description">' . esc_html__( 'Your page index, link map and orphan report work without AI.', 'linkcortex' ) . '</p>';
 		} else {
-			echo '<p>' . esc_html__( 'An administrator runs scans. You can review suggestions for your own pages.', 'interlink-ai' ) . ' <a href="' . esc_url( Menu::url( 'suggestions' ) ) . '">' . esc_html__( 'Review suggestions', 'interlink-ai' ) . '</a></p>';
+			echo '<p>' . esc_html__( 'An administrator runs scans. You can review suggestions for your own pages.', 'linkcortex' ) . ' <a href="' . esc_url( Menu::url( 'suggestions' ) ) . '">' . esc_html__( 'Review suggestions', 'linkcortex' ) . '</a></p>';
 		}
 		Keywords_Page::progress_box( $is_admin ? Queue::active_run( array( 'scan', 'regenerate', 'keywords', 'index' ) ) : null );
 		echo '</div>';
@@ -114,14 +114,14 @@ final class Dashboard {
 		$b     = $k['budget'];
 		$spend = $b['cap'] > 0
 			/* translators: 1: spent, 2: cap. */
-			? sprintf( __( '%1$s of %2$s', 'interlink-ai' ), Cost_Panel::money( $b['spent'] ), Cost_Panel::money( $b['cap'] ) )
+			? sprintf( __( '%1$s of %2$s', 'linkcortex' ), Cost_Panel::money( $b['spent'] ), Cost_Panel::money( $b['cap'] ) )
 			: Cost_Panel::money( $b['spent'] );
 		$cards = array(
-			array( __( 'Pages indexed', 'interlink-ai' ), number_format_i18n( $k['indexed'] ), Menu::url( 'keywords' ), current_user_can( 'edit_others_posts' ) ),
-			array( __( 'Orphan pages', 'interlink-ai' ), number_format_i18n( $k['orphans'] ), Menu::url( 'keywords', array( 'view' => 'orphan' ) ), current_user_can( 'edit_others_posts' ), __( 'No other page links to them.', 'interlink-ai' ) ),
-			array( __( 'Suggestions to review', 'interlink-ai' ), number_format_i18n( $k['pending'] ), Menu::url( 'suggestions' ), true ),
-			array( __( 'Links applied this month', 'interlink-ai' ), number_format_i18n( $k['applied'] ), Menu::url( 'suggestions', array( 'status' => 'applied' ) ), true ),
-			array( __( 'Estimated AI spend this month', 'interlink-ai' ), $spend, Menu::url( 'settings', array( 'tab' => 'ai' ) ), current_user_can( 'manage_options' ) ),
+			array( __( 'Pages indexed', 'linkcortex' ), number_format_i18n( $k['indexed'] ), Menu::url( 'keywords' ), current_user_can( 'edit_others_posts' ) ),
+			array( __( 'Orphan pages', 'linkcortex' ), number_format_i18n( $k['orphans'] ), Menu::url( 'keywords', array( 'view' => 'orphan' ) ), current_user_can( 'edit_others_posts' ), __( 'No other page links to them.', 'linkcortex' ) ),
+			array( __( 'Suggestions to review', 'linkcortex' ), number_format_i18n( $k['pending'] ), Menu::url( 'suggestions' ), true ),
+			array( __( 'Links applied this month', 'linkcortex' ), number_format_i18n( $k['applied'] ), Menu::url( 'suggestions', array( 'status' => 'applied' ) ), true ),
+			array( __( 'Estimated AI spend this month', 'linkcortex' ), $spend, Menu::url( 'settings', array( 'tab' => 'ai' ) ), current_user_can( 'manage_options' ) ),
 		);
 		echo '<ul class="ailsug-kpis">';
 		foreach ( $cards as $card ) {
@@ -167,14 +167,14 @@ final class Dashboard {
 	 */
 	private static function render_quick_wins() {
 		$rows = self::quick_wins();
-		echo '<h2>' . esc_html__( 'Quick wins', 'interlink-ai' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'The most useful links to add first: strong suggestions that point to pages with few or no links yet.', 'interlink-ai' ) . '</p>';
+		echo '<h2>' . esc_html__( 'Quick wins', 'linkcortex' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'The most useful links to add first: strong suggestions that point to pages with few or no links yet.', 'linkcortex' ) . '</p>';
 		if ( ! $rows ) {
-			echo '<p>' . esc_html__( 'No suggestions to review yet. Run a scan to get link ideas.', 'interlink-ai' ) . '</p>';
+			echo '<p>' . esc_html__( 'No suggestions to review yet. Run a scan to get link ideas.', 'linkcortex' ) . '</p>';
 			return;
 		}
 		echo '<table class="widefat striped ailsug-quick-wins"><thead><tr>';
-		foreach ( array( __( 'Page to edit', 'interlink-ai' ), __( 'Link text', 'interlink-ai' ), __( 'Links to', 'interlink-ai' ), __( 'Relevance', 'interlink-ai' ), __( 'Action', 'interlink-ai' ) ) as $h ) {
+		foreach ( array( __( 'Page to edit', 'linkcortex' ), __( 'Link text', 'linkcortex' ), __( 'Links to', 'linkcortex' ), __( 'Relevance', 'linkcortex' ), __( 'Action', 'linkcortex' ) ) as $h ) {
 			echo '<th scope="col">' . esc_html( $h ) . '</th>';
 		}
 		echo '</tr></thead><tbody>';
@@ -182,7 +182,7 @@ final class Dashboard {
 			$ctx    = Store::split_snippet( (string) $r['context_snippet'] );
 			$target = esc_html( (string) $r['target_title'] );
 			if ( 0 === (int) $r['target_inbound'] ) {
-				$target .= ' <span class="ailsug-badge is-orphan">' . esc_html__( 'Orphan page', 'interlink-ai' ) . '</span>';
+				$target .= ' <span class="ailsug-badge is-orphan">' . esc_html__( 'Orphan page', 'linkcortex' ) . '</span>';
 			}
 			printf(
 				'<tr><td>%1$s</td><td><mark>%2$s</mark></td><td>%3$s</td><td>%4$s</td><td><a class="button button-small" href="%5$s">%6$s<span class="screen-reader-text"> %7$s</span></a></td></tr>',
@@ -199,9 +199,9 @@ final class Dashboard {
 						)
 					)
 				),
-				esc_html__( 'Review', 'interlink-ai' ),
+				esc_html__( 'Review', 'linkcortex' ),
 				/* translators: %s: page title. */
-				esc_html( sprintf( __( 'suggestions for %s', 'interlink-ai' ), (string) $r['source_title'] ) )
+				esc_html( sprintf( __( 'suggestions for %s', 'linkcortex' ), (string) $r['source_title'] ) )
 			);
 		}//end foreach
 		echo '</tbody></table>';
@@ -214,7 +214,7 @@ final class Dashboard {
 	 */
 	public static function dismiss_onboarding() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'interlink-ai' ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'linkcortex' ) );
 		}
 		check_admin_referer( 'ailsug_dismiss_onboarding' );
 		update_user_meta( get_current_user_id(), 'ailsug_dismissed_onboarding', 1 );

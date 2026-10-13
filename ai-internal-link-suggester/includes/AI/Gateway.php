@@ -78,7 +78,7 @@ class Gateway {
 				return new WP_Error(
 					'ailsug_price_unknown',
 					/* translators: %s: model id. */
-					sprintf( __( 'The AI model "%s" answered earlier but its price is unknown. Enter its price in Settings → AI & Cost to continue.', 'interlink-ai' ), $block ),
+					sprintf( __( 'The AI model "%s" answered earlier but its price is unknown. Enter its price in Settings → AI & Cost to continue.', 'linkcortex' ), $block ),
 					array( 'hold' => 'budget' )
 				);
 			}
@@ -86,7 +86,7 @@ class Gateway {
 
 		$worst = Estimator::worst_price();
 		if ( null === $worst && $strict ) {
-			return new WP_Error( 'ailsug_price_unknown', __( 'The price of the AI model that may answer is unknown, so the budget cannot be enforced. Enter its price in Settings → AI & Cost, or pick a model with a known price.', 'interlink-ai' ), array( 'hold' => 'budget' ) );
+			return new WP_Error( 'ailsug_price_unknown', __( 'The price of the AI model that may answer is unknown, so the budget cannot be enforced. Enter its price in Settings → AI & Cost, or pick a model with a known price.', 'linkcortex' ), array( 'hold' => 'budget' ) );
 		}
 
 		$built      = Prompts::build( $task, $data );
@@ -107,7 +107,7 @@ class Gateway {
 			$reserve = $worst ? Pricing::cost( (int) ceil( $est_in * 1.3 ), $worst['input'] ) + Pricing::cost( $max_tokens, $worst['output'] ) : 0;
 			$res_id  = Budget::reserve( max( 1, $reserve ) );
 			if ( ! $res_id ) {
-				return new WP_Error( 'ailsug_budget', __( 'The estimated monthly AI budget is reached. Raise the cap in Settings → AI & Cost or wait until next month.', 'interlink-ai' ), array( 'hold' => 'budget' ) );
+				return new WP_Error( 'ailsug_budget', __( 'The estimated monthly AI budget is reached. Raise the cap in Settings → AI & Cost or wait until next month.', 'linkcortex' ), array( 'hold' => 'budget' ) );
 			}
 
 			$response = $this->transport(
@@ -239,7 +239,7 @@ class Gateway {
 			);
 		}//end for
 
-		return new WP_Error( 'ailsug_bad_json', __( 'The AI answer was not in the expected format, so this page was skipped.', 'interlink-ai' ), array( 'retry' => false ) );
+		return new WP_Error( 'ailsug_bad_json', __( 'The AI answer was not in the expected format, so this page was skipped.', 'linkcortex' ), array( 'retry' => false ) );
 	}
 
 	/**
@@ -250,7 +250,7 @@ class Gateway {
 	 */
 	protected function transport( array $request ) {
 		if ( ! Availability::core_present() ) {
-			return new WP_Error( 'ailsug_no_core', __( 'AI features need WordPress 7.0 or newer.', 'interlink-ai' ) );
+			return new WP_Error( 'ailsug_no_core', __( 'AI features need WordPress 7.0 or newer.', 'linkcortex' ) );
 		}
 
 		$builder = wp_ai_client_prompt( $request['prompt'] )
@@ -268,7 +268,7 @@ class Gateway {
 					'ailsug_model_unavailable',
 					sprintf(
 						/* translators: %s: model id. */
-						__( 'The model "%s" you chose in Settings → AI & Cost is not available. Pick another model or turn off "Use only this model".', 'interlink-ai' ),
+						__( 'The model "%s" you chose in Settings → AI & Cost is not available. Pick another model or turn off "Use only this model".', 'linkcortex' ),
 						$only[1]
 					)
 				);
@@ -296,7 +296,7 @@ class Gateway {
 				'model'         => (string) $result->getModelMetadata()->getId(),
 			);
 		} catch ( \Throwable $e ) {
-			return new WP_Error( 'ailsug_bad_result', __( 'The AI answer could not be read.', 'interlink-ai' ) );
+			return new WP_Error( 'ailsug_bad_result', __( 'The AI answer could not be read.', 'linkcortex' ) );
 		}
 	}
 
@@ -326,25 +326,25 @@ class Gateway {
 		$status = (int) ( $error->get_error_data()['status'] ?? 0 );
 
 		if ( 'prompt_prevented' === $code ) {
-			return __( 'AI requests are currently blocked on this site (by the site configuration or another plugin). Nothing was sent.', 'interlink-ai' );
+			return __( 'AI requests are currently blocked on this site (by the site configuration or another plugin). Nothing was sent.', 'linkcortex' );
 		}
 		$err_msg = $error->get_error_message();
 		if ( 429 === $status || false !== strpos( $err_msg, '429' ) || false !== stripos( $err_msg, 'rate limit' ) || false !== stripos( $err_msg, 'quota' ) || false !== stripos( $err_msg, 'resource has been exhausted' ) ) {
-			return __( 'The AI provider is busy (rate limit). The plugin will try again later.', 'interlink-ai' );
+			return __( 'The AI provider is busy (rate limit). The plugin will try again later.', 'linkcortex' );
 		}
 		if ( 'prompt_network_error' === $code ) {
-			return __( 'Could not reach the AI provider. Check your internet connection and try again.', 'interlink-ai' );
+			return __( 'Could not reach the AI provider. Check your internet connection and try again.', 'linkcortex' );
 		}
 		if ( 'prompt_invalid_argument' === $code && false !== strpos( $error->get_error_message(), 'No models found' ) ) {
-			return __( 'No connected AI model can handle this request. Open Settings → Connectors to check your provider.', 'interlink-ai' );
+			return __( 'No connected AI model can handle this request. Open Settings → Connectors to check your provider.', 'linkcortex' );
 		}
 		if ( 401 === $status || 403 === $status ) {
-			return __( 'The AI provider rejected the request. Check your key in Settings → Connectors.', 'interlink-ai' );
+			return __( 'The AI provider rejected the request. Check your key in Settings → Connectors.', 'linkcortex' );
 		}
 		if ( 0 === strpos( (string) $code, 'ailsug_' ) ) {
 			return $error->get_error_message();
 		}
-		return __( 'The AI request failed. Please try again later.', 'interlink-ai' );
+		return __( 'The AI request failed. Please try again later.', 'linkcortex' );
 	}
 
 	/**

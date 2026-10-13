@@ -1,4 +1,4 @@
-=== Interlink AI ===
+=== LinkCortex – AI Internal Link Suggester ===
 Contributors: selvasudar, krismaya
 Donate link: https://buymeacoffee.com/selvakumarduraipandian
 Tags: internal links, seo, orphan pages, link building, keywords
@@ -13,7 +13,7 @@ Finds each page's main keyword and suggests internal links you review, apply and
 
 == Description ==
 
-Interlink AI takes the manual work out of internal linking. It follows three simple steps: **Scan → Review → Apply**.
+LinkCortex takes the manual work out of internal linking. It follows three simple steps: **Scan → Review → Apply**.
 
 * **Scan.** The plugin finds the primary keyword of every page, using the keyword you typed, your SEO plugin's focus keyword, or AI. It then suggests the best links between your pages, with the exact link text and a short reason.
 * **Review.** You accept or reject ideas one by one or in bulk, edit the link text or the target, and preview the paragraph.
@@ -47,7 +47,7 @@ This plugin uses the AI features built into WordPress 7.0 and newer. It does **n
 * Focus keywords are read (never changed) from Yoast SEO, Rank Math, All in One SEO and SEOPress, and noindex pages are skipped.
 * Works with any public post type, including custom post types and WooCommerce products.
 * Keeps languages apart on sites using Polylang or WPML.
-* An "Interlink AI" panel in the block editor, and a box in the classic editor.
+* An "LinkCortex" panel in the block editor, and a box in the classic editor.
 * CSV export of keywords, suggestions, applied links and AI usage.
 * A Site Health check for the AI connection.
 * No ads, upsells, locked features or telemetry.
@@ -55,7 +55,7 @@ This plugin uses the AI features built into WordPress 7.0 and newer. It does **n
 == Installation ==
 
 1. Install and activate the plugin. It needs WordPress 7.0 or newer.
-2. Open **Interlink AI** in the admin menu. The setup checklist walks you through the rest.
+2. Open **LinkCortex** in the admin menu. The setup checklist walks you through the rest.
 3. Optional, for AI features: connect an AI provider in **Settings → Connectors**.
 4. Click **Update page index** (free) or **Scan for link suggestions** (uses AI and shows the estimated cost first).
 
@@ -90,7 +90,7 @@ When you uninstall, the plugin deletes its data only if you turned on "Delete al
 
 = How much does it cost? =
 
-It depends on your AI provider, the model and how many pages you have. On the recommended **Economy** quality setting a typical page costs a fraction of a cent. The calculator in **Interlink AI → Settings → AI & Cost** works out an estimate for your own site, and every run shows its estimate first.
+It depends on your AI provider, the model and how many pages you have. On the recommended **Economy** quality setting a typical page costs a fraction of a cent. The calculator in **LinkCortex → Settings → AI & Cost** works out an estimate for your own site, and every run shows its estimate first.
 
 = What is the "estimated budget cap"? =
 
@@ -110,7 +110,7 @@ No. Keys are managed by WordPress in Settings → Connectors. This plugin never 
 
 = Can I undo links? =
 
-Yes, per link or per batch, from **Interlink AI → Suggestions → Applied**. Each change is also saved as a normal WordPress revision.
+Yes, per link or per batch, from **LinkCortex → Suggestions → Applied**. Each change is also saved as a normal WordPress revision.
 
 = Does it change anything without asking? =
 

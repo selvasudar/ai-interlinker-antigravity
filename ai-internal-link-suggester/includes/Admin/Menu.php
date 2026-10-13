@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin menu: "Interlink AI".
+ * Admin menu: "LinkCortex".
  *
  * @package AILSUG
  */
@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Menu {
 
-	const SLUG = 'interlink-ai';
+	const SLUG = 'linkcortex';
 
 	/**
 	 * Screen hook suffixes keyed by short name.
@@ -42,10 +42,10 @@ final class Menu {
 	 */
 	public static function screens() {
 		$screens = array(
-			''             => array( __( 'Dashboard', 'interlink-ai' ), 'edit_posts', array( Dashboard::class, 'render' ) ),
-			'-suggestions' => array( __( 'Suggestions', 'interlink-ai' ), 'edit_posts', array( Suggestions_Page::class, 'render' ) ),
-			'-keywords'    => array( __( 'Keywords', 'interlink-ai' ), 'edit_others_posts', array( Keywords_Page::class, 'render' ) ),
-			'-settings'    => array( __( 'Settings', 'interlink-ai' ), 'manage_options', array( Settings_Page::class, 'render' ) ),
+			''             => array( __( 'Dashboard', 'linkcortex' ), 'edit_posts', array( Dashboard::class, 'render' ) ),
+			'-suggestions' => array( __( 'Suggestions', 'linkcortex' ), 'edit_posts', array( Suggestions_Page::class, 'render' ) ),
+			'-keywords'    => array( __( 'Keywords', 'linkcortex' ), 'edit_others_posts', array( Keywords_Page::class, 'render' ) ),
+			'-settings'    => array( __( 'Settings', 'linkcortex' ), 'manage_options', array( Settings_Page::class, 'render' ) ),
 		);
 		foreach ( $screens as $suffix => $screen ) {
 			if ( ! is_callable( $screen[2] ) ) {
@@ -65,8 +65,8 @@ final class Menu {
 		$first   = reset( $screens );
 
 		self::$hooks['dashboard'] = add_menu_page(
-			__( 'Interlink AI', 'interlink-ai' ),
-			__( 'Interlink AI', 'interlink-ai' ),
+			__( 'LinkCortex', 'linkcortex' ),
+			__( 'LinkCortex', 'linkcortex' ),
 			'edit_posts',
 			self::SLUG,
 			$first[2],
@@ -120,14 +120,14 @@ final class Menu {
 		wp_enqueue_style( 'ailsug-admin', AILSUG_URL . 'assets/css/admin.css', array(), AILSUG_VERSION );
 		wp_style_add_data( 'ailsug-admin', 'rtl', 'replace' );
 		wp_enqueue_script( 'ailsug-admin', AILSUG_URL . 'assets/js/admin.js', array( 'wp-i18n' ), AILSUG_VERSION, true );
-		wp_set_script_translations( 'ailsug-admin', 'interlink-ai', AILSUG_DIR . 'languages' );
+		wp_set_script_translations( 'ailsug-admin', 'linkcortex', AILSUG_DIR . 'languages' );
 		wp_enqueue_script( 'ailsug-cost', AILSUG_URL . 'assets/js/cost.js', array( 'ailsug-admin', 'wp-i18n' ), AILSUG_VERSION, true );
-		wp_set_script_translations( 'ailsug-cost', 'interlink-ai', AILSUG_DIR . 'languages' );
+		wp_set_script_translations( 'ailsug-cost', 'linkcortex', AILSUG_DIR . 'languages' );
 		wp_localize_script(
 			'ailsug-admin',
 			'ailsugAdmin',
 			array(
-				'restUrl'       => esc_url_raw( rest_url( 'interlink-ai/v1/' ) ),
+				'restUrl'       => esc_url_raw( rest_url( 'linkcortex/v1/' ) ),
 				'nonce'         => wp_create_nonce( 'wp_rest' ),
 				'screen'        => array_search( $hook_suffix, self::$hooks, true ),
 				'currency2'     => (string) \AILSUG\Settings::get( 'currency2' ),
@@ -145,7 +145,7 @@ final class Menu {
 	 */
 	public static function plugin_row_meta( array $links, $file ) {
 		if ( plugin_basename( AILSUG_FILE ) === $file ) {
-			$links[] = '<a href="https://buymeacoffee.com/selvakumarduraipandian" target="_blank" rel="noopener noreferrer">☕ ' . esc_html__( 'Buy me a coffee', 'interlink-ai' ) . '</a>';
+			$links[] = '<a href="https://buymeacoffee.com/selvakumarduraipandian" target="_blank" rel="noopener noreferrer">☕ ' . esc_html__( 'Buy me a coffee', 'linkcortex' ) . '</a>';
 		}
 		return $links;
 	}
@@ -161,9 +161,9 @@ final class Menu {
 		if ( $screen && in_array( $screen->id, self::$hooks, true ) ) {
 			return sprintf(
 				/* translators: 1: plugin name, 2: Buy me a coffee link. */
-				__( 'Enjoying %1$s? %2$s to support development.', 'interlink-ai' ),
-				'<strong>' . esc_html__( 'Interlink AI', 'interlink-ai' ) . '</strong>',
-				'<a href="https://buymeacoffee.com/selvakumarduraipandian" target="_blank" rel="noopener noreferrer">☕ ' . esc_html__( 'Buy me a coffee', 'interlink-ai' ) . '</a>'
+				__( 'Enjoying %1$s? %2$s to support development.', 'linkcortex' ),
+				'<strong>' . esc_html__( 'LinkCortex', 'linkcortex' ) . '</strong>',
+				'<a href="https://buymeacoffee.com/selvakumarduraipandian" target="_blank" rel="noopener noreferrer">☕ ' . esc_html__( 'Buy me a coffee', 'linkcortex' ) . '</a>'
 			);
 		}
 		return $text;

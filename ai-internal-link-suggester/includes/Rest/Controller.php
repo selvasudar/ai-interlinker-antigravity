@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 abstract class Controller {
 
-	const NS = 'interlink-ai/v1';
+	const NS = 'linkcortex/v1';
 
 	/**
 	 * Register routes.

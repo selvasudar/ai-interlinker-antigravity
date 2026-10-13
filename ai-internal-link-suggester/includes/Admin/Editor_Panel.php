@@ -53,7 +53,7 @@ final class Editor_Panel {
 		}
 		$asset = require $asset_file;
 		wp_enqueue_script( 'ailsug-editor', AILSUG_URL . 'build/index.js', $asset['dependencies'], $asset['version'], true );
-		wp_set_script_translations( 'ailsug-editor', 'interlink-ai', AILSUG_DIR . 'languages' );
+		wp_set_script_translations( 'ailsug-editor', 'linkcortex', AILSUG_DIR . 'languages' );
 		wp_enqueue_style( 'ailsug-editor', AILSUG_URL . 'assets/css/editor.css', array(), AILSUG_VERSION );
 		wp_style_add_data( 'ailsug-editor', 'rtl', 'replace' );
 	}
@@ -70,7 +70,7 @@ final class Editor_Panel {
 		}
 		add_meta_box(
 			'ailsug-metabox',
-			__( 'Interlink AI', 'interlink-ai' ),
+			__( 'LinkCortex', 'linkcortex' ),
 			array( __CLASS__, 'render_metabox' ),
 			$post_type,
 			'side',
@@ -92,12 +92,12 @@ final class Editor_Panel {
 		}
 		$row = Indexer::get_row( $post->ID );
 		if ( ! $row ) {
-			echo '<p>' . esc_html__( 'This page is added to the link index after it is published.', 'interlink-ai' ) . '</p>';
+			echo '<p>' . esc_html__( 'This page is added to the link index after it is published.', 'linkcortex' ) . '</p>';
 			return;
 		}
-		echo '<p><strong>' . esc_html__( 'Primary keyword:', 'interlink-ai' ) . '</strong> ' . esc_html( '' !== $row['primary_keyword'] ? $row['primary_keyword'] : __( 'not set yet', 'interlink-ai' ) ) . '</p>';
+		echo '<p><strong>' . esc_html__( 'Primary keyword:', 'linkcortex' ) . '</strong> ' . esc_html( '' !== $row['primary_keyword'] ? $row['primary_keyword'] : __( 'not set yet', 'linkcortex' ) ) . '</p>';
 		/* translators: 1: links in, 2: links out. */
-		echo '<p>' . esc_html( sprintf( __( 'Links to this page: %1$d · Links from this page: %2$d', 'interlink-ai' ), (int) $row['inbound_count'], (int) $row['outbound_count'] ) ) . '</p>';
+		echo '<p>' . esc_html( sprintf( __( 'Links to this page: %1$d · Links from this page: %2$d', 'linkcortex' ), (int) $row['inbound_count'], (int) $row['outbound_count'] ) ) . '</p>';
 
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
@@ -109,7 +109,7 @@ final class Editor_Panel {
 			}
 			echo '</ul>';
 		} else {
-			echo '<p>' . esc_html__( 'No link suggestions for this page yet.', 'interlink-ai' ) . '</p>';
+			echo '<p>' . esc_html__( 'No link suggestions for this page yet.', 'linkcortex' ) . '</p>';
 		}
 		echo '<p><a class="button" href="' . esc_url(
 			Menu::url(
@@ -119,7 +119,7 @@ final class Editor_Panel {
 					'status' => 'all',
 				)
 			)
-		) . '">' . esc_html__( 'Review and apply', 'interlink-ai' ) . '</a></p>';
-		echo '<p class="description">' . esc_html__( 'Save your changes before applying links.', 'interlink-ai' ) . '</p>';
+		) . '">' . esc_html__( 'Review and apply', 'linkcortex' ) . '</a></p>';
+		echo '<p class="description">' . esc_html__( 'Save your changes before applying links.', 'linkcortex' ) . '</p>';
 	}
 }

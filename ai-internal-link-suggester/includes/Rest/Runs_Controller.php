@@ -120,7 +120,7 @@ class Runs_Controller extends Controller {
 			$run_id = Runs::start_index( $post_types );
 		} elseif ( isset( Runs::paid_types()[ $type ] ) ) {
 			if ( ! $request['confirmed'] ) {
-				return new WP_Error( 'ailsug_confirm', __( 'Please review the cost estimate and confirm before starting an AI run.', 'interlink-ai' ), array( 'status' => 400 ) );
+				return new WP_Error( 'ailsug_confirm', __( 'Please review the cost estimate and confirm before starting an AI run.', 'linkcortex' ), array( 'status' => 400 ) );
 			}
 			$post_ids = $request['post_ids'] ? array_map( 'absint', (array) $request['post_ids'] ) : null;
 			$run_id   = Runs::start_paid( $type, $post_types, (int) $request['limit'], $post_ids );
@@ -137,7 +137,7 @@ class Runs_Controller extends Controller {
 			 */
 			$run_id = apply_filters( 'ailsug_start_run', null, $type, $request );
 			if ( null === $run_id ) {
-				return new WP_Error( 'ailsug_bad_type', __( 'Unknown run type.', 'interlink-ai' ), array( 'status' => 400 ) );
+				return new WP_Error( 'ailsug_bad_type', __( 'Unknown run type.', 'linkcortex' ), array( 'status' => 400 ) );
 			}
 			if ( is_wp_error( $run_id ) ) {
 				return $run_id;
@@ -155,7 +155,7 @@ class Runs_Controller extends Controller {
 	public function show( WP_REST_Request $request ) {
 		$progress = Queue::progress( (string) $request['run_id'] );
 		if ( ! $progress ) {
-			return new WP_Error( 'ailsug_not_found', __( 'That run no longer exists.', 'interlink-ai' ), array( 'status' => 404 ) );
+			return new WP_Error( 'ailsug_not_found', __( 'That run no longer exists.', 'linkcortex' ), array( 'status' => 404 ) );
 		}
 		return rest_ensure_response( $progress );
 	}
@@ -170,7 +170,7 @@ class Runs_Controller extends Controller {
 		$run_id = (string) $request['run_id'];
 		$run    = Queue::get_run( $run_id );
 		if ( ! $run ) {
-			return new WP_Error( 'ailsug_not_found', __( 'That run no longer exists.', 'interlink-ai' ), array( 'status' => 404 ) );
+			return new WP_Error( 'ailsug_not_found', __( 'That run no longer exists.', 'linkcortex' ), array( 'status' => 404 ) );
 		}
 		if ( 'running' === $run['status'] ) {
 			Worker::process( (int) Settings::get( 'batch_size', 5 ), $run_id, 15 );
@@ -187,7 +187,7 @@ class Runs_Controller extends Controller {
 	public function control( WP_REST_Request $request ) {
 		$run_id = (string) $request['run_id'];
 		if ( ! Queue::get_run( $run_id ) ) {
-			return new WP_Error( 'ailsug_not_found', __( 'That run no longer exists.', 'interlink-ai' ), array( 'status' => 404 ) );
+			return new WP_Error( 'ailsug_not_found', __( 'That run no longer exists.', 'linkcortex' ), array( 'status' => 404 ) );
 		}
 		$map = array(
 			'pause'  => 'paused',

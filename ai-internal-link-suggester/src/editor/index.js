@@ -21,11 +21,11 @@ import { __, sprintf } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 import { store as noticesStore } from '@wordpress/notices';
 
-const NS = '/interlink-ai/v1';
+const NS = '/linkcortex/v1';
 
 const money = ( micros ) => {
 	if ( micros === null || micros === undefined ) {
-		return __( 'unknown', 'interlink-ai' );
+		return __( 'unknown', 'linkcortex' );
 	}
 	const usd = micros / 1000000;
 	return '$' + ( usd > 0 && usd < 0.01 ? usd.toFixed( 4 ) : usd.toFixed( 2 ) );
@@ -91,7 +91,7 @@ function InternalLinksPanel() {
 				if ( r && r.status === 'applied' ) {
 					// The page was saved on the server; reload so the editor never holds (and re-saves) the old content.
 					// Applying is only possible without unsaved edits, so nothing is lost.
-					createSuccessNotice( __( 'Link added and saved as a new revision. Reloading the editor…', 'interlink-ai' ), { type: 'snackbar' } );
+					createSuccessNotice( __( 'Link added and saved as a new revision. Reloading the editor…', 'linkcortex' ), { type: 'snackbar' } );
 					window.setTimeout( () => window.location.reload(), 1200 );
 					return;
 				} else if ( r ) {
@@ -122,7 +122,7 @@ function InternalLinksPanel() {
 			.then( ( p ) => ( p.status === 'running' ? loop( p.run_id ) : p ) )
 			.then( ( p ) => {
 				if ( p.status === 'budget' ) {
-					setError( __( 'AI spending is paused (budget reached or price unknown). See Settings → AI & Cost.', 'interlink-ai' ) );
+					setError( __( 'AI spending is paused (budget reached or price unknown). See Settings → AI & Cost.', 'linkcortex' ) );
 				}
 				load();
 			} )
@@ -132,46 +132,46 @@ function InternalLinksPanel() {
 
 	if ( ! data && ! error ) {
 		return (
-			<PluginDocumentSettingPanel name="interlink-ai-panel" title={ __( 'Interlink AI', 'interlink-ai' ) }>
+			<PluginDocumentSettingPanel name="linkcortex-panel" title={ __( 'LinkCortex', 'linkcortex' ) }>
 				<Spinner />
 			</PluginDocumentSettingPanel>
 		);
 	}
 
 	return (
-		<PluginDocumentSettingPanel name="interlink-ai-panel" title={ __( 'Interlink AI', 'interlink-ai' ) }>
+		<PluginDocumentSettingPanel name="linkcortex-panel" title={ __( 'LinkCortex', 'linkcortex' ) }>
 			{ error && (
 				<Notice status="warning" onRemove={ () => setError( '' ) }>
 					{ error }
 				</Notice>
 			) }
 			{ data && ! data.indexed && (
-				<p>{ __( 'This page is added to the link index after it is published.', 'interlink-ai' ) }</p>
+				<p>{ __( 'This page is added to the link index after it is published.', 'linkcortex' ) }</p>
 			) }
 			{ data && data.indexed && (
 				<>
 					<TextControl
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
-						label={ __( 'Primary keyword', 'interlink-ai' ) }
-						help={ __( 'The phrase people search to find this page. Other pages link here using it.', 'interlink-ai' ) }
+						label={ __( 'Primary keyword', 'linkcortex' ) }
+						help={ __( 'The phrase people search to find this page. Other pages link here using it.', 'linkcortex' ) }
 						value={ keyword }
 						onChange={ setKeyword }
 					/>
 					<Button variant="secondary" size="small" onClick={ saveKeyword } isBusy={ busy === 'keyword' } disabled={ !! busy }>
-						{ __( 'Save keyword', 'interlink-ai' ) }
+						{ __( 'Save keyword', 'linkcortex' ) }
 					</Button>
 					<p>
 						{ sprintf(
 							/* translators: 1: links in, 2: links out. */
-							__( 'Links to this page: %1$d · Links from this page: %2$d', 'interlink-ai' ),
+							__( 'Links to this page: %1$d · Links from this page: %2$d', 'linkcortex' ),
 							data.keyword.inbound_count,
 							data.keyword.outbound_count
 						) }
 					</p>
 					{ data.keyword.inbound_count === 0 && (
 						<Notice status="info" isDismissible={ false }>
-							{ __( 'No other page links here yet (orphan page).', 'interlink-ai' ) }
+							{ __( 'No other page links here yet (orphan page).', 'linkcortex' ) }
 						</Notice>
 					) }
 				</>
@@ -179,7 +179,7 @@ function InternalLinksPanel() {
 
 			{ data && data.view_only && (
 				<Notice status="info" isDismissible={ false }>
-					{ __( 'This page uses a page builder. Suggestions are view only: copy the link and add it in the builder.', 'interlink-ai' ) }
+					{ __( 'This page uses a page builder. Suggestions are view only: copy the link and add it in the builder.', 'linkcortex' ) }
 				</Notice>
 			) }
 
@@ -191,7 +191,7 @@ function InternalLinksPanel() {
 								<mark>{ s.anchor_text }</mark> → <a href={ s.target.url } target="_blank" rel="noreferrer">{ s.target.title }</a>
 								<br />
 								<small>
-									{ sprintf( /* translators: %d: score. */ __( 'Relevance %d', 'interlink-ai' ), s.score ) }
+									{ sprintf( /* translators: %d: score. */ __( 'Relevance %d', 'linkcortex' ), s.score ) }
 									{ s.reason ? ' · ' + s.reason : '' }
 								</small>
 							</p>
@@ -204,16 +204,16 @@ function InternalLinksPanel() {
 											onClick={ () => setConfirmApply( s ) }
 											disabled={ !! busy || isDirty }
 											isBusy={ busy === 'apply-' + s.id }
-											label={ isDirty ? __( 'Save your changes first', 'interlink-ai' ) : undefined }
+											label={ isDirty ? __( 'Save your changes first', 'linkcortex' ) : undefined }
 											showTooltip={ isDirty }
 										>
-											{ __( 'Accept & Apply', 'interlink-ai' ) }
+											{ __( 'Accept & Apply', 'linkcortex' ) }
 										</Button>
 									</FlexItem>
 								) }
 								<FlexItem>
 									<Button variant="tertiary" size="small" onClick={ () => setStatus( s.id, 'rejected' ) } disabled={ !! busy }>
-										{ __( 'Dismiss', 'interlink-ai' ) }
+										{ __( 'Dismiss', 'linkcortex' ) }
 									</Button>
 								</FlexItem>
 							</Flex>
@@ -222,55 +222,55 @@ function InternalLinksPanel() {
 				</ul>
 			) }
 			{ data && data.indexed && data.suggestions.length === 0 && (
-				<p>{ __( 'No link suggestions for this page yet.', 'interlink-ai' ) }</p>
+				<p>{ __( 'No link suggestions for this page yet.', 'linkcortex' ) }</p>
 			) }
 			{ isDirty && data && data.suggestions.length > 0 && (
-				<p><small>{ __( 'Save your changes before applying a link.', 'interlink-ai' ) }</small></p>
+				<p><small>{ __( 'Save your changes before applying a link.', 'linkcortex' ) }</small></p>
 			) }
 
 			{ data && data.indexed && data.can_run && data.ai && (
 				<Button variant="secondary" onClick={ findSuggestions } isBusy={ busy === 'estimate' || busy === 'run' } disabled={ !! busy }>
-					{ busy === 'run' ? __( 'AI is reading this page…', 'interlink-ai' ) : __( 'Find link suggestions for this post…', 'interlink-ai' ) }
+					{ busy === 'run' ? __( 'AI is reading this page…', 'linkcortex' ) : __( 'Find link suggestions for this post…', 'linkcortex' ) }
 				</Button>
 			) }
 			{ data && data.indexed && ! data.can_run && (
-				<p><small>{ __( 'Ask an administrator to scan for new link suggestions.', 'interlink-ai' ) }</small></p>
+				<p><small>{ __( 'Ask an administrator to scan for new link suggestions.', 'linkcortex' ) }</small></p>
 			) }
 
 			{ confirmApply && (
-				<Modal title={ __( 'Add this link?', 'interlink-ai' ) } onRequestClose={ () => setConfirmApply( null ) }>
+				<Modal title={ __( 'Add this link?', 'linkcortex' ) } onRequestClose={ () => setConfirmApply( null ) }>
 					<p>
 						{ sprintf(
 							/* translators: 1: link text, 2: target title. */
-							__( 'The words "%1$s" will link to "%2$s". Only the link is added; the page is saved as a new revision and you can undo it from Interlink AI → Suggestions.', 'interlink-ai' ),
+							__( 'The words "%1$s" will link to "%2$s". Only the link is added; the page is saved as a new revision and you can undo it from LinkCortex → Suggestions.', 'linkcortex' ),
 							confirmApply.anchor_text,
 							confirmApply.target.title
 						) }
 					</p>
 					<Flex justify="flex-end">
-						<Button variant="tertiary" onClick={ () => setConfirmApply( null ) }>{ __( 'Cancel', 'interlink-ai' ) }</Button>
-						<Button variant="primary" onClick={ () => apply( confirmApply.id ) }>{ __( 'Add link', 'interlink-ai' ) }</Button>
+						<Button variant="tertiary" onClick={ () => setConfirmApply( null ) }>{ __( 'Cancel', 'linkcortex' ) }</Button>
+						<Button variant="primary" onClick={ () => apply( confirmApply.id ) }>{ __( 'Add link', 'linkcortex' ) }</Button>
 					</Flex>
 				</Modal>
 			) }
 
 			{ estimate && (
-				<Modal title={ __( 'Before AI reads this page', 'interlink-ai' ) } onRequestClose={ () => setEstimate( null ) }>
+				<Modal title={ __( 'Before AI reads this page', 'linkcortex' ) } onRequestClose={ () => setEstimate( null ) }>
 					<p>
 						{ estimate.known
 							? sprintf(
 								/* translators: 1: low, 2: high. */
-								__( 'Estimated cost: %1$s – %2$s. This is only an estimate; your provider\'s invoice is the source of truth.', 'interlink-ai' ),
+								__( 'Estimated cost: %1$s – %2$s. This is only an estimate; your provider\'s invoice is the source of truth.', 'linkcortex' ),
 								money( estimate.low ),
 								money( estimate.high )
 							)
-							: __( 'A cost estimate is not available because the AI model\'s price is unknown.', 'interlink-ai' ) }
+							: __( 'A cost estimate is not available because the AI model\'s price is unknown.', 'linkcortex' ) }
 					</p>
 					{ estimate.blocker && <Notice status="warning" isDismissible={ false }>{ estimate.blocker }</Notice> }
 					<Flex justify="flex-end">
-						<Button variant="tertiary" onClick={ () => setEstimate( null ) }>{ __( 'Cancel', 'interlink-ai' ) }</Button>
+						<Button variant="tertiary" onClick={ () => setEstimate( null ) }>{ __( 'Cancel', 'linkcortex' ) }</Button>
 						<Button variant="primary" onClick={ runRegenerate } disabled={ !! estimate.blocker || ! estimate.posts }>
-							{ __( 'Run', 'interlink-ai' ) }
+							{ __( 'Run', 'linkcortex' ) }
 						</Button>
 					</Flex>
 				</Modal>
@@ -279,4 +279,4 @@ function InternalLinksPanel() {
 	);
 }
 
-registerPlugin( 'interlink-ai', { render: InternalLinksPanel } );
+registerPlugin( 'linkcortex', { render: InternalLinksPanel } );

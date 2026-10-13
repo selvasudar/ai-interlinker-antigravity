@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       Interlink AI
+ * Plugin Name:       LinkCortex – AI Internal Link Suggester
  * Description:       Finds each page's main keyword and suggests internal links you can review, apply and undo in bulk, with clear AI cost estimates and a monthly budget cap.
  * Version:           1.0.0
  * Requires at least: 7.0
@@ -9,10 +9,10 @@
  * Author URI:        https://profiles.wordpress.org/selvasudar/
  * License:           GPLv2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       interlink-ai
+ * Text Domain:       linkcortex
  * Domain Path:       /languages
  *
- * @package interlink-ai
+ * @package linkcortex
  */
 
 defined( 'ABSPATH' ) || exit;

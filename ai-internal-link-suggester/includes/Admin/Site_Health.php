@@ -36,7 +36,7 @@ final class Site_Health {
 	 */
 	public static function tests( $tests ) {
 		$tests['direct']['ailsug_ai_provider'] = array(
-			'label' => __( 'AI provider for internal link suggestions', 'interlink-ai' ),
+			'label' => __( 'AI provider for internal link suggestions', 'linkcortex' ),
 			'test'  => array( __CLASS__, 'test_ai' ),
 		);
 		return $tests;
@@ -50,17 +50,17 @@ final class Site_Health {
 	public static function test_ai() {
 		$status = Availability::status( true );
 		$ok     = ! empty( $status['available'] );
-		$link   = '<a href="' . esc_url( Menu::url( 'settings', array( 'tab' => 'ai' ) ) ) . '">' . esc_html__( 'Interlink AI → Settings → AI & Cost', 'interlink-ai' ) . '</a>';
+		$link   = '<a href="' . esc_url( Menu::url( 'settings', array( 'tab' => 'ai' ) ) ) . '">' . esc_html__( 'LinkCortex → Settings → AI & Cost', 'linkcortex' ) . '</a>';
 		return array(
-			'label'       => $ok ? __( 'An AI provider is available for internal link suggestions', 'interlink-ai' ) : __( 'No AI provider is available for internal link suggestions', 'interlink-ai' ),
+			'label'       => $ok ? __( 'An AI provider is available for internal link suggestions', 'linkcortex' ) : __( 'No AI provider is available for internal link suggestions', 'linkcortex' ),
 			'status'      => $ok ? 'good' : 'recommended',
 			'badge'       => array(
-				'label' => __( 'Interlink AI', 'interlink-ai' ),
+				'label' => __( 'LinkCortex', 'linkcortex' ),
 				'color' => 'blue',
 			),
-			'description' => '<p>' . esc_html( $status['message'] ) . '</p><p>' . esc_html__( 'Without an AI provider the page index, link map, orphan report and keyword editing still work.', 'interlink-ai' ) . '</p>',
+			'description' => '<p>' . esc_html( $status['message'] ) . '</p><p>' . esc_html__( 'Without an AI provider the page index, link map, orphan report and keyword editing still work.', 'linkcortex' ) . '</p>',
 			/* translators: %s: link to settings. */
-			'actions'     => '<p>' . wp_kses_post( sprintf( __( 'See %s.', 'interlink-ai' ), $link ) ) . '</p>',
+			'actions'     => '<p>' . wp_kses_post( sprintf( __( 'See %s.', 'linkcortex' ), $link ) ) . '</p>',
 			'test'        => 'ailsug_ai_provider',
 		);
 	}
@@ -80,35 +80,35 @@ final class Site_Health {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
 		$queue = (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . esc_sql( $t['queue'] ) . " WHERE status IN ('pending','running','budget')" );
 
-		$info['interlink-ai'] = array(
-			'label'  => __( 'Interlink AI', 'interlink-ai' ),
+		$info['linkcortex'] = array(
+			'label'  => __( 'LinkCortex', 'linkcortex' ),
 			'fields' => array(
 				'version'    => array(
-					'label' => __( 'Version', 'interlink-ai' ),
+					'label' => __( 'Version', 'linkcortex' ),
 					'value' => AILSUG_VERSION,
 				),
 				'db'         => array(
-					'label' => __( 'Database version', 'interlink-ai' ),
+					'label' => __( 'Database version', 'linkcortex' ),
 					'value' => (string) get_option( Activator::DB_OPTION ),
 				),
 				'ai'         => array(
-					'label' => __( 'AI status', 'interlink-ai' ),
+					'label' => __( 'AI status', 'linkcortex' ),
 					'value' => $status ? $status['code'] : 'unchecked',
 				),
 				'last_model' => array(
-					'label' => __( 'Model that answered last', 'interlink-ai' ),
+					'label' => __( 'Model that answered last', 'linkcortex' ),
 					'value' => is_array( $last ) && ! empty( $last['model'] ) ? $last['provider'] . ' / ' . $last['model'] : '—',
 				),
 				'queue'      => array(
-					'label' => __( 'Jobs waiting', 'interlink-ai' ),
+					'label' => __( 'Jobs waiting', 'linkcortex' ),
 					'value' => $queue,
 				),
 				'budget'     => array(
-					'label' => __( 'Estimated spend / cap (micro-USD)', 'interlink-ai' ),
+					'label' => __( 'Estimated spend / cap (micro-USD)', 'linkcortex' ),
 					'value' => $budget['spent'] . ' / ' . $budget['cap'],
 				),
 				'cron'       => array(
-					'label' => __( 'WP-Cron disabled', 'interlink-ai' ),
+					'label' => __( 'WP-Cron disabled', 'linkcortex' ),
 					'value' => defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ? 'yes' : 'no',
 				),
 			),

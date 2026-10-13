@@ -62,31 +62,31 @@ final class Onboarding {
 		return array(
 			array(
 				'done'  => $ai_ok,
-				'title' => __( 'Connect an AI provider', 'interlink-ai' ),
+				'title' => __( 'Connect an AI provider', 'linkcortex' ),
 				'hint'  => $ai_ok
-					? __( 'AI is connected and ready.', 'interlink-ai' )
-					: ( $status ? $status['message'] : __( 'Open the AI & Cost settings to check your connection. The plugin never asks for API keys: WordPress keeps them in Settings → Connectors.', 'interlink-ai' ) ),
+					? __( 'AI is connected and ready.', 'linkcortex' )
+					: ( $status ? $status['message'] : __( 'Open the AI & Cost settings to check your connection. The plugin never asks for API keys: WordPress keeps them in Settings → Connectors.', 'linkcortex' ) ),
 				'link'  => Menu::url( 'settings', array( 'tab' => 'ai' ) ),
-				'label' => __( 'Check AI connection', 'interlink-ai' ),
+				'label' => __( 'Check AI connection', 'linkcortex' ),
 			),
 			array(
 				'done'  => (bool) get_user_meta( $user, self::STEP_TYPES, true ),
-				'title' => __( 'Choose which content to include', 'interlink-ai' ),
-				'hint'  => __( 'Pick the post types that should get links. Fewer types means a cheaper scan.', 'interlink-ai' ),
+				'title' => __( 'Choose which content to include', 'linkcortex' ),
+				'hint'  => __( 'Pick the post types that should get links. Fewer types means a cheaper scan.', 'linkcortex' ),
 				'link'  => Menu::url( 'settings', array( 'tab' => 'general' ) ),
-				'label' => __( 'Choose content', 'interlink-ai' ),
+				'label' => __( 'Choose content', 'linkcortex' ),
 			),
 			array(
 				'done'  => (bool) get_user_meta( $user, self::STEP_COSTS, true ),
-				'title' => __( 'See what it will cost', 'interlink-ai' ),
-				'hint'  => __( 'Use the calculator and set a monthly budget cap so there are no surprises.', 'interlink-ai' ),
+				'title' => __( 'See what it will cost', 'linkcortex' ),
+				'hint'  => __( 'Use the calculator and set a monthly budget cap so there are no surprises.', 'linkcortex' ),
 				'link'  => Menu::url( 'settings', array( 'tab' => 'ai' ) ) . '#ailsug-calculator',
-				'label' => __( 'Open the cost calculator', 'interlink-ai' ),
+				'label' => __( 'Open the cost calculator', 'linkcortex' ),
 			),
 			array(
 				'done'  => $kpis['scans'] > 0,
-				'title' => __( 'Run your first scan', 'interlink-ai' ),
-				'hint'  => __( 'Use the Scan button below. You will see the estimated cost first.', 'interlink-ai' ),
+				'title' => __( 'Run your first scan', 'linkcortex' ),
+				'hint'  => __( 'Use the Scan button below. You will see the estimated cost first.', 'linkcortex' ),
 				'link'  => '',
 				'label' => '',
 			),
@@ -109,19 +109,19 @@ final class Onboarding {
 			return;
 		}
 		echo '<section class="ailsug-onboarding" aria-labelledby="ailsug-onboarding-title">';
-		echo '<h2 id="ailsug-onboarding-title">' . esc_html__( 'Get started', 'interlink-ai' ) . '</h2>';
+		echo '<h2 id="ailsug-onboarding-title">' . esc_html__( 'Get started', 'linkcortex' ) . '</h2>';
 		/* translators: 1: done, 2: total. */
-		echo '<p>' . esc_html( sprintf( __( '%1$d of %2$d steps done.', 'interlink-ai' ), $done, count( $steps ) ) ) . '</p><ol>';
+		echo '<p>' . esc_html( sprintf( __( '%1$d of %2$d steps done.', 'linkcortex' ), $done, count( $steps ) ) ) . '</p><ol>';
 		foreach ( $steps as $step ) {
 			echo '<li class="' . ( $step['done'] ? 'is-done' : 'is-todo' ) . '">';
 			echo '<span class="ailsug-check" aria-hidden="true">' . ( $step['done'] ? '✓' : '✗' ) . '</span> ';
-			echo '<strong>' . esc_html( $step['title'] ) . '</strong> <span class="screen-reader-text">' . ( $step['done'] ? esc_html__( '(done)', 'interlink-ai' ) : esc_html__( '(not done yet)', 'interlink-ai' ) ) . '</span>';
+			echo '<strong>' . esc_html( $step['title'] ) . '</strong> <span class="screen-reader-text">' . ( $step['done'] ? esc_html__( '(done)', 'linkcortex' ) : esc_html__( '(not done yet)', 'linkcortex' ) ) . '</span>';
 			echo '<br /><span class="description">' . esc_html( $step['hint'] ) . '</span>';
 			if ( ! $step['done'] && '' !== $step['link'] ) {
 				echo ' <a href="' . esc_url( $step['link'] ) . '">' . esc_html( $step['label'] ) . '</a>';
 			}
 			if ( ! $step['done'] && 0 === $done && 0 === array_search( $step, $steps, true ) && ! Availability::is_available() ) {
-				echo '<br /><span class="description">' . esc_html__( 'Official provider plugins:', 'interlink-ai' ) . ' ';
+				echo '<br /><span class="description">' . esc_html__( 'Official provider plugins:', 'linkcortex' ) . ' ';
 				$links = array();
 				foreach ( Availability::provider_plugins() as $slug => $label ) {
 					$url     = current_user_can( 'install_plugins' ) ? self_admin_url( 'plugin-install.php?tab=plugin-information&plugin=' . $slug ) : 'https://wordpress.org/plugins/' . $slug . '/';
@@ -135,7 +135,7 @@ final class Onboarding {
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		wp_nonce_field( 'ailsug_dismiss_onboarding' );
 		echo '<input type="hidden" name="action" value="ailsug_dismiss_onboarding" />';
-		submit_button( __( 'Hide this checklist', 'interlink-ai' ), 'link', 'submit', false );
+		submit_button( __( 'Hide this checklist', 'linkcortex' ), 'link', 'submit', false );
 		echo '</form></section>';
 	}
 }

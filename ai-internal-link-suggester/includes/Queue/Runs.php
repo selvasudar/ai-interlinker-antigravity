@@ -138,11 +138,11 @@ final class Runs {
 		if ( empty( $status['available'] ) ) {
 			$blocker = $status['message'];
 		} elseif ( $strict && ( ! $estimate['known'] || $estimate['unknown'] ) ) {
-			$blocker = __( 'The price of the AI model that may answer is unknown, so the budget cannot be enforced. Enter its price below the settings on the AI & Cost tab.', 'interlink-ai' );
+			$blocker = __( 'The price of the AI model that may answer is unknown, so the budget cannot be enforced. Enter its price below the settings on the AI & Cost tab.', 'linkcortex' );
 		} elseif ( $budget['reached'] ) {
-			$blocker = __( 'The estimated monthly AI budget is reached. Raise the cap or wait until next month.', 'interlink-ai' );
+			$blocker = __( 'The estimated monthly AI budget is reached. Raise the cap or wait until next month.', 'linkcortex' );
 		} elseif ( 0 === $fits && $estimate['posts'] > 0 ) {
-			$blocker = __( 'Not even one page fits in the remaining monthly budget.', 'interlink-ai' );
+			$blocker = __( 'Not even one page fits in the remaining monthly budget.', 'linkcortex' );
 		}
 
 		unset( $estimate['per_post_worst'] );
@@ -173,7 +173,7 @@ final class Runs {
 	public static function start_paid( $type, $post_types = null, $limit = 0, $post_ids = null ) {
 		$tasks = self::paid_types()[ $type ] ?? null;
 		if ( ! $tasks ) {
-			return new WP_Error( 'ailsug_bad_type', __( 'Unknown run type.', 'interlink-ai' ), array( 'status' => 400 ) );
+			return new WP_Error( 'ailsug_bad_type', __( 'Unknown run type.', 'linkcortex' ), array( 'status' => 400 ) );
 		}
 		$estimate = self::estimate( $type, $post_types, $post_ids );
 		if ( '' !== $estimate['blocker'] ) {
@@ -184,7 +184,7 @@ final class Runs {
 			return new WP_Error(
 				'ailsug_over_budget',
 				/* translators: %d: number of pages. */
-				sprintf( __( 'This run may exceed the remaining monthly budget. Only the first %d pages fit.', 'interlink-ai' ), $estimate['fits'] ),
+				sprintf( __( 'This run may exceed the remaining monthly budget. Only the first %d pages fit.', 'linkcortex' ), $estimate['fits'] ),
 				array(
 					'status' => 409,
 					'fits'   => $estimate['fits'],

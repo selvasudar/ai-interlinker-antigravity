@@ -1,4 +1,4 @@
-/* AI Internal Link Suggester admin styles. Logical properties keep the layout RTL-safe. */
+/* LinkCortex admin styles. Logical properties keep the layout RTL-safe. */
 .ailsug-wrap [hidden], .ailsug-dialog [hidden] { display: none !important; }
 .ailsug-wrap .ailsug-status-box {
 	background: #fff;

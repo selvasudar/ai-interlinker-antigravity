@@ -63,12 +63,12 @@ final class Suggestions_Page {
 			$ids   = self::take_token( $token );
 			if ( $ids ) {
 				if ( count( $ids ) > 1 && ! Applier::bulk_enabled() ) {
-					self::finish( array( 'message' => __( 'Applying many links at once is turned off on this site. Apply them one at a time.', 'interlink-ai' ) ) );
+					self::finish( array( 'message' => __( 'Applying many links at once is turned off on this site. Apply them one at a time.', 'linkcortex' ) ) );
 				}
 				$res = Applier::apply( $ids );
 				self::finish( array( 'results' => $res['results'] ) );
 			}
-			self::finish( array( 'message' => __( 'This confirmation expired. Please select the links again.', 'interlink-ai' ) ) );
+			self::finish( array( 'message' => __( 'This confirmation expired. Please select the links again.', 'linkcortex' ) ) );
 		} elseif ( 'accept_above' === $post_action ) {
 			check_admin_referer( 'ailsug_accept_above' );
 			$min = isset( $_POST['min'] ) ? max( 1, min( 100, (int) $_POST['min'] ) ) : 80;
@@ -103,10 +103,10 @@ final class Suggestions_Page {
 			case 'accept':
 			case 'apply':
 				if ( ! $ids ) {
-					self::finish( array( 'message' => __( 'Select at least one suggestion to accept.', 'interlink-ai' ) ) );
+					self::finish( array( 'message' => __( 'Select at least one suggestion to accept.', 'linkcortex' ) ) );
 				}
 				if ( count( $ids ) > 1 && ! Applier::bulk_enabled() ) {
-					self::finish( array( 'message' => __( 'Applying many links at once is turned off on this site. Apply them one at a time.', 'interlink-ai' ) ) );
+					self::finish( array( 'message' => __( 'Applying many links at once is turned off on this site. Apply them one at a time.', 'linkcortex' ) ) );
 				}
 				$res = Applier::apply( $ids );
 				self::finish( array( 'results' => $res['results'] ) );
@@ -122,7 +122,7 @@ final class Suggestions_Page {
 				self::finish(
 					array(
 						/* translators: %s: count. */
-						'message' => sprintf( _n( '%s suggestion rejected. It will not be suggested again.', '%s suggestions rejected. They will not be suggested again.', $n, 'interlink-ai' ), number_format_i18n( $n ) ),
+						'message' => sprintf( _n( '%s suggestion rejected. It will not be suggested again.', '%s suggestions rejected. They will not be suggested again.', $n, 'linkcortex' ), number_format_i18n( $n ) ),
 					)
 				);
 				break;
@@ -161,7 +161,7 @@ final class Suggestions_Page {
 					array(
 						'status'  => 'skipped',
 						'post_id' => 0,
-						'message' => __( 'No pending suggestions met that relevance threshold.', 'interlink-ai' ),
+						'message' => __( 'No pending suggestions met that relevance threshold.', 'linkcortex' ),
 					),
 				),
 			);
@@ -172,7 +172,7 @@ final class Suggestions_Page {
 					array(
 						'status'  => 'error',
 						'post_id' => 0,
-						'message' => __( 'Applying many links at once is turned off on this site. Apply them one at a time.', 'interlink-ai' ),
+						'message' => __( 'Applying many links at once is turned off on this site. Apply them one at a time.', 'linkcortex' ),
 					),
 				),
 			);
@@ -214,7 +214,7 @@ final class Suggestions_Page {
 	 */
 	public static function render() {
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_die( esc_html__( 'You do not have permission to view this page.', 'interlink-ai' ) );
+			wp_die( esc_html__( 'You do not have permission to view this page.', 'linkcortex' ) );
 		}
 		echo '<div class="wrap ailsug-wrap">';
 
@@ -226,7 +226,7 @@ final class Suggestions_Page {
 			return;
 		}
 
-		echo '<h1 class="wp-heading-inline">' . esc_html__( 'Link suggestions', 'interlink-ai' ) . '</h1>';
+		echo '<h1 class="wp-heading-inline">' . esc_html__( 'Link suggestions', 'linkcortex' ) . '</h1>';
 		$f      = Suggestions_Table::filters();
 		$export = wp_nonce_url(
 			add_query_arg(
@@ -243,10 +243,10 @@ final class Suggestions_Page {
 			),
 			'ailsug_export_suggestions'
 		);
-		echo ' <a class="page-title-action" href="' . esc_url( $export ) . '">' . esc_html__( 'Export CSV', 'interlink-ai' ) . '</a>';
-		echo ' <a class="page-title-action" href="' . esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=ailsug_export_applied' ), 'ailsug_export_applied' ) ) . '">' . esc_html__( 'Export applied links', 'interlink-ai' ) . '</a>';
+		echo ' <a class="page-title-action" href="' . esc_url( $export ) . '">' . esc_html__( 'Export CSV', 'linkcortex' ) . '</a>';
+		echo ' <a class="page-title-action" href="' . esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=ailsug_export_applied' ), 'ailsug_export_applied' ) ) . '">' . esc_html__( 'Export applied links', 'linkcortex' ) . '</a>';
 		echo '<hr class="wp-header-end" />';
-		echo '<p class="description">' . esc_html__( 'Review each idea and accept suggestions to instantly add links to your pages. Every change is saved as a page revision and can be undone here.', 'interlink-ai' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Review each idea and accept suggestions to instantly add links to your pages. Every change is saved as a page revision and can be undone here.', 'linkcortex' ) . '</p>';
 
 		self::render_notice();
 		Keywords_Page::progress_box( Queue::active_run( array( 'regenerate', 'scan' ) ) );
@@ -255,9 +255,9 @@ final class Suggestions_Page {
 			echo '<form method="post" class="ailsug-inline-form ailsug-accept-above">';
 			wp_nonce_field( 'ailsug_accept_above' );
 			echo '<input type="hidden" name="ailsug_do" value="accept_above" />';
-			echo '<label for="ailsug-accept-min">' . esc_html__( 'Accept and apply all with relevance of at least', 'interlink-ai' ) . '</label> ';
+			echo '<label for="ailsug-accept-min">' . esc_html__( 'Accept and apply all with relevance of at least', 'linkcortex' ) . '</label> ';
 			echo '<input type="number" min="1" max="100" id="ailsug-accept-min" name="min" value="80" class="small-text" /> ';
-			submit_button( __( 'Accept & Apply', 'interlink-ai' ), 'secondary', 'submit', false );
+			submit_button( __( 'Accept & Apply', 'linkcortex' ), 'secondary', 'submit', false );
 			echo '</form>';
 		}
 
@@ -270,7 +270,7 @@ final class Suggestions_Page {
 		if ( $f['source'] ) {
 			echo '<input type="hidden" name="source" value="' . (int) $f['source'] . '" />';
 		}
-		$table->search_box( __( 'Search', 'interlink-ai' ), 'ailsug-sugg-search' );
+		$table->search_box( __( 'Search', 'linkcortex' ), 'ailsug-sugg-search' );
 		$table->display();
 		echo '</form></div>';
 	}
@@ -283,25 +283,25 @@ final class Suggestions_Page {
 	 */
 	private static function render_confirm( $token ) {
 		$ids = get_transient( 'ailsug_apply_' . get_current_user_id() . '_' . $token );
-		echo '<h1>' . esc_html__( 'Apply links to your pages?', 'interlink-ai' ) . '</h1>';
+		echo '<h1>' . esc_html__( 'Apply links to your pages?', 'linkcortex' ) . '</h1>';
 		if ( ! is_array( $ids ) ) {
-			echo '<p>' . esc_html__( 'This confirmation expired. Please select the links again.', 'interlink-ai' ) . '</p><p><a class="button" href="' . esc_url( Menu::url( 'suggestions' ) ) . '">' . esc_html__( 'Back to suggestions', 'interlink-ai' ) . '</a></p>';
+			echo '<p>' . esc_html__( 'This confirmation expired. Please select the links again.', 'linkcortex' ) . '</p><p><a class="button" href="' . esc_url( Menu::url( 'suggestions' ) ) . '">' . esc_html__( 'Back to suggestions', 'linkcortex' ) . '</a></p>';
 			return;
 		}
 		$preview = Applier::preview( $ids );
 		echo '<div class="ailsug-status-box is-warning">';
 		/* translators: 1: links, 2: pages. */
-		echo '<p><strong>' . esc_html( sprintf( __( '%1$s links will be added to %2$s pages.', 'interlink-ai' ), number_format_i18n( $preview['links'] ), number_format_i18n( $preview['posts'] ) ) ) . '</strong></p>';
-		echo '<p>' . esc_html__( 'Only the link is added; nothing else in your pages changes. Each page is saved as a new revision, and you can undo every link from the Applied list.', 'interlink-ai' ) . '</p>';
+		echo '<p><strong>' . esc_html( sprintf( __( '%1$s links will be added to %2$s pages.', 'linkcortex' ), number_format_i18n( $preview['links'] ), number_format_i18n( $preview['posts'] ) ) ) . '</strong></p>';
+		echo '<p>' . esc_html__( 'Only the link is added; nothing else in your pages changes. Each page is saved as a new revision, and you can undo every link from the Applied list.', 'linkcortex' ) . '</p>';
 		if ( $preview['links'] > 1 && ! Applier::bulk_enabled() ) {
-			echo '<p>' . esc_html__( 'Applying many links at once is turned off on this site. Apply them one at a time.', 'interlink-ai' ) . '</p>';
+			echo '<p>' . esc_html__( 'Applying many links at once is turned off on this site. Apply them one at a time.', 'linkcortex' ) . '</p>';
 		}
 		echo '</div>';
 		echo '<form method="post" action="' . esc_url( Menu::url( 'suggestions' ) ) . '">';
 		wp_nonce_field( 'ailsug_confirm_apply' );
 		echo '<input type="hidden" name="ailsug_do" value="confirm_apply" /><input type="hidden" name="token" value="' . esc_attr( $token ) . '" />';
-		submit_button( __( 'Apply links', 'interlink-ai' ), 'primary', 'submit', false, $preview['links'] ? array() : array( 'disabled' => 'disabled' ) );
-		echo ' <a class="button" href="' . esc_url( Menu::url( 'suggestions' ) ) . '">' . esc_html__( 'Cancel', 'interlink-ai' ) . '</a>';
+		submit_button( __( 'Apply links', 'linkcortex' ), 'primary', 'submit', false, $preview['links'] ? array() : array( 'disabled' => 'disabled' ) );
+		echo ' <a class="button" href="' . esc_url( Menu::url( 'suggestions' ) ) . '">' . esc_html__( 'Cancel', 'linkcortex' ) . '</a>';
 		echo '</form>';
 	}
 
@@ -328,12 +328,12 @@ final class Suggestions_Page {
 			$counts[ $r['status'] ] = ( $counts[ $r['status'] ] ?? 0 ) + 1;
 		}
 		$labels = array(
-			'applied'  => __( 'added', 'interlink-ai' ),
-			'reverted' => __( 'removed', 'interlink-ai' ),
-			'skipped'  => __( 'skipped', 'interlink-ai' ),
-			'stale'    => __( 'out of date', 'interlink-ai' ),
-			'manual'   => __( 'need your attention', 'interlink-ai' ),
-			'error'    => __( 'failed', 'interlink-ai' ),
+			'applied'  => __( 'added', 'linkcortex' ),
+			'reverted' => __( 'removed', 'linkcortex' ),
+			'skipped'  => __( 'skipped', 'linkcortex' ),
+			'stale'    => __( 'out of date', 'linkcortex' ),
+			'manual'   => __( 'need your attention', 'linkcortex' ),
+			'error'    => __( 'failed', 'linkcortex' ),
 		);
 		$parts  = array();
 		foreach ( $counts as $status => $n ) {
@@ -341,7 +341,7 @@ final class Suggestions_Page {
 		}
 		$ok   = empty( $counts['error'] ) && empty( $counts['manual'] );
 		$type = $ok ? 'notice-success' : 'notice-warning';
-		echo '<div class="notice ' . esc_attr( $type ) . ' is-dismissible" role="status"><p><strong>' . esc_html__( 'Links:', 'interlink-ai' ) . '</strong> ' . esc_html( $parts ? implode( ', ', $parts ) : __( 'nothing to do', 'interlink-ai' ) ) . '</p>';
+		echo '<div class="notice ' . esc_attr( $type ) . ' is-dismissible" role="status"><p><strong>' . esc_html__( 'Links:', 'linkcortex' ) . '</strong> ' . esc_html( $parts ? implode( ', ', $parts ) : __( 'nothing to do', 'linkcortex' ) ) . '</p>';
 		$details = array_filter(
 			$notice['results'],
 			static function ( $r ) {
@@ -353,7 +353,7 @@ final class Suggestions_Page {
 			foreach ( $details as $r ) {
 				echo '<li><strong>' . esc_html( get_the_title( (int) $r['post_id'] ) ) . ':</strong> ' . esc_html( $r['message'] );
 				if ( ! empty( $r['revision_url'] ) ) {
-					echo ' <a href="' . esc_url( $r['revision_url'] ) . '">' . esc_html__( 'Open the saved revision', 'interlink-ai' ) . '</a>';
+					echo ' <a href="' . esc_url( $r['revision_url'] ) . '">' . esc_html__( 'Open the saved revision', 'linkcortex' ) . '</a>';
 				}
 				echo '</li>';
 			}
@@ -370,7 +370,7 @@ final class Suggestions_Page {
 	public static function export_suggestions() {
 		global $wpdb;
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'interlink-ai' ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'linkcortex' ) );
 		}
 		check_admin_referer( 'ailsug_export_suggestions' );
 		$f                      = Suggestions_Table::filters();
@@ -393,7 +393,7 @@ final class Suggestions_Page {
 	public static function export_applied() {
 		global $wpdb;
 		if ( ! current_user_can( 'edit_others_posts' ) ) {
-			wp_die( esc_html__( 'You do not have permission to do that.', 'interlink-ai' ) );
+			wp_die( esc_html__( 'You do not have permission to do that.', 'linkcortex' ) );
 		}
 		check_admin_referer( 'ailsug_export_applied' );
 		$t = Activator::tables();

@@ -25,7 +25,7 @@ final class Requirements {
 		if ( version_compare( PHP_VERSION, AILSUG_MIN_PHP, '<' ) ) {
 			$problems[] = sprintf(
 				/* translators: 1: required PHP version, 2: current PHP version. */
-				__( 'Interlink AI needs PHP %1$s or newer. This site runs PHP %2$s.', 'interlink-ai' ),
+				__( 'LinkCortex needs PHP %1$s or newer. This site runs PHP %2$s.', 'linkcortex' ),
 				AILSUG_MIN_PHP,
 				PHP_VERSION
 			);
@@ -34,7 +34,7 @@ final class Requirements {
 		if ( version_compare( get_bloginfo( 'version' ), AILSUG_MIN_WP, '<' ) ) {
 			$problems[] = sprintf(
 				/* translators: %s: required WordPress version. */
-				__( 'Interlink AI needs WordPress %s or newer. Please update WordPress.', 'interlink-ai' ),
+				__( 'LinkCortex needs WordPress %s or newer. Please update WordPress.', 'linkcortex' ),
 				AILSUG_MIN_WP
 			);
 		}

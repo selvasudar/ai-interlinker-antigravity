@@ -1,9 +1,9 @@
-# WordPress.org submission notes: AI Internal Link Suggester 1.0.0
+# WordPress.org submission notes: LinkCortex 1.0.0
 
 ## Before submitting (manual, needs you)
 1. **Contributors:** replace `ailsug` in `readme.txt` with your real WordPress.org username(s).
 2. **Author:** the plugin header currently says "AI Internal Link Suggester contributors". Set your name or company (and optionally `Author URI`).
-3. **Name and slug:** check that `ai-internal-link-suggester` is free on WordPress.org. The name doesn't start with or consist of a trademark; providers are mentioned only descriptively.
+3. **Name and slug:** check that `linkcortex` is free on WordPress.org. The name doesn't start with or consist of a trademark; providers are mentioned only descriptively.
 4. **Real-provider test:** run `ai-internal-link-suggester/tests/MANUAL-real-providers.md` with at least one provider.
 5. **Prices:** re-check `data/pricing.json` against the official pricing pages and update `as_of` if anything changed.
 6. **Screenshots (optional):** add `assets/screenshot-1.png` … in the SVN `/assets` folder and a `== Screenshots ==` section to the readme. Suggested shots: dashboard, suggestions review, cost dialog, AI & Cost tab, editor panel.
@@ -11,8 +11,7 @@
 ## Build
 ```bash
 cd ai-internal-link-suggester
-npm install && npm run build      # only if src/ changed; build/ is committed
-bash bin/build-zip.sh             # → ../dist/ai-internal-link-suggester.zip (about 180 KB, 88 files)
+bash bin/build-zip.sh             # → ../dist/linkcortex.zip
 ```
 The zip excludes everything in `.distignore`: tests, `bin`, `vendor`, `node_modules`, composer/phpunit/phpcs configs and the lock file. It **includes** `src/` and `package.json` (the source of the built JS), as the guidelines require.
 

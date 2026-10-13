@@ -71,11 +71,11 @@ final class Applier {
 		foreach ( array_unique( array_map( 'intval', $ids ) ) as $id ) {
 			$s = Store::get( $id );
 			if ( ! $s ) {
-				$results[] = self::result( $id, 0, 'error', __( 'Suggestion not found.', 'interlink-ai' ) );
+				$results[] = self::result( $id, 0, 'error', __( 'Suggestion not found.', 'linkcortex' ) );
 				continue;
 			}
 			if ( ! in_array( $s['status'], array( 'pending', 'accepted' ), true ) ) {
-				$results[] = self::result( $id, (int) $s['source_post_id'], 'skipped', __( 'Only open suggestions can be applied.', 'interlink-ai' ) );
+				$results[] = self::result( $id, (int) $s['source_post_id'], 'skipped', __( 'Only open suggestions can be applied.', 'linkcortex' ) );
 				continue;
 			}
 			$by_post[ (int) $s['source_post_id'] ][] = $s;
@@ -86,7 +86,7 @@ final class Applier {
 				$results = array_merge( $results, self::apply_to_post( $post_id, $suggestions, $batch ) );
 			} catch ( \Throwable $e ) {
 				foreach ( $suggestions as $s ) {
-					$results[] = self::result( (int) $s['id'], $post_id, 'error', __( 'Unexpected error; this page was not changed.', 'interlink-ai' ) );
+					$results[] = self::result( (int) $s['id'], $post_id, 'error', __( 'Unexpected error; this page was not changed.', 'linkcortex' ) );
 				}
 			}
 		}
@@ -130,10 +130,10 @@ final class Applier {
 			foreach ( $suggestions as $s ) {
 				Store::update( (int) $s['id'], array( 'status' => 'stale' ) );
 			}
-			return $fail( __( 'This page is no longer published or included, so the suggestion is out of date.', 'interlink-ai' ), 'stale' );
+			return $fail( __( 'This page is no longer published or included, so the suggestion is out of date.', 'linkcortex' ), 'stale' );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return $fail( __( 'You are not allowed to edit this page.', 'interlink-ai' ) );
+			return $fail( __( 'You are not allowed to edit this page.', 'linkcortex' ) );
 		}
 		if ( ! function_exists( 'wp_check_post_lock' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/post.php';
@@ -142,10 +142,10 @@ final class Applier {
 		if ( $lock ) {
 			$user = get_userdata( $lock );
 			/* translators: %s: user display name. */
-			return $fail( sprintf( __( '%s is editing this page right now. Try again later.', 'interlink-ai' ), $user ? $user->display_name : __( 'Someone', 'interlink-ai' ) ) );
+			return $fail( sprintf( __( '%s is editing this page right now. Try again later.', 'linkcortex' ), $user ? $user->display_name : __( 'Someone', 'linkcortex' ) ) );
 		}
 		if ( Eligibility::is_page_builder( $post_id ) ) {
-			return $fail( __( 'This page is built with a page builder. View only: copy the link and add it in the builder.', 'interlink-ai' ) );
+			return $fail( __( 'This page is built with a page builder. View only: copy the link and add it in the builder.', 'linkcortex' ) );
 		}
 
 		$original    = (string) $post->post_content;
@@ -172,15 +172,15 @@ final class Applier {
 
 			if ( ! Eligibility::is_linkable_target( $target ) ) {
 				Store::update( $sid, array( 'status' => 'stale' ) );
-				$out[] = self::result( $sid, $post_id, 'stale', __( 'The target page is no longer published.', 'interlink-ai' ) );
+				$out[] = self::result( $sid, $post_id, 'stale', __( 'The target page is no longer published.', 'linkcortex' ) );
 				continue;
 			}
 			if ( isset( $linked[ $target ] ) ) {
-				$out[] = self::result( $sid, $post_id, 'skipped', __( 'This page already links to the target.', 'interlink-ai' ) );
+				$out[] = self::result( $sid, $post_id, 'skipped', __( 'This page already links to the target.', 'linkcortex' ) );
 				continue;
 			}
 			if ( count( $edits ) >= $limit ) {
-				$out[] = self::result( $sid, $post_id, 'skipped', __( 'The limit of new links per page for one apply was reached. Apply again to add more.', 'interlink-ai' ) );
+				$out[] = self::result( $sid, $post_id, 'skipped', __( 'The limit of new links per page for one apply was reached. Apply again to add more.', 'linkcortex' ) );
 				continue;
 			}
 
@@ -194,14 +194,14 @@ final class Applier {
 			}
 			if ( ! $occ ) {
 				Store::update( $sid, array( 'status' => 'stale' ) );
-				$out[] = self::result( $sid, $post_id, 'stale', __( 'The anchor text is no longer in the page. Re-generate suggestions for this page.', 'interlink-ai' ) );
+				$out[] = self::result( $sid, $post_id, 'stale', __( 'The anchor text is no longer in the page. Re-generate suggestions for this page.', 'linkcortex' ) );
 				continue;
 			}
 			$o        = $occ[0];
 			$position = $map->word_position( $o );
 			foreach ( $positions as $p ) {
 				if ( abs( $p - $position ) < $distance ) {
-					$out[] = self::result( $sid, $post_id, 'skipped', __( 'Too close to another new link on this page.', 'interlink-ai' ) );
+					$out[] = self::result( $sid, $post_id, 'skipped', __( 'Too close to another new link on this page.', 'linkcortex' ) );
 					continue 2;
 				}
 			}
@@ -272,7 +272,7 @@ final class Applier {
 			}
 			$sid = (int) $e['suggestion']['id'];
 			if ( null === $pos ) {
-				$out[] = self::result( $sid, $post_id, 'error', __( 'Another plugin changed the page while saving; this link could not be confirmed.', 'interlink-ai' ) );
+				$out[] = self::result( $sid, $post_id, 'error', __( 'Another plugin changed the page while saving; this link could not be confirmed.', 'linkcortex' ) );
 				continue;
 			}
 			list( $before, $after ) = Content_Writer::contexts( $saved, $pos, strlen( $e['markup'] ), $markups );
@@ -306,9 +306,9 @@ final class Applier {
 					'context_snippet' => $e['context']['before'] . "\u{2063}" . $e['context']['match'] . "\u{2063}" . $e['context']['after'],
 				)
 			);
-			$message = 'chunk' === $e['where'] ? __( 'Link added.', 'interlink-ai' ) : __( 'Link added (the paragraph had changed, so the first matching place was used).', 'interlink-ai' );
+			$message = 'chunk' === $e['where'] ? __( 'Link added.', 'linkcortex' ) : __( 'Link added (the paragraph had changed, so the first matching place was used).', 'linkcortex' );
 			if ( $modified ) {
-				$message .= ' ' . __( 'Note: another plugin also adjusted the page while saving.', 'interlink-ai' );
+				$message .= ' ' . __( 'Note: another plugin also adjusted the page while saving.', 'linkcortex' );
 			}
 			$out[] = self::result( $sid, $post_id, 'applied', $message );
 		}//end foreach
