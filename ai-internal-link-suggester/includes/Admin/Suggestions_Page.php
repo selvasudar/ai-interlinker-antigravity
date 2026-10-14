@@ -145,10 +145,10 @@ final class Suggestions_Page {
 	 */
 	private static function accept_above( $min ) {
 		global $wpdb;
-		$t   = Activator::tables();
-		$sql = 'SELECT s.id, s.source_post_id FROM ' . esc_sql( $t['suggestions'] ) . " WHERE s.status = 'pending' AND s.score >= %d";
+		$t    = Activator::tables();
+		$sql  = "SELECT s.id, s.source_post_id FROM %i s WHERE s.status = 'pending' AND s.score >= %d";
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only.
-		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $min ), ARRAY_A );
+		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $t['suggestions'], $min ), ARRAY_A );
 		$ids  = array();
 		foreach ( (array) $rows as $row ) {
 			if ( current_user_can( 'edit_post', (int) $row['source_post_id'] ) ) {
@@ -375,9 +375,11 @@ final class Suggestions_Page {
 		check_admin_referer( 'ailsug_export_suggestions' );
 		$f                      = Suggestions_Table::filters();
 		list( $where, $params ) = Suggestions_Table::where( $f );
-		$sql                    = 'SELECT s.*, src.title AS source_title, tgt.title AS target_title FROM ' . Suggestions_Table::from() . " WHERE {$where} ORDER BY s.score DESC";
+		$from_clause            = Suggestions_Table::from_clause();
+		$from_params            = Suggestions_Table::from_params();
+		$sql                    = "SELECT s.*, src.title AS source_title, tgt.title AS target_title FROM {$from_clause} WHERE {$where} ORDER BY s.score DESC";
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only.
-		$rows = $params ? $wpdb->get_results( $wpdb->prepare( $sql, $params ), ARRAY_A ) : $wpdb->get_results( $sql, ARRAY_A );
+		$rows = $wpdb->get_results( $wpdb->prepare( $sql, array_merge( $from_params, $params ) ), ARRAY_A );
 		$out  = array();
 		foreach ( (array) $rows as $r ) {
 			$out[] = array( get_permalink( (int) $r['source_post_id'] ), $r['source_title'], $r['anchor_text'], get_permalink( (int) $r['target_post_id'] ), $r['target_title'], $r['score'], $r['reason'], $r['status'], $r['created_at'] );
@@ -398,7 +400,7 @@ final class Suggestions_Page {
 		check_admin_referer( 'ailsug_export_applied' );
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$rows = $wpdb->get_results( 'SELECT * FROM ' . esc_sql( $t['applied'] ) . ' ORDER BY id DESC', ARRAY_A );
+		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i ORDER BY id DESC', $t['applied'] ), ARRAY_A );
 		$out  = array();
 		foreach ( (array) $rows as $r ) {
 			$user  = get_userdata( (int) $r['applied_by'] );

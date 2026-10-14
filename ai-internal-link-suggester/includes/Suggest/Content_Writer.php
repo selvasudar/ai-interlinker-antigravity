@@ -203,7 +203,7 @@ final class Content_Writer {
 		global $wpdb;
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $t['applied'] ) . ' WHERE post_id = %d AND reverted_at IS NULL ORDER BY id ASC', (int) $post_id ), ARRAY_A );
+		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i WHERE post_id = %d AND reverted_at IS NULL ORDER BY id ASC', $t['applied'], (int) $post_id ), ARRAY_A );
 		return is_array( $rows ) ? $rows : array();
 	}
 }

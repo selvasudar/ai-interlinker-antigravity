@@ -335,7 +335,7 @@ final class Applier {
 			$linked[ (int) $r['target_post_id'] ] = true;
 		}
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$open = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $t['suggestions'] ) . " WHERE source_post_id = %d AND status IN ('pending','accepted')", (int) $post_id ), ARRAY_A );
+		$open = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE source_post_id = %d AND status IN ('pending','accepted')", $t['suggestions'], (int) $post_id ), ARRAY_A );
 		foreach ( (array) $open as $s ) {
 			$ok = ! isset( $linked[ (int) $s['target_post_id'] ] ) && $map->find( (string) $s['anchor_text'], (string) $s['chunk_id'] );
 			if ( $ok ) {

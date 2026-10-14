@@ -1,6 +1,5 @@
 === LinkCortex – AI Internal Link Suggester ===
 Contributors: selvasudar, krismaya
-Donate link: https://buymeacoffee.com/selvakumarduraipandian
 Tags: internal links, seo, orphan pages, link building, keywords
 Requires at least: 7.0
 Tested up to: 7.1

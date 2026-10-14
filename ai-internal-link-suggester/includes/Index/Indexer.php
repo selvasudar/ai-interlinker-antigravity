@@ -26,7 +26,7 @@ final class Indexer {
 		global $wpdb;
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table, live data.
-		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $t['index'] ) . ' WHERE post_id = %d', (int) $post_id ), ARRAY_A );
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE post_id = %d', $t['index'], (int) $post_id ), ARRAY_A );
 		return is_array( $row ) ? $row : null;
 	}
 
@@ -151,7 +151,7 @@ final class Indexer {
 		global $wpdb;
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$indexed = array_map( 'intval', $wpdb->get_col( 'SELECT post_id FROM ' . esc_sql( $t['index'] ) ) );
+		$indexed = array_map( 'intval', $wpdb->get_col( $wpdb->prepare( 'SELECT post_id FROM %i', $t['index'] ) ) );
 		$gone    = array_diff( $indexed, array_map( 'intval', $eligible_ids ) );
 		foreach ( $gone as $id ) {
 			self::remove( $id );
@@ -172,7 +172,8 @@ final class Indexer {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
 		$wpdb->query(
 			$wpdb->prepare(
-				'UPDATE ' . esc_sql( $t['suggestions'] ) . " SET status = 'stale', updated_at = %s WHERE source_post_id = %d AND status IN ('pending','accepted') AND source_hash <> %s",
+				"UPDATE %i SET status = 'stale', updated_at = %s WHERE source_post_id = %d AND status IN ('pending','accepted') AND source_hash <> %s",
+				$t['suggestions'],
 				current_time( 'mysql', true ),
 				(int) $post_id,
 				(string) $new_hash
@@ -192,7 +193,8 @@ final class Indexer {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
 		$wpdb->query(
 			$wpdb->prepare(
-				'UPDATE ' . esc_sql( $t['suggestions'] ) . " SET status = 'stale', updated_at = %s WHERE target_post_id = %d AND status IN ('pending','accepted')",
+				"UPDATE %i SET status = 'stale', updated_at = %s WHERE target_post_id = %d AND status IN ('pending','accepted')",
+				$t['suggestions'],
 				current_time( 'mysql', true ),
 				(int) $post_id
 			)

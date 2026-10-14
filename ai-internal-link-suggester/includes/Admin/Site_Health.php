@@ -78,7 +78,7 @@ final class Site_Health {
 		$budget = Budget::status();
 		$last   = get_option( 'ailsug_last_model', array() );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$queue = (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . esc_sql( $t['queue'] ) . " WHERE status IN ('pending','running','budget')" );
+		$queue = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE status IN ('pending','running','budget')", $t['queue'] ) );
 
 		$info['linkcortex'] = array(
 			'label'  => __( 'LinkCortex', 'linkcortex' ),

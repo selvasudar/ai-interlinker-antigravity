@@ -112,10 +112,10 @@ final class Keywords_Page {
 		$t                      = Activator::tables();
 		$f                      = Keywords_Table::filters();
 		list( $where, $params ) = Keywords_Table::where( $f );
-		$table                  = esc_sql( $t['index'] );
-		$sql                    = "SELECT * FROM {$table} WHERE {$where} ORDER BY post_id ASC";
+		$sql                    = "SELECT * FROM %i WHERE {$where} ORDER BY post_id ASC";
+		$args                   = array_merge( array( $t['index'] ), $params );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $where uses placeholders; values go through prepare().
-		$rows = $params ? $wpdb->get_results( $wpdb->prepare( $sql, $params ), ARRAY_A ) : $wpdb->get_results( $sql, ARRAY_A );
+		$rows                   = $wpdb->get_results( $wpdb->prepare( $sql, $args ), ARRAY_A );
 
 		$out = array();
 		foreach ( (array) $rows as $row ) {

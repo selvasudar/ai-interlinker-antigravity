@@ -101,7 +101,7 @@ final class Editor_Panel {
 
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $t['suggestions'] ) . " WHERE source_post_id = %d AND status IN ('pending','accepted') ORDER BY score DESC LIMIT 10", $post->ID ), ARRAY_A );
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE source_post_id = %d AND status IN ('pending','accepted') ORDER BY score DESC LIMIT 10", $t['suggestions'], $post->ID ), ARRAY_A );
 		if ( $rows ) {
 			echo '<ul class="ul-disc">';
 			foreach ( $rows as $s ) {

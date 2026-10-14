@@ -94,7 +94,9 @@ class Suggestions_Table extends \WP_List_Table {
 			$params[] = $f['post_type'];
 		}
 		if ( $f['cat'] ) {
-			$sql[]    = "EXISTS (SELECT 1 FROM {$wpdb->term_relationships} tr INNER JOIN {$wpdb->term_taxonomy} tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tr.object_id = s.source_post_id AND tt.term_id = %d)";
+			$sql[]    = 'EXISTS (SELECT 1 FROM %i tr INNER JOIN %i tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tr.object_id = s.source_post_id AND tt.term_id = %d)';
+			$params[] = $wpdb->term_relationships;
+			$params[] = $wpdb->term_taxonomy;
 			$params[] = $f['cat'];
 		}
 		if ( $f['orphan'] ) {
@@ -119,14 +121,32 @@ class Suggestions_Table extends \WP_List_Table {
 	}
 
 	/**
+	 * FROM clause SQL format string with placeholders.
+	 *
+	 * @return string
+	 */
+	public static function from_clause() {
+		return '%i s LEFT JOIN %i src ON src.post_id = s.source_post_id LEFT JOIN %i tgt ON tgt.post_id = s.target_post_id INNER JOIN %i p ON p.ID = s.source_post_id';
+	}
+
+	/**
+	 * Table parameters for FROM clause.
+	 *
+	 * @return array
+	 */
+	public static function from_params() {
+		global $wpdb;
+		$t = Activator::tables();
+		return array( $t['suggestions'], $t['index'], $t['index'], $wpdb->posts );
+	}
+
+	/**
 	 * FROM clause.
 	 *
 	 * @return string
 	 */
 	public static function from() {
-		global $wpdb;
-		$t = Activator::tables();
-		return esc_sql( $t['suggestions'] ) . ' s LEFT JOIN ' . esc_sql( $t['index'] ) . ' src ON src.post_id = s.source_post_id LEFT JOIN ' . esc_sql( $t['index'] ) . " tgt ON tgt.post_id = s.target_post_id INNER JOIN {$wpdb->posts} p ON p.ID = s.source_post_id";
+		return self::from_clause();
 	}
 
 	/**
@@ -168,9 +188,11 @@ class Suggestions_Table extends \WP_List_Table {
 		global $wpdb;
 		$f                      = self::filters();
 		list( $where, $params ) = self::where( $f, false );
-		$sql                    = 'SELECT s.status, COUNT(*) AS n FROM ' . self::from() . " WHERE {$where} GROUP BY s.status";
+		$from_clause            = self::from_clause();
+		$from_params            = self::from_params();
+		$sql                    = "SELECT s.status, COUNT(*) AS n FROM {$from_clause} WHERE {$where} GROUP BY s.status";
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only.
-		$rows   = $params ? $wpdb->get_results( $wpdb->prepare( $sql, $params ), OBJECT_K ) : $wpdb->get_results( $sql, OBJECT_K );
+		$rows   = $wpdb->get_results( $wpdb->prepare( $sql, array_merge( $from_params, $params ) ), OBJECT_K );
 		$labels = array(
 			'pending'  => __( 'To review', 'linkcortex' ),
 			'applied'  => __( 'Applied', 'linkcortex' ),
@@ -279,21 +301,23 @@ class Suggestions_Table extends \WP_List_Table {
 		$order                  = $orders[ $f['orderby'] ] . ' ' . $f['order'];
 		$page                   = $this->get_pagenum();
 		$offset                 = ( $page - 1 ) * self::PER_PAGE;
-		$from                   = self::from();
+		$from_clause = self::from_clause();
+		$from_params = self::from_params();
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only; order whitelisted.
-		$count_sql   = "SELECT COUNT(*) FROM {$from} WHERE {$where}";
-		$total       = (int) ( $params ? $wpdb->get_var( $wpdb->prepare( $count_sql, $params ) ) : $wpdb->get_var( $count_sql ) );
-		$list_sql    = "SELECT s.*, src.title AS source_title, src.post_type AS source_type, src.is_builder AS source_builder, tgt.title AS target_title, tgt.primary_keyword AS target_keyword, tgt.inbound_count AS target_inbound FROM {$from} WHERE {$where} ORDER BY {$order}, s.id DESC LIMIT %d OFFSET %d";
-		$this->items = $wpdb->get_results( $wpdb->prepare( $list_sql, array_merge( $params, array( self::PER_PAGE, $offset ) ) ), ARRAY_A );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only; order whitelisted.
+		$count_sql   = "SELECT COUNT(*) FROM {$from_clause} WHERE {$where}";
+		$total       = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, array_merge( $from_params, $params ) ) );
+		$list_sql    = "SELECT s.*, src.title AS source_title, src.post_type AS source_type, src.is_builder AS source_builder, tgt.title AS target_title, tgt.primary_keyword AS target_keyword, tgt.inbound_count AS target_inbound FROM {$from_clause} WHERE {$where} ORDER BY {$order}, s.id DESC LIMIT %d OFFSET %d";
+		$this->items = $wpdb->get_results( $wpdb->prepare( $list_sql, array_merge( $from_params, $params, array( self::PER_PAGE, $offset ) ) ), ARRAY_A );
 		// phpcs:enable
 
 		if ( 'applied' === $f['status'] && $this->items ) {
 			$t            = Activator::tables();
 			$ids          = array_map( 'intval', wp_list_pluck( $this->items, 'id' ) );
 			$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Placeholders built above.
-			$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT a.*, (SELECT COUNT(*) FROM ' . esc_sql( $t['applied'] ) . ' b WHERE b.batch_id = a.batch_id AND b.reverted_at IS NULL) AS batch_size FROM ' . esc_sql( $t['applied'] ) . " a WHERE a.reverted_at IS NULL AND a.suggestion_id IN ({$placeholders})", $ids ), ARRAY_A );
+			$subquery_sql = "SELECT a.*, (SELECT COUNT(*) FROM %i b WHERE b.batch_id = a.batch_id AND b.reverted_at IS NULL) AS batch_size FROM %i a WHERE a.reverted_at IS NULL AND a.suggestion_id IN ({$placeholders})";
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only.
+			$rows         = $wpdb->get_results( $wpdb->prepare( $subquery_sql, array_merge( array( $t['applied'], $t['applied'] ), $ids ) ), ARRAY_A );
 			foreach ( (array) $rows as $r ) {
 				$this->applied[ (int) $r['suggestion_id'] ] = $r;
 			}

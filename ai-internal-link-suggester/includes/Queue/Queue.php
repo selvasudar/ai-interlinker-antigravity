@@ -73,7 +73,7 @@ final class Queue {
 				array_push( $params, $run_id, sanitize_key( $job[0] ), (int) $job[1], 'pending', $now, $now );
 			}
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $values only holds placeholder groups; data goes through prepare().
-			$wpdb->query( $wpdb->prepare( 'INSERT INTO ' . esc_sql( $t['queue'] ) . ' (run_id, task, post_id, status, created_at, updated_at) VALUES ' . implode( ',', $values ), $params ) );
+			$wpdb->query( $wpdb->prepare( 'INSERT INTO %i (run_id, task, post_id, status, created_at, updated_at) VALUES ' . implode( ',', $values ), array_merge( array( $t['queue'] ), $params ) ) );
 		}
 	}
 
@@ -101,13 +101,13 @@ final class Queue {
 
 		// Pending jobs, or running jobs whose lock expired (worker died).
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $run_sql is a fixed placeholder fragment; params are built to match.
-		$wpdb->query( $wpdb->prepare( 'UPDATE ' . esc_sql( $t['queue'] ) . " SET status = 'running', claim_token = %s, locked_until = %s, attempts = attempts + 1, updated_at = %s WHERE ( status = 'pending' OR ( status = 'running' AND locked_until < %s ) ){$run_sql} ORDER BY id ASC LIMIT %d", $params ) );
+		$wpdb->query( $wpdb->prepare( "UPDATE %i SET status = 'running', claim_token = %s, locked_until = %s, attempts = attempts + 1, updated_at = %s WHERE ( status = 'pending' OR ( status = 'running' AND locked_until < %s ) ){$run_sql} ORDER BY id ASC LIMIT %d", array_merge( array( $t['queue'] ), $params ) ) );
 
 		if ( ! $wpdb->rows_affected ) {
 			return array();
 		}
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $t['queue'] ) . " WHERE claim_token = %s AND status = 'running' ORDER BY id ASC", $token ), ARRAY_A );
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE claim_token = %s AND status = 'running' ORDER BY id ASC", $t['queue'], $token ), ARRAY_A );
 		return is_array( $rows ) ? $rows : array();
 	}
 
@@ -146,7 +146,7 @@ final class Queue {
 		global $wpdb;
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$wpdb->query( $wpdb->prepare( 'UPDATE ' . esc_sql( $t['queue'] ) . " SET status = %s, last_error = %s, attempts = GREATEST(attempts - 1, 0), claim_token = '', locked_until = NULL, updated_at = %s WHERE id = %d", sanitize_key( $status ), self::short( $message ), current_time( 'mysql', true ), (int) $job['id'] ) );
+		$wpdb->query( $wpdb->prepare( "UPDATE %i SET status = %s, last_error = %s, attempts = GREATEST(attempts - 1, 0), claim_token = '', locked_until = NULL, updated_at = %s WHERE id = %d", $t['queue'], sanitize_key( $status ), self::short( $message ), current_time( 'mysql', true ), (int) $job['id'] ) );
 	}
 
 	/**
@@ -158,7 +158,7 @@ final class Queue {
 		global $wpdb;
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		return (int) $wpdb->query( $wpdb->prepare( 'UPDATE ' . esc_sql( $t['queue'] ) . " SET status = 'pending', updated_at = %s WHERE status = 'budget'", current_time( 'mysql', true ) ) );
+		return (int) $wpdb->query( $wpdb->prepare( "UPDATE %i SET status = 'pending', updated_at = %s WHERE status = 'budget'", $t['queue'], current_time( 'mysql', true ) ) );
 	}
 
 	/**
@@ -209,7 +209,7 @@ final class Queue {
 		global $wpdb;
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $t['runs'] ) . ' WHERE run_id = %s', (string) $run_id ), ARRAY_A );
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE run_id = %s', $t['runs'], (string) $run_id ), ARRAY_A );
 		return is_array( $row ) ? $row : null;
 	}
 
@@ -227,7 +227,7 @@ final class Queue {
 		}
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$rows   = $wpdb->get_results( $wpdb->prepare( 'SELECT status, COUNT(*) AS n FROM ' . esc_sql( $t['queue'] ) . ' WHERE run_id = %s GROUP BY status', (string) $run_id ), OBJECT_K );
+		$rows   = $wpdb->get_results( $wpdb->prepare( 'SELECT status, COUNT(*) AS n FROM %i WHERE run_id = %s GROUP BY status', $t['queue'], (string) $run_id ), OBJECT_K );
 		$counts = array_fill_keys( array( 'pending', 'running', 'done', 'failed', 'paused', 'budget', 'cancelled' ), 0 );
 		foreach ( (array) $rows as $status => $row ) {
 			$counts[ $status ] = (int) $row->n;
@@ -235,7 +235,7 @@ final class Queue {
 		$total = array_sum( $counts );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$spent = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COALESCE(SUM(est_cost_micros),0) FROM ' . esc_sql( $t['usage'] ) . ' WHERE run_id = %s', (string) $run_id ) );
+		$spent = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COALESCE(SUM(est_cost_micros),0) FROM %i WHERE run_id = %s', $t['usage'], (string) $run_id ) );
 
 		$finished = 0 === $counts['pending'] + $counts['running'] + $counts['paused'] + $counts['budget'];
 		if ( $finished && 'running' === $run['status'] ) {
@@ -278,10 +278,10 @@ final class Queue {
 		);
 		if ( isset( $map[ $status ] ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-			$wpdb->query( $wpdb->prepare( 'UPDATE ' . esc_sql( $t['queue'] ) . ' SET status = %s, updated_at = %s WHERE run_id = %s AND status = %s', $map[ $status ][1], $now, (string) $run_id, $map[ $status ][0] ) );
+			$wpdb->query( $wpdb->prepare( 'UPDATE %i SET status = %s, updated_at = %s WHERE run_id = %s AND status = %s', $t['queue'], $map[ $status ][1], $now, (string) $run_id, $map[ $status ][0] ) );
 			if ( 'cancelled' === $status ) {
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-				$wpdb->query( $wpdb->prepare( 'UPDATE ' . esc_sql( $t['queue'] ) . " SET status = 'cancelled', updated_at = %s WHERE run_id = %s AND status IN ('paused','budget')", $now, (string) $run_id ) );
+				$wpdb->query( $wpdb->prepare( "UPDATE %i SET status = 'cancelled', updated_at = %s WHERE run_id = %s AND status IN ('paused','budget')", $t['queue'], $now, (string) $run_id ) );
 			}
 		}
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
@@ -306,7 +306,7 @@ final class Queue {
 		global $wpdb;
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		return (bool) $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . esc_sql( $t['queue'] ) . " WHERE status = 'pending' OR ( status = 'running' AND locked_until < %s ) LIMIT 1", current_time( 'mysql', true ) ) );
+		return (bool) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM %i WHERE status = 'pending' OR ( status = 'running' AND locked_until < %s ) LIMIT 1", $t['queue'], current_time( 'mysql', true ) ) );
 	}
 
 	/**
@@ -324,7 +324,7 @@ final class Queue {
 		}
 		$placeholders = implode( ',', array_fill( 0, count( $types ), '%s' ) );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Placeholders built above.
-		$run_id = $wpdb->get_var( $wpdb->prepare( 'SELECT run_id FROM ' . esc_sql( $t['runs'] ) . " WHERE status IN ('running','paused') AND type IN ({$placeholders}) ORDER BY created_at DESC LIMIT 1", $types ) );
+		$run_id = $wpdb->get_var( $wpdb->prepare( "SELECT run_id FROM %i WHERE status IN ('running','paused') AND type IN ({$placeholders}) ORDER BY created_at DESC LIMIT 1", array_merge( array( $t['runs'] ), $types ) ) );
 		return $run_id ? self::progress( $run_id ) : null;
 	}
 
@@ -337,6 +337,6 @@ final class Queue {
 		global $wpdb;
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . esc_sql( $t['queue'] ) . " WHERE status IN ('done','cancelled','failed') AND updated_at < %s", gmdate( 'Y-m-d H:i:s', time() - WEEK_IN_SECONDS ) ) );
+		$wpdb->query( $wpdb->prepare( "DELETE FROM %i WHERE status IN ('done','cancelled','failed') AND updated_at < %s", $t['queue'], gmdate( 'Y-m-d H:i:s', time() - WEEK_IN_SECONDS ) ) );
 	}
 }

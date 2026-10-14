@@ -79,10 +79,10 @@ final class Tools {
 		if ( ! empty( $_POST['confirm'] ) ) {
 			$t = Activator::tables();
 			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own tables.
-			$wpdb->query( 'DELETE FROM ' . esc_sql( $t['index'] ) );
-			$wpdb->query( 'DELETE FROM ' . esc_sql( $t['links'] ) );
-			$wpdb->query( 'DELETE FROM ' . esc_sql( $t['suggestions'] ) . " WHERE status IN ('pending','accepted','stale','rejected')" );
-			$wpdb->query( 'DELETE FROM ' . esc_sql( $t['queue'] ) . " WHERE status IN ('pending','paused','budget')" );
+			$wpdb->query( $wpdb->prepare( 'DELETE FROM %i', $t['index'] ) );
+			$wpdb->query( $wpdb->prepare( 'DELETE FROM %i', $t['links'] ) );
+			$wpdb->query( $wpdb->prepare( "DELETE FROM %i WHERE status IN ('pending','accepted','stale','rejected')", $t['suggestions'] ) );
+			$wpdb->query( $wpdb->prepare( "DELETE FROM %i WHERE status IN ('pending','paused','budget')", $t['queue'] ) );
 			// phpcs:enable
 			add_settings_error( 'ailsug', 'reset', __( 'The index was reset. Use "Update page index" on the Keywords screen to rebuild it (free).', 'linkcortex' ), 'success' );
 			set_transient( 'settings_errors', get_settings_errors(), 30 );

@@ -137,16 +137,13 @@ final class Menu {
 	}
 
 	/**
-	 * Add Buy me a coffee link in Plugins table.
+	 * Plugin row meta links.
 	 *
 	 * @param string[] $links Link array.
 	 * @param string   $file  Plugin basename.
 	 * @return string[]
 	 */
 	public static function plugin_row_meta( array $links, $file ) {
-		if ( plugin_basename( AILSUG_FILE ) === $file ) {
-			$links[] = '<a href="https://buymeacoffee.com/selvakumarduraipandian" target="_blank" rel="noopener noreferrer">☕ ' . esc_html__( 'Buy me a coffee', 'linkcortex' ) . '</a>';
-		}
 		return $links;
 	}
 
@@ -160,10 +157,9 @@ final class Menu {
 		$screen = get_current_screen();
 		if ( $screen && in_array( $screen->id, self::$hooks, true ) ) {
 			return sprintf(
-				/* translators: 1: plugin name, 2: Buy me a coffee link. */
-				__( 'Enjoying %1$s? %2$s to support development.', 'linkcortex' ),
-				'<strong>' . esc_html__( 'LinkCortex', 'linkcortex' ) . '</strong>',
-				'<a href="https://buymeacoffee.com/selvakumarduraipandian" target="_blank" rel="noopener noreferrer">☕ ' . esc_html__( 'Buy me a coffee', 'linkcortex' ) . '</a>'
+				/* translators: %s: plugin name. */
+				__( 'Thank you for using %s.', 'linkcortex' ),
+				'<strong>' . esc_html__( 'LinkCortex', 'linkcortex' ) . '</strong>'
 			);
 		}
 		return $text;

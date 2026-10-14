@@ -267,7 +267,7 @@ final class Cost_Panel {
 			$total  += $n;
 		}
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$stats = $wpdb->get_row( 'SELECT COUNT(*) AS n, AVG(word_count) AS words, SUM(keyword_source IN (\'manual\',\'seo_plugin\')) AS known FROM ' . esc_sql( $t['index'] ), ARRAY_A );
+		$stats = $wpdb->get_row( $wpdb->prepare( 'SELECT COUNT(*) AS n, AVG(word_count) AS words, SUM(keyword_source IN (\'manual\',\'seo_plugin\')) AS known FROM %i', $t['index'] ), ARRAY_A );
 		$words = (int) round( (float) ( $stats['words'] ?? 0 ) );
 		if ( $words <= 0 ) {
 			$words = 800;

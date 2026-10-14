@@ -190,7 +190,7 @@ class Suggestions_Controller extends Controller {
 		$post_id = (int) $request['post_id'];
 		$t       = \AILSUG\Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $t['suggestions'] ) . " WHERE source_post_id = %d AND status IN ('pending','accepted') ORDER BY score DESC", $post_id ), ARRAY_A );
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE source_post_id = %d AND status IN ('pending','accepted') ORDER BY score DESC", $t['suggestions'], $post_id ), ARRAY_A );
 		$row  = Indexer::get_row( $post_id );
 		return rest_ensure_response(
 			array(

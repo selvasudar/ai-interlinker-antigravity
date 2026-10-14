@@ -129,11 +129,10 @@ class Keywords_Table extends \WP_List_Table {
 	 */
 	protected function get_views() {
 		global $wpdb;
-		$t     = Activator::tables();
-		$f     = self::filters();
-		$table = esc_sql( $t['index'] );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Own table.
-		$counts = $wpdb->get_row( "SELECT COUNT(*) AS total, SUM(primary_keyword = '') AS nokeyword, SUM(inbound_count = 0) AS orphan, SUM(inbound_count BETWEEN 1 AND 2) AS low FROM {$table}", ARRAY_A );
+		$t      = Activator::tables();
+		$f      = self::filters();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+		$counts = $wpdb->get_row( $wpdb->prepare( "SELECT COUNT(*) AS total, SUM(primary_keyword = '') AS nokeyword, SUM(inbound_count = 0) AS orphan, SUM(inbound_count BETWEEN 1 AND 2) AS low FROM %i", $t['index'] ), ARRAY_A );
 		$labels = array(
 			'all'       => __( 'All', 'linkcortex' ),
 			'nokeyword' => __( 'No keyword yet', 'linkcortex' ),
@@ -193,15 +192,14 @@ class Keywords_Table extends \WP_List_Table {
 		$t                      = Activator::tables();
 		$f                      = self::filters();
 		list( $where, $params ) = self::where( $f );
-		$table                  = esc_sql( $t['index'] );
 		$page                   = $this->get_pagenum();
 		$offset                 = ( $page - 1 ) * self::PER_PAGE;
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $where uses placeholders; orderby/order are whitelisted.
-		$count_sql   = "SELECT COUNT(*) FROM {$table} WHERE {$where}";
-		$total       = (int) ( $params ? $wpdb->get_var( $wpdb->prepare( $count_sql, $params ) ) : $wpdb->get_var( $count_sql ) );
-		$list_sql    = "SELECT * FROM {$table} WHERE {$where} ORDER BY {$f['orderby']} {$f['order']}, post_id ASC LIMIT %d OFFSET %d";
-		$this->items = $wpdb->get_results( $wpdb->prepare( $list_sql, array_merge( $params, array( self::PER_PAGE, $offset ) ) ), ARRAY_A );
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $where uses placeholders; orderby/order are whitelisted.
+		$count_sql   = "SELECT COUNT(*) FROM %i WHERE {$where}";
+		$total       = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, array_merge( array( $t['index'] ), $params ) ) );
+		$list_sql    = "SELECT * FROM %i WHERE {$where} ORDER BY {$f['orderby']} {$f['order']}, post_id ASC LIMIT %d OFFSET %d";
+		$this->items = $wpdb->get_results( $wpdb->prepare( $list_sql, array_merge( array( $t['index'] ), $params, array( self::PER_PAGE, $offset ) ) ), ARRAY_A );
 		// phpcs:enable
 
 		$this->_column_headers = array( $this->get_columns(), array(), $this->get_sortable_columns(), 'title' );

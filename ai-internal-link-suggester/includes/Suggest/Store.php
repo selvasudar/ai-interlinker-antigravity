@@ -36,9 +36,9 @@ final class Store {
 		$t   = Activator::tables();
 		$now = current_time( 'mysql', true );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . esc_sql( $t['suggestions'] ) . " WHERE source_post_id = %d AND status IN ('pending','stale')", (int) $source_id ) );
+		$wpdb->query( $wpdb->prepare( "DELETE FROM %i WHERE source_post_id = %d AND status IN ('pending','stale')", $t['suggestions'], (int) $source_id ) );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$keep = array_map( 'intval', $wpdb->get_col( $wpdb->prepare( 'SELECT target_post_id FROM ' . esc_sql( $t['suggestions'] ) . " WHERE source_post_id = %d AND status IN ('accepted','applied','rejected')", (int) $source_id ) ) );
+		$keep = array_map( 'intval', $wpdb->get_col( $wpdb->prepare( "SELECT target_post_id FROM %i WHERE source_post_id = %d AND status IN ('accepted','applied','rejected')", $t['suggestions'], (int) $source_id ) ) );
 
 		$n = 0;
 		foreach ( $suggestions as $s ) {
@@ -82,7 +82,7 @@ final class Store {
 		global $wpdb;
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $t['suggestions'] ) . ' WHERE id = %d', (int) $id ), ARRAY_A );
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', $t['suggestions'], (int) $id ), ARRAY_A );
 		return is_array( $row ) ? $row : null;
 	}
 

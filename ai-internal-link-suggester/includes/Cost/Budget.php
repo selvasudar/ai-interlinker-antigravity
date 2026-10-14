@@ -58,7 +58,7 @@ final class Budget {
 		$t      = Activator::tables();
 		$period = $period ? $period : self::period();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table, atomic upsert.
-		$wpdb->query( $wpdb->prepare( 'INSERT INTO ' . esc_sql( $t['budget'] ) . ' (period, cap_micros, spent_micros, reserved_micros, updated_at) VALUES (%s, %d, 0, 0, %s) ON DUPLICATE KEY UPDATE cap_micros = VALUES(cap_micros)', $period, self::cap(), current_time( 'mysql', true ) ) );
+		$wpdb->query( $wpdb->prepare( 'INSERT INTO %i (period, cap_micros, spent_micros, reserved_micros, updated_at) VALUES (%s, %d, 0, 0, %s) ON DUPLICATE KEY UPDATE cap_micros = VALUES(cap_micros)', $t['budget'], $period, self::cap(), current_time( 'mysql', true ) ) );
 	}
 
 	/**
@@ -76,10 +76,10 @@ final class Budget {
 
 		if ( self::cap() > 0 ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Atomic conditional reservation.
-			$wpdb->query( $wpdb->prepare( 'UPDATE ' . esc_sql( $t['budget'] ) . ' SET reserved_micros = reserved_micros + %d, updated_at = %s WHERE period = %s AND cap_micros > 0 AND spent_micros + reserved_micros + %d <= cap_micros', $amount, current_time( 'mysql', true ), $period, $amount ) );
+			$wpdb->query( $wpdb->prepare( 'UPDATE %i SET reserved_micros = reserved_micros + %d, updated_at = %s WHERE period = %s AND cap_micros > 0 AND spent_micros + reserved_micros + %d <= cap_micros', $t['budget'], $amount, current_time( 'mysql', true ), $period, $amount ) );
 		} else {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- No cap: still track reservations.
-			$wpdb->query( $wpdb->prepare( 'UPDATE ' . esc_sql( $t['budget'] ) . ' SET reserved_micros = reserved_micros + %d, updated_at = %s WHERE period = %s', $amount, current_time( 'mysql', true ), $period ) );
+			$wpdb->query( $wpdb->prepare( 'UPDATE %i SET reserved_micros = reserved_micros + %d, updated_at = %s WHERE period = %s', $t['budget'], $amount, current_time( 'mysql', true ), $period ) );
 		}
 		if ( 1 !== (int) $wpdb->rows_affected ) {
 			return 0;
@@ -130,7 +130,7 @@ final class Budget {
 		global $wpdb;
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$wpdb->query( $wpdb->prepare( 'UPDATE ' . esc_sql( $t['reservations'] ) . " SET release_after = %s WHERE id = %d AND status = 'held'", gmdate( 'Y-m-d H:i:s', time() + self::HOLD_MINUTES * MINUTE_IN_SECONDS ), (int) $reservation_id ) );
+		$wpdb->query( $wpdb->prepare( "UPDATE %i SET release_after = %s WHERE id = %d AND status = 'held'", $t['reservations'], gmdate( 'Y-m-d H:i:s', time() + self::HOLD_MINUTES * MINUTE_IN_SECONDS ), (int) $reservation_id ) );
 	}
 
 	/**
@@ -145,17 +145,17 @@ final class Budget {
 		global $wpdb;
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $t['reservations'] ) . ' WHERE id = %d', (int) $reservation_id ), ARRAY_A );
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', $t['reservations'], (int) $reservation_id ), ARRAY_A );
 		if ( ! $row ) {
 			return false;
 		}
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Guarded state change.
-		$wpdb->query( $wpdb->prepare( 'UPDATE ' . esc_sql( $t['reservations'] ) . " SET status = %s WHERE id = %d AND status = 'held'", $status, (int) $reservation_id ) );
+		$wpdb->query( $wpdb->prepare( "UPDATE %i SET status = %s WHERE id = %d AND status = 'held'", $t['reservations'], $status, (int) $reservation_id ) );
 		if ( 1 !== (int) $wpdb->rows_affected ) {
 			return false;
 		}
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Atomic counters.
-		$wpdb->query( $wpdb->prepare( 'UPDATE ' . esc_sql( $t['budget'] ) . ' SET reserved_micros = GREATEST(CAST(reserved_micros AS SIGNED) - %d, 0), spent_micros = spent_micros + %d, updated_at = %s WHERE period = %s', (int) $row['amount_micros'], (int) $spent, current_time( 'mysql', true ), $row['period'] ) );
+		$wpdb->query( $wpdb->prepare( 'UPDATE %i SET reserved_micros = GREATEST(CAST(reserved_micros AS SIGNED) - %d, 0), spent_micros = spent_micros + %d, updated_at = %s WHERE period = %s', $t['budget'], (int) $row['amount_micros'], (int) $spent, current_time( 'mysql', true ), $row['period'] ) );
 		return true;
 	}
 
@@ -170,7 +170,7 @@ final class Budget {
 		$t = Activator::tables();
 		self::ensure_row();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Atomic counter.
-		$wpdb->query( $wpdb->prepare( 'UPDATE ' . esc_sql( $t['budget'] ) . ' SET spent_micros = spent_micros + %d WHERE period = %s', max( 0, (int) $amount ), self::period() ) );
+		$wpdb->query( $wpdb->prepare( 'UPDATE %i SET spent_micros = spent_micros + %d WHERE period = %s', $t['budget'], max( 0, (int) $amount ), self::period() ) );
 	}
 
 	/**
@@ -184,7 +184,7 @@ final class Budget {
 		$now   = current_time( 'mysql', true );
 		$stale = gmdate( 'Y-m-d H:i:s', time() - self::STALE_MINUTES * MINUTE_IN_SECONDS );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$ids = $wpdb->get_col( $wpdb->prepare( 'SELECT id FROM ' . esc_sql( $t['reservations'] ) . " WHERE status = 'held' AND ( ( release_after IS NOT NULL AND release_after < %s ) OR ( release_after IS NULL AND created_at < %s ) )", $now, $stale ) );
+		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM %i WHERE status = 'held' AND ( ( release_after IS NOT NULL AND release_after < %s ) OR ( release_after IS NULL AND created_at < %s ) )", $t['reservations'], $now, $stale ) );
 		$n   = 0;
 		foreach ( $ids as $id ) {
 			$n += self::release( (int) $id ) ? 1 : 0;
@@ -202,7 +202,7 @@ final class Budget {
 		$t = Activator::tables();
 		self::ensure_row();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table, live numbers.
-		$row      = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $t['budget'] ) . ' WHERE period = %s', self::period() ), ARRAY_A );
+		$row      = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE period = %s', $t['budget'], self::period() ), ARRAY_A );
 		$cap      = (int) ( $row['cap_micros'] ?? 0 );
 		$spent    = (int) ( $row['spent_micros'] ?? 0 );
 		$reserved = (int) ( $row['reserved_micros'] ?? 0 );
@@ -228,7 +228,7 @@ final class Budget {
 		global $wpdb;
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$wpdb->query( $wpdb->prepare( 'UPDATE ' . esc_sql( $t['budget'] ) . ' SET spent_micros = 0 WHERE period = %s', self::period() ) );
+		$wpdb->query( $wpdb->prepare( 'UPDATE %i SET spent_micros = 0 WHERE period = %s', $t['budget'], self::period() ) );
 		Queue::release_held();
 	}
 

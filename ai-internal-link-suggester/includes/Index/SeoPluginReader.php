@@ -294,7 +294,7 @@ final class SeoPluginReader {
 		}
 		$suppress = $wpdb->suppress_errors( true );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Read-only lookup in another plugin's table.
-		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $table ) . ' WHERE post_id = %d', $post_id ), ARRAY_A );
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE post_id = %d', $table, $post_id ), ARRAY_A );
 		$wpdb->suppress_errors( $suppress );
 		return is_array( $row ) ? $row : null;
 	}

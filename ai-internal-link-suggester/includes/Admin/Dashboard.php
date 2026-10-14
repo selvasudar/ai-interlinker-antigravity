@@ -89,10 +89,10 @@ final class Dashboard {
 		global $wpdb;
 		$t = Activator::tables();
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own tables, live numbers.
-		$indexed = (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . esc_sql( $t['index'] ) );
-		$pending = (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . esc_sql( $t['suggestions'] ) . " WHERE status IN ('pending','accepted')" );
-		$applied = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . esc_sql( $t['applied'] ) . ' WHERE reverted_at IS NULL AND applied_at >= %s', gmdate( 'Y-m-01 00:00:00' ) ) );
-		$scans   = (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . esc_sql( $t['runs'] ) . " WHERE type IN ('scan','regenerate')" );
+		$indexed = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $t['index'] ) );
+		$pending = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE status IN ('pending','accepted')", $t['suggestions'] ) );
+		$applied = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE reverted_at IS NULL AND applied_at >= %s', $t['applied'], gmdate( 'Y-m-01 00:00:00' ) ) );
+		$scans   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE type IN ('scan','regenerate')", $t['runs'] ) );
 		// phpcs:enable
 		return array(
 			'indexed' => $indexed,
@@ -145,16 +145,18 @@ final class Dashboard {
 		global $wpdb;
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-		$avg   = (float) $wpdb->get_var( 'SELECT AVG(inbound_count) FROM ' . esc_sql( $t['index'] ) );
-		$where = "s.status = 'pending'";
-		$args  = array( $avg );
+		$avg        = (float) $wpdb->get_var( $wpdb->prepare( 'SELECT AVG(inbound_count) FROM %i', $t['index'] ) );
+		$where      = "s.status = 'pending'";
+		$where_args = array();
 		if ( ! current_user_can( 'edit_others_posts' ) ) {
-			$where .= ' AND p.post_author = %d';
-			$args[] = get_current_user_id();
+			$where       .= ' AND p.post_author = %d';
+			$where_args[] = get_current_user_id();
 		}
-		$args[] = 20;
 		// Deficit: how far the target is below the site's average number of links in (at least 1).
-		$sql = 'SELECT s.*, src.title AS source_title, tgt.title AS target_title, tgt.inbound_count AS target_inbound, s.score * GREATEST(1, %f + 1 - tgt.inbound_count) AS win FROM ' . Suggestions_Table::from() . " WHERE {$where} ORDER BY win DESC, s.score DESC LIMIT %d";
+		$from_clause = Suggestions_Table::from_clause();
+		$from_params = Suggestions_Table::from_params();
+		$sql         = "SELECT s.*, src.title AS source_title, tgt.title AS target_title, tgt.inbound_count AS target_inbound, s.score * GREATEST(1, %f + 1 - tgt.inbound_count) AS win FROM {$from_clause} WHERE {$where} ORDER BY win DESC, s.score DESC LIMIT %d";
+		$args        = array_merge( array( $avg ), $from_params, $where_args, array( 20 ) );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only.
 		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $args ), ARRAY_A );
 		return is_array( $rows ) ? $rows : array();

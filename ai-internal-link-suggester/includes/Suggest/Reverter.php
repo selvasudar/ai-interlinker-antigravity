@@ -31,7 +31,7 @@ final class Reverter {
 		$t = Activator::tables();
 		if ( null !== $batch ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
-			$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $t['applied'] ) . ' WHERE batch_id = %s AND reverted_at IS NULL', (string) $batch ), ARRAY_A );
+			$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i WHERE batch_id = %s AND reverted_at IS NULL', $t['applied'], (string) $batch ), ARRAY_A );
 			return is_array( $rows ) ? $rows : array();
 		}
 		$ids = array_values( array_filter( array_map( 'intval', $ids ) ) );
@@ -40,7 +40,7 @@ final class Reverter {
 		}
 		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Placeholders built above.
-		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $t['applied'] ) . " WHERE id IN ({$placeholders}) AND reverted_at IS NULL", $ids ), ARRAY_A );
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE id IN ({$placeholders}) AND reverted_at IS NULL", array_merge( array( $t['applied'] ), $ids ) ), ARRAY_A );
 		return is_array( $rows ) ? $rows : array();
 	}
 

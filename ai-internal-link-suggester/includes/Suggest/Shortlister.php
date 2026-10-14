@@ -103,8 +103,8 @@ final class Shortlister {
 	 */
 	private static function where( array $row ) {
 		$t      = Activator::tables();
-		$sql    = "i.post_id <> %d AND p.post_status = 'publish' AND p.post_password = '' AND i.is_noindex = 0 AND i.post_id NOT IN (SELECT l.target_post_id FROM " . esc_sql( $t['links'] ) . ' l WHERE l.source_post_id = %d)';
-		$params = array( (int) $row['post_id'], (int) $row['post_id'] );
+		$sql    = "i.post_id <> %d AND p.post_status = 'publish' AND p.post_password = '' AND i.is_noindex = 0 AND i.post_id NOT IN (SELECT l.target_post_id FROM %i l WHERE l.source_post_id = %d)";
+		$params = array( (int) $row['post_id'], $t['links'], (int) $row['post_id'] );
 		if ( '' !== (string) $row['lang'] ) {
 			$sql     .= " AND ( i.lang = %s OR i.lang = '' )";
 			$params[] = (string) $row['lang'];
@@ -124,10 +124,10 @@ final class Shortlister {
 		global $wpdb;
 		$t                      = Activator::tables();
 		list( $where, $params ) = self::where( $row );
-		$sql                    = 'SELECT i.post_id, i.title, i.primary_keyword, i.secondary_keywords, i.summary, MATCH(i.title, i.primary_keyword, i.secondary_keywords, i.summary) AGAINST (%s IN NATURAL LANGUAGE MODE) AS relevance FROM ' . esc_sql( $t['index'] ) . " i INNER JOIN {$wpdb->posts} p ON p.ID = i.post_id WHERE {$where} HAVING relevance > 0 ORDER BY relevance DESC LIMIT %d";
+		$sql                    = "SELECT i.post_id, i.title, i.primary_keyword, i.secondary_keywords, i.summary, MATCH(i.title, i.primary_keyword, i.secondary_keywords, i.summary) AGAINST (%s IN NATURAL LANGUAGE MODE) AS relevance FROM %i i INNER JOIN %i p ON p.ID = i.post_id WHERE {$where} HAVING relevance > 0 ORDER BY relevance DESC LIMIT %d";
 		$suppress               = $wpdb->suppress_errors( true );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only; values via prepare().
-		$rows = $wpdb->get_results( $wpdb->prepare( $sql, array_merge( array( $query ), $params, array( (int) $limit ) ) ), ARRAY_A );
+		$rows = $wpdb->get_results( $wpdb->prepare( $sql, array_merge( array( $query, $t['index'], $wpdb->posts ), $params, array( (int) $limit ) ) ), ARRAY_A );
 		$err  = $wpdb->last_error;
 		$wpdb->suppress_errors( $suppress );
 		if ( '' !== $err || ! is_array( $rows ) ) {
@@ -148,9 +148,9 @@ final class Shortlister {
 		global $wpdb;
 		$t                      = Activator::tables();
 		list( $where, $params ) = self::where( $row );
-		$sql                    = 'SELECT i.post_id, i.title, i.primary_keyword, i.secondary_keywords, i.summary FROM ' . esc_sql( $t['index'] ) . " i INNER JOIN {$wpdb->posts} p ON p.ID = i.post_id WHERE {$where} LIMIT 5000";
+		$sql                    = "SELECT i.post_id, i.title, i.primary_keyword, i.secondary_keywords, i.summary FROM %i i INNER JOIN %i p ON p.ID = i.post_id WHERE {$where} LIMIT 5000";
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only; values via prepare().
-		$rows = (array) $wpdb->get_results( $wpdb->prepare( $sql, $params ), ARRAY_A );
+		$rows = (array) $wpdb->get_results( $wpdb->prepare( $sql, array_merge( array( $t['index'], $wpdb->posts ), $params ) ), ARRAY_A );
 		if ( ! $rows ) {
 			return array();
 		}

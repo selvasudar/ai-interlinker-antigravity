@@ -430,7 +430,7 @@ final class Settings_Page {
 
 		$tables = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Live counts for a status screen.
-		$counts = $wpdb->get_results( 'SELECT status, COUNT(*) AS n FROM ' . esc_sql( $tables['queue'] ) . ' GROUP BY status', OBJECT_K );
+		$counts = $wpdb->get_results( $wpdb->prepare( 'SELECT status, COUNT(*) AS n FROM %i GROUP BY status', $tables['queue'] ), OBJECT_K );
 		$parts  = array();
 		foreach ( (array) $counts as $row ) {
 			$parts[] = $row->status . ': ' . number_format_i18n( (int) $row->n );
