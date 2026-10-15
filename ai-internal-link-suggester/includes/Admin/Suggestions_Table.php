@@ -71,6 +71,56 @@ class Suggestions_Table extends \WP_List_Table {
 	}
 
 	/**
+	 * Static WHERE clause SQL format string with placeholders.
+	 *
+	 * @return string
+	 */
+	public static function where_clause() {
+		return '( %s = \'all\' OR s.status = %s ) AND ( %d = 0 OR s.score >= %d ) AND ( %s = \'\' OR src.post_type = %s ) AND ( %d = 0 OR EXISTS (SELECT 1 FROM %i tr INNER JOIN %i tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tr.object_id = s.source_post_id AND tt.term_id = %d) ) AND ( %d = 0 OR tgt.inbound_count = 0 ) AND ( %d = 0 OR s.source_post_id = %d ) AND ( %s = \'\' OR s.anchor_text LIKE %s OR src.title LIKE %s OR tgt.title LIKE %s ) AND ( %d = 0 OR p.post_author = %d )';
+	}
+
+	/**
+	 * Parameter array for the static WHERE clause.
+	 *
+	 * @param array $f           Filters.
+	 * @param bool  $with_status Include the status filter.
+	 * @return array
+	 */
+	public static function where_params( array $f, $with_status = true ) {
+		global $wpdb;
+		$status      = $with_status ? $f['status'] : 'all';
+		$min_score   = ( $f['min_score'] > 0 && ! in_array( $f['status'], array( 'applied', 'reverted' ), true ) ) ? (int) $f['min_score'] : 0;
+		$post_type   = (string) $f['post_type'];
+		$cat         = (int) $f['cat'];
+		$orphan      = $f['orphan'] ? 1 : 0;
+		$source      = (int) $f['source'];
+		$search_like = ( '' !== $f['s'] ) ? '%' . $wpdb->esc_like( $f['s'] ) . '%' : '';
+		$author_id   = current_user_can( 'edit_others_posts' ) ? 0 : (int) get_current_user_id();
+
+		return array(
+			$status,
+			$status,
+			$min_score,
+			$min_score,
+			$post_type,
+			$post_type,
+			$cat,
+			$wpdb->term_relationships,
+			$wpdb->term_taxonomy,
+			$cat,
+			$orphan,
+			$source,
+			$source,
+			$search_like,
+			$search_like,
+			$search_like,
+			$search_like,
+			$author_id,
+			$author_id,
+		);
+	}
+
+	/**
 	 * WHERE clause for filters.
 	 *
 	 * @param array $f            Filters.
@@ -78,46 +128,7 @@ class Suggestions_Table extends \WP_List_Table {
 	 * @return array{0:string,1:array}
 	 */
 	public static function where( array $f, $with_status = true ) {
-		global $wpdb;
-		$sql    = array( '1=1' );
-		$params = array();
-		if ( $with_status && 'all' !== $f['status'] ) {
-			$sql[]    = 's.status = %s';
-			$params[] = $f['status'];
-		}
-		if ( $f['min_score'] > 0 && ! in_array( $f['status'], array( 'applied', 'reverted' ), true ) ) {
-			$sql[]    = 's.score >= %d';
-			$params[] = $f['min_score'];
-		}
-		if ( '' !== $f['post_type'] ) {
-			$sql[]    = 'src.post_type = %s';
-			$params[] = $f['post_type'];
-		}
-		if ( $f['cat'] ) {
-			$sql[]    = 'EXISTS (SELECT 1 FROM %i tr INNER JOIN %i tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tr.object_id = s.source_post_id AND tt.term_id = %d)';
-			$params[] = $wpdb->term_relationships;
-			$params[] = $wpdb->term_taxonomy;
-			$params[] = $f['cat'];
-		}
-		if ( $f['orphan'] ) {
-			$sql[] = 'tgt.inbound_count = 0';
-		}
-		if ( $f['source'] ) {
-			$sql[]    = 's.source_post_id = %d';
-			$params[] = $f['source'];
-		}
-		if ( '' !== $f['s'] ) {
-			$like     = '%' . $wpdb->esc_like( $f['s'] ) . '%';
-			$sql[]    = '(s.anchor_text LIKE %s OR src.title LIKE %s OR tgt.title LIKE %s)';
-			$params[] = $like;
-			$params[] = $like;
-			$params[] = $like;
-		}
-		if ( ! current_user_can( 'edit_others_posts' ) ) {
-			$sql[]    = 'p.post_author = %d';
-			$params[] = get_current_user_id();
-		}
-		return array( implode( ' AND ', $sql ), $params );
+		return array( self::where_clause(), self::where_params( $f, $with_status ) );
 	}
 
 	/**
@@ -186,13 +197,20 @@ class Suggestions_Table extends \WP_List_Table {
 	 */
 	protected function get_views() {
 		global $wpdb;
-		$f                      = self::filters();
-		list( $where, $params ) = self::where( $f, false );
-		$from_clause            = self::from_clause();
-		$from_params            = self::from_params();
-		$sql                    = "SELECT s.status, COUNT(*) AS n FROM {$from_clause} WHERE {$where} GROUP BY s.status";
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only.
-		$rows   = $wpdb->get_results( $wpdb->prepare( $sql, array_merge( $from_params, $params ) ), OBJECT_K );
+		$f           = self::filters();
+		$from_params = self::from_params();
+		$w_params    = self::where_params( $f, false );
+		$args        = array_merge( $from_params, $w_params );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+		$rows = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Arguments passed as array.
+			$wpdb->prepare(
+				"SELECT s.status, COUNT(*) AS n FROM %i s LEFT JOIN %i src ON src.post_id = s.source_post_id LEFT JOIN %i tgt ON tgt.post_id = s.target_post_id INNER JOIN %i p ON p.ID = s.source_post_id WHERE ( %s = 'all' OR s.status = %s ) AND ( %d = 0 OR s.score >= %d ) AND ( %s = '' OR src.post_type = %s ) AND ( %d = 0 OR EXISTS (SELECT 1 FROM %i tr INNER JOIN %i tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tr.object_id = s.source_post_id AND tt.term_id = %d) ) AND ( %d = 0 OR tgt.inbound_count = 0 ) AND ( %d = 0 OR s.source_post_id = %d ) AND ( %s = '' OR s.anchor_text LIKE %s OR src.title LIKE %s OR tgt.title LIKE %s ) AND ( %d = 0 OR p.post_author = %d ) GROUP BY s.status",
+				$args
+			),
+			OBJECT_K
+		);
 		$labels = array(
 			'pending'  => __( 'To review', 'linkcortex' ),
 			'applied'  => __( 'Applied', 'linkcortex' ),
@@ -204,8 +222,8 @@ class Suggestions_Table extends \WP_List_Table {
 		if ( isset( $rows['accepted'] ) && (int) $rows['accepted']->n > 0 ) {
 			$labels = array_slice( $labels, 0, 1, true ) + array( 'accepted' => __( 'Accepted (legacy)', 'linkcortex' ) ) + array_slice( $labels, 1, null, true );
 		}
-		$views  = array();
-		$total  = 0;
+		$views = array();
+		$total = 0;
 		foreach ( (array) $rows as $row ) {
 			$total += (int) $row->n;
 		}
@@ -290,36 +308,72 @@ class Suggestions_Table extends \WP_List_Table {
 	 */
 	public function prepare_items() {
 		global $wpdb;
-		$f                      = self::filters();
-		list( $where, $params ) = self::where( $f );
-		$orders                 = array(
-			'score'      => 's.score',
-			'created_at' => 's.created_at',
-			'source'     => 'src.title',
-			'target'     => 'tgt.title',
-		);
-		$order                  = $orders[ $f['orderby'] ] . ' ' . $f['order'];
-		$page                   = $this->get_pagenum();
-		$offset                 = ( $page - 1 ) * self::PER_PAGE;
-		$from_clause = self::from_clause();
+		$f           = self::filters();
+		$page        = $this->get_pagenum();
+		$offset      = ( $page - 1 ) * self::PER_PAGE;
 		$from_params = self::from_params();
+		$w_params    = self::where_params( $f, true );
+		$count_args  = array_merge( $from_params, $w_params );
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only; order whitelisted.
-		$count_sql   = "SELECT COUNT(*) FROM {$from_clause} WHERE {$where}";
-		$total       = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, array_merge( $from_params, $params ) ) );
-		$list_sql    = "SELECT s.*, src.title AS source_title, src.post_type AS source_type, src.is_builder AS source_builder, tgt.title AS target_title, tgt.primary_keyword AS target_keyword, tgt.inbound_count AS target_inbound FROM {$from_clause} WHERE {$where} ORDER BY {$order}, s.id DESC LIMIT %d OFFSET %d";
-		$this->items = $wpdb->get_results( $wpdb->prepare( $list_sql, array_merge( $from_params, $params, array( self::PER_PAGE, $offset ) ) ), ARRAY_A );
-		// phpcs:enable
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table + posts table.
+		$total = (int) $wpdb->get_var(
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic filter parameters passed as array.
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM %i s LEFT JOIN %i src ON src.post_id = s.source_post_id LEFT JOIN %i tgt ON tgt.post_id = s.target_post_id INNER JOIN %i p ON p.ID = s.source_post_id WHERE ( %s = 'all' OR s.status = %s ) AND ( %d = 0 OR s.score >= %d ) AND ( %s = '' OR src.post_type = %s ) AND ( %d = 0 OR EXISTS (SELECT 1 FROM %i tr INNER JOIN %i tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tr.object_id = s.source_post_id AND tt.term_id = %d) ) AND ( %d = 0 OR tgt.inbound_count = 0 ) AND ( %d = 0 OR s.source_post_id = %d ) AND ( %s = '' OR s.anchor_text LIKE %s OR src.title LIKE %s OR tgt.title LIKE %s ) AND ( %d = 0 OR p.post_author = %d )",
+				$count_args
+			)
+		);
+
+		$orderby   = in_array( $f['orderby'], array( 'score', 'created_at', 'source', 'target' ), true ) ? $f['orderby'] : 'score';
+		$order     = ( 'asc' === strtolower( $f['order'] ) ) ? 'ASC' : 'DESC';
+		$list_args = array_merge( $from_params, $w_params, array( self::PER_PAGE, $offset ) );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Direct query on own custom table with dynamic filter parameters.
+		switch ( "{$orderby}_{$order}" ) {
+			case 'created_at_ASC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT s.*, src.title AS source_title, src.post_type AS source_type, src.is_builder AS source_builder, tgt.title AS target_title, tgt.primary_keyword AS target_keyword, tgt.inbound_count AS target_inbound FROM %i s LEFT JOIN %i src ON src.post_id = s.source_post_id LEFT JOIN %i tgt ON tgt.post_id = s.target_post_id INNER JOIN %i p ON p.ID = s.source_post_id WHERE ( %s = 'all' OR s.status = %s ) AND ( %d = 0 OR s.score >= %d ) AND ( %s = '' OR src.post_type = %s ) AND ( %d = 0 OR EXISTS (SELECT 1 FROM %i tr INNER JOIN %i tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tr.object_id = s.source_post_id AND tt.term_id = %d) ) AND ( %d = 0 OR tgt.inbound_count = 0 ) AND ( %d = 0 OR s.source_post_id = %d ) AND ( %s = '' OR s.anchor_text LIKE %s OR src.title LIKE %s OR tgt.title LIKE %s ) AND ( %d = 0 OR p.post_author = %d ) ORDER BY s.created_at ASC, s.id DESC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'created_at_DESC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT s.*, src.title AS source_title, src.post_type AS source_type, src.is_builder AS source_builder, tgt.title AS target_title, tgt.primary_keyword AS target_keyword, tgt.inbound_count AS target_inbound FROM %i s LEFT JOIN %i src ON src.post_id = s.source_post_id LEFT JOIN %i tgt ON tgt.post_id = s.target_post_id INNER JOIN %i p ON p.ID = s.source_post_id WHERE ( %s = 'all' OR s.status = %s ) AND ( %d = 0 OR s.score >= %d ) AND ( %s = '' OR src.post_type = %s ) AND ( %d = 0 OR EXISTS (SELECT 1 FROM %i tr INNER JOIN %i tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tr.object_id = s.source_post_id AND tt.term_id = %d) ) AND ( %d = 0 OR tgt.inbound_count = 0 ) AND ( %d = 0 OR s.source_post_id = %d ) AND ( %s = '' OR s.anchor_text LIKE %s OR src.title LIKE %s OR tgt.title LIKE %s ) AND ( %d = 0 OR p.post_author = %d ) ORDER BY s.created_at DESC, s.id DESC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'source_ASC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT s.*, src.title AS source_title, src.post_type AS source_type, src.is_builder AS source_builder, tgt.title AS target_title, tgt.primary_keyword AS target_keyword, tgt.inbound_count AS target_inbound FROM %i s LEFT JOIN %i src ON src.post_id = s.source_post_id LEFT JOIN %i tgt ON tgt.post_id = s.target_post_id INNER JOIN %i p ON p.ID = s.source_post_id WHERE ( %s = 'all' OR s.status = %s ) AND ( %d = 0 OR s.score >= %d ) AND ( %s = '' OR src.post_type = %s ) AND ( %d = 0 OR EXISTS (SELECT 1 FROM %i tr INNER JOIN %i tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tr.object_id = s.source_post_id AND tt.term_id = %d) ) AND ( %d = 0 OR tgt.inbound_count = 0 ) AND ( %d = 0 OR s.source_post_id = %d ) AND ( %s = '' OR s.anchor_text LIKE %s OR src.title LIKE %s OR tgt.title LIKE %s ) AND ( %d = 0 OR p.post_author = %d ) ORDER BY src.title ASC, s.id DESC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'source_DESC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT s.*, src.title AS source_title, src.post_type AS source_type, src.is_builder AS source_builder, tgt.title AS target_title, tgt.primary_keyword AS target_keyword, tgt.inbound_count AS target_inbound FROM %i s LEFT JOIN %i src ON src.post_id = s.source_post_id LEFT JOIN %i tgt ON tgt.post_id = s.target_post_id INNER JOIN %i p ON p.ID = s.source_post_id WHERE ( %s = 'all' OR s.status = %s ) AND ( %d = 0 OR s.score >= %d ) AND ( %s = '' OR src.post_type = %s ) AND ( %d = 0 OR EXISTS (SELECT 1 FROM %i tr INNER JOIN %i tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tr.object_id = s.source_post_id AND tt.term_id = %d) ) AND ( %d = 0 OR tgt.inbound_count = 0 ) AND ( %d = 0 OR s.source_post_id = %d ) AND ( %s = '' OR s.anchor_text LIKE %s OR src.title LIKE %s OR tgt.title LIKE %s ) AND ( %d = 0 OR p.post_author = %d ) ORDER BY src.title DESC, s.id DESC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'target_ASC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT s.*, src.title AS source_title, src.post_type AS source_type, src.is_builder AS source_builder, tgt.title AS target_title, tgt.primary_keyword AS target_keyword, tgt.inbound_count AS target_inbound FROM %i s LEFT JOIN %i src ON src.post_id = s.source_post_id LEFT JOIN %i tgt ON tgt.post_id = s.target_post_id INNER JOIN %i p ON p.ID = s.source_post_id WHERE ( %s = 'all' OR s.status = %s ) AND ( %d = 0 OR s.score >= %d ) AND ( %s = '' OR src.post_type = %s ) AND ( %d = 0 OR EXISTS (SELECT 1 FROM %i tr INNER JOIN %i tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tr.object_id = s.source_post_id AND tt.term_id = %d) ) AND ( %d = 0 OR tgt.inbound_count = 0 ) AND ( %d = 0 OR s.source_post_id = %d ) AND ( %s = '' OR s.anchor_text LIKE %s OR src.title LIKE %s OR tgt.title LIKE %s ) AND ( %d = 0 OR p.post_author = %d ) ORDER BY tgt.title ASC, s.id DESC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'target_DESC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT s.*, src.title AS source_title, src.post_type AS source_type, src.is_builder AS source_builder, tgt.title AS target_title, tgt.primary_keyword AS target_keyword, tgt.inbound_count AS target_inbound FROM %i s LEFT JOIN %i src ON src.post_id = s.source_post_id LEFT JOIN %i tgt ON tgt.post_id = s.target_post_id INNER JOIN %i p ON p.ID = s.source_post_id WHERE ( %s = 'all' OR s.status = %s ) AND ( %d = 0 OR s.score >= %d ) AND ( %s = '' OR src.post_type = %s ) AND ( %d = 0 OR EXISTS (SELECT 1 FROM %i tr INNER JOIN %i tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tr.object_id = s.source_post_id AND tt.term_id = %d) ) AND ( %d = 0 OR tgt.inbound_count = 0 ) AND ( %d = 0 OR s.source_post_id = %d ) AND ( %s = '' OR s.anchor_text LIKE %s OR src.title LIKE %s OR tgt.title LIKE %s ) AND ( %d = 0 OR p.post_author = %d ) ORDER BY tgt.title DESC, s.id DESC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'score_ASC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT s.*, src.title AS source_title, src.post_type AS source_type, src.is_builder AS source_builder, tgt.title AS target_title, tgt.primary_keyword AS target_keyword, tgt.inbound_count AS target_inbound FROM %i s LEFT JOIN %i src ON src.post_id = s.source_post_id LEFT JOIN %i tgt ON tgt.post_id = s.target_post_id INNER JOIN %i p ON p.ID = s.source_post_id WHERE ( %s = 'all' OR s.status = %s ) AND ( %d = 0 OR s.score >= %d ) AND ( %s = '' OR src.post_type = %s ) AND ( %d = 0 OR EXISTS (SELECT 1 FROM %i tr INNER JOIN %i tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tr.object_id = s.source_post_id AND tt.term_id = %d) ) AND ( %d = 0 OR tgt.inbound_count = 0 ) AND ( %d = 0 OR s.source_post_id = %d ) AND ( %s = '' OR s.anchor_text LIKE %s OR src.title LIKE %s OR tgt.title LIKE %s ) AND ( %d = 0 OR p.post_author = %d ) ORDER BY s.score ASC, s.id DESC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'score_DESC':
+			default:
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT s.*, src.title AS source_title, src.post_type AS source_type, src.is_builder AS source_builder, tgt.title AS target_title, tgt.primary_keyword AS target_keyword, tgt.inbound_count AS target_inbound FROM %i s LEFT JOIN %i src ON src.post_id = s.source_post_id LEFT JOIN %i tgt ON tgt.post_id = s.target_post_id INNER JOIN %i p ON p.ID = s.source_post_id WHERE ( %s = 'all' OR s.status = %s ) AND ( %d = 0 OR s.score >= %d ) AND ( %s = '' OR src.post_type = %s ) AND ( %d = 0 OR EXISTS (SELECT 1 FROM %i tr INNER JOIN %i tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tr.object_id = s.source_post_id AND tt.term_id = %d) ) AND ( %d = 0 OR tgt.inbound_count = 0 ) AND ( %d = 0 OR s.source_post_id = %d ) AND ( %s = '' OR s.anchor_text LIKE %s OR src.title LIKE %s OR tgt.title LIKE %s ) AND ( %d = 0 OR p.post_author = %d ) ORDER BY s.score DESC, s.id DESC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+		}
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		if ( 'applied' === $f['status'] && $this->items ) {
-			$t            = Activator::tables();
-			$ids          = array_map( 'intval', wp_list_pluck( $this->items, 'id' ) );
-			$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-			$subquery_sql = "SELECT a.*, (SELECT COUNT(*) FROM %i b WHERE b.batch_id = a.batch_id AND b.reverted_at IS NULL) AS batch_size FROM %i a WHERE a.reverted_at IS NULL AND a.suggestion_id IN ({$placeholders})";
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only.
-			$rows         = $wpdb->get_results( $wpdb->prepare( $subquery_sql, array_merge( array( $t['applied'], $t['applied'] ), $ids ) ), ARRAY_A );
-			foreach ( (array) $rows as $r ) {
-				$this->applied[ (int) $r['suggestion_id'] ] = $r;
+			$t = Activator::tables();
+			foreach ( $this->items as $item ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+				$r = $wpdb->get_row(
+					$wpdb->prepare(
+						'SELECT a.*, (SELECT COUNT(*) FROM %i b WHERE b.batch_id = a.batch_id AND b.reverted_at IS NULL) AS batch_size FROM %i a WHERE a.reverted_at IS NULL AND a.suggestion_id = %d LIMIT 1',
+						$t['applied'],
+						$t['applied'],
+						(int) $item['id']
+					),
+					ARRAY_A
+				);
+				if ( $r ) {
+					$this->applied[ (int) $r['suggestion_id'] ] = $r;
+				}
 			}
 		}
 

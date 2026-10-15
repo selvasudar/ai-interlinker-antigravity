@@ -63,32 +63,48 @@ class Keywords_Table extends \WP_List_Table {
 	 * @param array $f Filters.
 	 * @return array{0:string,1:array} SQL and params.
 	 */
-	public static function where( array $f ) {
+	/**
+	 * Static WHERE clause SQL format string with placeholders.
+	 *
+	 * @return string
+	 */
+	public static function where_clause() {
+		return '( %s = \'all\' OR ( %s = \'nokeyword\' AND primary_keyword = \'\' ) OR ( %s = \'orphan\' AND inbound_count = 0 ) OR ( %s = \'low\' AND inbound_count BETWEEN 1 AND 2 ) ) AND ( %s = \'\' OR post_type = %s ) AND ( %s = \'\' OR title LIKE %s OR primary_keyword LIKE %s )';
+	}
+
+	/**
+	 * Parameter array for the static WHERE clause.
+	 *
+	 * @param array $f Filters.
+	 * @return array
+	 */
+	public static function where_params( array $f ) {
 		global $wpdb;
-		$sql    = array( '1=1' );
-		$params = array();
-		switch ( $f['view'] ) {
-			case 'nokeyword':
-				$sql[] = "primary_keyword = ''";
-				break;
-			case 'orphan':
-				$sql[] = 'inbound_count = 0';
-				break;
-			case 'low':
-				$sql[] = 'inbound_count BETWEEN 1 AND 2';
-				break;
-		}
-		if ( '' !== $f['post_type'] ) {
-			$sql[]    = 'post_type = %s';
-			$params[] = $f['post_type'];
-		}
-		if ( '' !== $f['s'] ) {
-			$like     = '%' . $wpdb->esc_like( $f['s'] ) . '%';
-			$sql[]    = '(title LIKE %s OR primary_keyword LIKE %s)';
-			$params[] = $like;
-			$params[] = $like;
-		}
-		return array( implode( ' AND ', $sql ), $params );
+		$view      = (string) $f['view'];
+		$post_type = (string) $f['post_type'];
+		$search    = ( '' !== $f['s'] ) ? '%' . $wpdb->esc_like( $f['s'] ) . '%' : '';
+
+		return array(
+			$view,
+			$view,
+			$view,
+			$view,
+			$post_type,
+			$post_type,
+			$search,
+			$search,
+			$search,
+		);
+	}
+
+	/**
+	 * WHERE clause for filters.
+	 *
+	 * @param array $f Filters.
+	 * @return array{0:string,1:array}
+	 */
+	public static function where( array $f ) {
+		return array( self::where_clause(), self::where_params( $f ) );
 	}
 
 	/**
@@ -129,8 +145,8 @@ class Keywords_Table extends \WP_List_Table {
 	 */
 	protected function get_views() {
 		global $wpdb;
-		$t      = Activator::tables();
-		$f      = self::filters();
+		$t = Activator::tables();
+		$f = self::filters();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
 		$counts = $wpdb->get_row( $wpdb->prepare( "SELECT COUNT(*) AS total, SUM(primary_keyword = '') AS nokeyword, SUM(inbound_count = 0) AS orphan, SUM(inbound_count BETWEEN 1 AND 2) AS low FROM %i", $t['index'] ), ARRAY_A );
 		$labels = array(
@@ -189,18 +205,61 @@ class Keywords_Table extends \WP_List_Table {
 	 */
 	public function prepare_items() {
 		global $wpdb;
-		$t                      = Activator::tables();
-		$f                      = self::filters();
-		list( $where, $params ) = self::where( $f );
-		$page                   = $this->get_pagenum();
-		$offset                 = ( $page - 1 ) * self::PER_PAGE;
+		$t        = Activator::tables();
+		$f        = self::filters();
+		$page     = $this->get_pagenum();
+		$offset   = ( $page - 1 ) * self::PER_PAGE;
+		$w_params = self::where_params( $f );
+		$c_args   = array_merge( array( $t['index'] ), $w_params );
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $where uses placeholders; orderby/order are whitelisted.
-		$count_sql   = "SELECT COUNT(*) FROM %i WHERE {$where}";
-		$total       = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, array_merge( array( $t['index'] ), $params ) ) );
-		$list_sql    = "SELECT * FROM %i WHERE {$where} ORDER BY {$f['orderby']} {$f['order']}, post_id ASC LIMIT %d OFFSET %d";
-		$this->items = $wpdb->get_results( $wpdb->prepare( $list_sql, array_merge( array( $t['index'] ), $params, array( self::PER_PAGE, $offset ) ) ), ARRAY_A );
-		// phpcs:enable
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+		$total = (int) $wpdb->get_var(
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic filter parameters passed as array.
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM %i WHERE ( %s = 'all' OR ( %s = 'nokeyword' AND primary_keyword = '' ) OR ( %s = 'orphan' AND inbound_count = 0 ) OR ( %s = 'low' AND inbound_count BETWEEN 1 AND 2 ) ) AND ( %s = '' OR post_type = %s ) AND ( %s = '' OR title LIKE %s OR primary_keyword LIKE %s )",
+				$c_args
+			)
+		);
+
+		$orderby   = in_array( $f['orderby'], array( 'title', 'primary_keyword', 'inbound_count', 'outbound_count', 'word_count' ), true ) ? $f['orderby'] : 'title';
+		$order     = ( 'asc' === strtolower( $f['order'] ) ) ? 'ASC' : 'DESC';
+		$list_args = array_merge( array( $t['index'] ), $w_params, array( self::PER_PAGE, $offset ) );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Direct query on own custom table with dynamic filter parameters.
+		switch ( "{$orderby}_{$order}" ) {
+			case 'primary_keyword_ASC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE ( %s = 'all' OR ( %s = 'nokeyword' AND primary_keyword = '' ) OR ( %s = 'orphan' AND inbound_count = 0 ) OR ( %s = 'low' AND inbound_count BETWEEN 1 AND 2 ) ) AND ( %s = '' OR post_type = %s ) AND ( %s = '' OR title LIKE %s OR primary_keyword LIKE %s ) ORDER BY primary_keyword ASC, post_id ASC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'primary_keyword_DESC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE ( %s = 'all' OR ( %s = 'nokeyword' AND primary_keyword = '' ) OR ( %s = 'orphan' AND inbound_count = 0 ) OR ( %s = 'low' AND inbound_count BETWEEN 1 AND 2 ) ) AND ( %s = '' OR post_type = %s ) AND ( %s = '' OR title LIKE %s OR primary_keyword LIKE %s ) ORDER BY primary_keyword DESC, post_id ASC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'inbound_count_ASC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE ( %s = 'all' OR ( %s = 'nokeyword' AND primary_keyword = '' ) OR ( %s = 'orphan' AND inbound_count = 0 ) OR ( %s = 'low' AND inbound_count BETWEEN 1 AND 2 ) ) AND ( %s = '' OR post_type = %s ) AND ( %s = '' OR title LIKE %s OR primary_keyword LIKE %s ) ORDER BY inbound_count ASC, post_id ASC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'inbound_count_DESC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE ( %s = 'all' OR ( %s = 'nokeyword' AND primary_keyword = '' ) OR ( %s = 'orphan' AND inbound_count = 0 ) OR ( %s = 'low' AND inbound_count BETWEEN 1 AND 2 ) ) AND ( %s = '' OR post_type = %s ) AND ( %s = '' OR title LIKE %s OR primary_keyword LIKE %s ) ORDER BY inbound_count DESC, post_id ASC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'outbound_count_ASC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE ( %s = 'all' OR ( %s = 'nokeyword' AND primary_keyword = '' ) OR ( %s = 'orphan' AND inbound_count = 0 ) OR ( %s = 'low' AND inbound_count BETWEEN 1 AND 2 ) ) AND ( %s = '' OR post_type = %s ) AND ( %s = '' OR title LIKE %s OR primary_keyword LIKE %s ) ORDER BY outbound_count ASC, post_id ASC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'outbound_count_DESC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE ( %s = 'all' OR ( %s = 'nokeyword' AND primary_keyword = '' ) OR ( %s = 'orphan' AND inbound_count = 0 ) OR ( %s = 'low' AND inbound_count BETWEEN 1 AND 2 ) ) AND ( %s = '' OR post_type = %s ) AND ( %s = '' OR title LIKE %s OR primary_keyword LIKE %s ) ORDER BY outbound_count DESC, post_id ASC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'word_count_ASC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE ( %s = 'all' OR ( %s = 'nokeyword' AND primary_keyword = '' ) OR ( %s = 'orphan' AND inbound_count = 0 ) OR ( %s = 'low' AND inbound_count BETWEEN 1 AND 2 ) ) AND ( %s = '' OR post_type = %s ) AND ( %s = '' OR title LIKE %s OR primary_keyword LIKE %s ) ORDER BY word_count ASC, post_id ASC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'word_count_DESC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE ( %s = 'all' OR ( %s = 'nokeyword' AND primary_keyword = '' ) OR ( %s = 'orphan' AND inbound_count = 0 ) OR ( %s = 'low' AND inbound_count BETWEEN 1 AND 2 ) ) AND ( %s = '' OR post_type = %s ) AND ( %s = '' OR title LIKE %s OR primary_keyword LIKE %s ) ORDER BY word_count DESC, post_id ASC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'title_DESC':
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE ( %s = 'all' OR ( %s = 'nokeyword' AND primary_keyword = '' ) OR ( %s = 'orphan' AND inbound_count = 0 ) OR ( %s = 'low' AND inbound_count BETWEEN 1 AND 2 ) ) AND ( %s = '' OR post_type = %s ) AND ( %s = '' OR title LIKE %s OR primary_keyword LIKE %s ) ORDER BY title DESC, post_id ASC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+			case 'title_ASC':
+			default:
+				$this->items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE ( %s = 'all' OR ( %s = 'nokeyword' AND primary_keyword = '' ) OR ( %s = 'orphan' AND inbound_count = 0 ) OR ( %s = 'low' AND inbound_count BETWEEN 1 AND 2 ) ) AND ( %s = '' OR post_type = %s ) AND ( %s = '' OR title LIKE %s OR primary_keyword LIKE %s ) ORDER BY title ASC, post_id ASC LIMIT %d OFFSET %d", $list_args ), ARRAY_A );
+				break;
+		}
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		$this->_column_headers = array( $this->get_columns(), array(), $this->get_sortable_columns(), 'title' );
 		$this->set_pagination_args(

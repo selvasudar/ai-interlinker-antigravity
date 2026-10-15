@@ -146,19 +146,36 @@ final class Dashboard {
 		$t = Activator::tables();
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
 		$avg        = (float) $wpdb->get_var( $wpdb->prepare( 'SELECT AVG(inbound_count) FROM %i', $t['index'] ) );
-		$where      = "s.status = 'pending'";
-		$where_args = array();
-		if ( ! current_user_can( 'edit_others_posts' ) ) {
-			$where       .= ' AND p.post_author = %d';
-			$where_args[] = get_current_user_id();
+		if ( current_user_can( 'edit_others_posts' ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table + posts table.
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT s.*, src.title AS source_title, tgt.title AS target_title, tgt.inbound_count AS target_inbound, s.score * GREATEST(1, %f + 1 - tgt.inbound_count) AS win FROM %i s LEFT JOIN %i src ON src.post_id = s.source_post_id LEFT JOIN %i tgt ON tgt.post_id = s.target_post_id INNER JOIN %i p ON p.ID = s.source_post_id WHERE s.status = 'pending' ORDER BY win DESC, s.score DESC LIMIT %d",
+					$avg,
+					$t['suggestions'],
+					$t['index'],
+					$t['index'],
+					$wpdb->posts,
+					20
+				),
+				ARRAY_A
+			);
+		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table + posts table.
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT s.*, src.title AS source_title, tgt.title AS target_title, tgt.inbound_count AS target_inbound, s.score * GREATEST(1, %f + 1 - tgt.inbound_count) AS win FROM %i s LEFT JOIN %i src ON src.post_id = s.source_post_id LEFT JOIN %i tgt ON tgt.post_id = s.target_post_id INNER JOIN %i p ON p.ID = s.source_post_id WHERE s.status = 'pending' AND p.post_author = %d ORDER BY win DESC, s.score DESC LIMIT %d",
+					$avg,
+					$t['suggestions'],
+					$t['index'],
+					$t['index'],
+					$wpdb->posts,
+					(int) get_current_user_id(),
+					20
+				),
+				ARRAY_A
+			);
 		}
-		// Deficit: how far the target is below the site's average number of links in (at least 1).
-		$from_clause = Suggestions_Table::from_clause();
-		$from_params = Suggestions_Table::from_params();
-		$sql         = "SELECT s.*, src.title AS source_title, tgt.title AS target_title, tgt.inbound_count AS target_inbound, s.score * GREATEST(1, %f + 1 - tgt.inbound_count) AS win FROM {$from_clause} WHERE {$where} ORDER BY win DESC, s.score DESC LIMIT %d";
-		$args        = array_merge( array( $avg ), $from_params, $where_args, array( 20 ) );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only.
-		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $args ), ARRAY_A );
 		return is_array( $rows ) ? $rows : array();
 	}
 

@@ -123,6 +123,12 @@ Yes. If Yoast SEO, Rank Math, All in One SEO or SEOPress already has a focus key
 
 Yes, partly. The page index, link map, orphan report and keyword editing work without AI. Link suggestions need AI.
 
+== Screenshots ==
+
+1. Dashboard overview showing indexed pages, orphan page alerts, quick-win internal link suggestions, and estimated AI spend tracking.
+2. Link suggestions list showing suggested anchor text in sentence context, target page details, relevance score, explanation reason, and one-click apply.
+3. Keywords index showing primary keywords for every page, AI and SEO source tags, orphan page status, and inbound/outbound link counts.
+
 == Third-party libraries ==
 
 None. The block editor panel uses only WordPress's own packages; its source is in the `src/` folder.

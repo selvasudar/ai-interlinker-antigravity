@@ -65,15 +65,20 @@ final class Queue {
 		global $wpdb;
 		$t   = Activator::tables();
 		$now = current_time( 'mysql', true );
-		foreach ( array_chunk( $jobs, 200 ) as $chunk ) {
-			$values = array();
-			$params = array();
-			foreach ( $chunk as $job ) {
-				$values[] = '(%s,%s,%d,%s,%s,%s)';
-				array_push( $params, $run_id, sanitize_key( $job[0] ), (int) $job[1], 'pending', $now, $now );
-			}
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $values only holds placeholder groups; data goes through prepare().
-			$wpdb->query( $wpdb->prepare( 'INSERT INTO %i (run_id, task, post_id, status, created_at, updated_at) VALUES ' . implode( ',', $values ), array_merge( array( $t['queue'] ), $params ) ) );
+		foreach ( $jobs as $job ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+			$wpdb->insert(
+				$t['queue'],
+				array(
+					'run_id'     => (string) $run_id,
+					'task'       => sanitize_key( $job[0] ),
+					'post_id'    => (int) $job[1],
+					'status'     => 'pending',
+					'created_at' => $now,
+					'updated_at' => $now,
+				),
+				array( '%s', '%s', '%d', '%s', '%s', '%s' )
+			);
 		}
 	}
 
@@ -90,18 +95,36 @@ final class Queue {
 		$token = wp_generate_password( 24, false, false );
 		$now   = current_time( 'mysql', true );
 		$until = gmdate( 'Y-m-d H:i:s', time() + self::LOCK_SECONDS );
+		$limit = max( 1, (int) $limit );
 
-		$run_sql = '';
-		$params  = array( $token, $until, $now, $now );
 		if ( null !== $run_id ) {
-			$run_sql  = ' AND run_id = %s';
-			$params[] = (string) $run_id;
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE %i SET status = 'running', claim_token = %s, locked_until = %s, attempts = attempts + 1, updated_at = %s WHERE ( status = 'pending' OR ( status = 'running' AND locked_until < %s ) ) AND run_id = %s ORDER BY id ASC LIMIT %d",
+					$t['queue'],
+					$token,
+					$until,
+					$now,
+					$now,
+					(string) $run_id,
+					$limit
+				)
+			);
+		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE %i SET status = 'running', claim_token = %s, locked_until = %s, attempts = attempts + 1, updated_at = %s WHERE ( status = 'pending' OR ( status = 'running' AND locked_until < %s ) ) ORDER BY id ASC LIMIT %d",
+					$t['queue'],
+					$token,
+					$until,
+					$now,
+					$now,
+					$limit
+				)
+			);
 		}
-		$params[] = max( 1, (int) $limit );
-
-		// Pending jobs, or running jobs whose lock expired (worker died).
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $run_sql is a fixed placeholder fragment; params are built to match.
-		$wpdb->query( $wpdb->prepare( "UPDATE %i SET status = 'running', claim_token = %s, locked_until = %s, attempts = attempts + 1, updated_at = %s WHERE ( status = 'pending' OR ( status = 'running' AND locked_until < %s ) ){$run_sql} ORDER BY id ASC LIMIT %d", array_merge( array( $t['queue'] ), $params ) ) );
 
 		if ( ! $wpdb->rows_affected ) {
 			return array();
@@ -322,10 +345,21 @@ final class Queue {
 		if ( ! $types ) {
 			return null;
 		}
-		$placeholders = implode( ',', array_fill( 0, count( $types ), '%s' ) );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Placeholders built above.
-		$run_id = $wpdb->get_var( $wpdb->prepare( "SELECT run_id FROM %i WHERE status IN ('running','paused') AND type IN ({$placeholders}) ORDER BY created_at DESC LIMIT 1", array_merge( array( $t['runs'] ), $types ) ) );
-		return $run_id ? self::progress( $run_id ) : null;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT run_id, type FROM %i WHERE status IN ('running','paused') ORDER BY created_at DESC LIMIT 20",
+				$t['runs']
+			),
+			ARRAY_A
+		);
+		foreach ( (array) $rows as $r ) {
+			if ( in_array( $r['type'], $types, true ) ) {
+				return self::progress( $r['run_id'] );
+			}
+		}
+		return null;
 	}
 
 	/**

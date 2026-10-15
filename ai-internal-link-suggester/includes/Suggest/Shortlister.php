@@ -96,23 +96,6 @@ final class Shortlister {
 	}
 
 	/**
-	 * Shared WHERE clause for both strategies.
-	 *
-	 * @param array $row Source row.
-	 * @return array{0:string,1:array}
-	 */
-	private static function where( array $row ) {
-		$t      = Activator::tables();
-		$sql    = "i.post_id <> %d AND p.post_status = 'publish' AND p.post_password = '' AND i.is_noindex = 0 AND i.post_id NOT IN (SELECT l.target_post_id FROM %i l WHERE l.source_post_id = %d)";
-		$params = array( (int) $row['post_id'], $t['links'], (int) $row['post_id'] );
-		if ( '' !== (string) $row['lang'] ) {
-			$sql     .= " AND ( i.lang = %s OR i.lang = '' )";
-			$params[] = (string) $row['lang'];
-		}
-		return array( $sql, $params );
-	}
-
-	/**
 	 * MySQL FULLTEXT strategy. Returns null when unavailable.
 	 *
 	 * @param array  $row   Source row.
@@ -122,13 +105,41 @@ final class Shortlister {
 	 */
 	private static function fulltext( array $row, $query, $limit ) {
 		global $wpdb;
-		$t                      = Activator::tables();
-		list( $where, $params ) = self::where( $row );
-		$sql                    = "SELECT i.post_id, i.title, i.primary_keyword, i.secondary_keywords, i.summary, MATCH(i.title, i.primary_keyword, i.secondary_keywords, i.summary) AGAINST (%s IN NATURAL LANGUAGE MODE) AS relevance FROM %i i INNER JOIN %i p ON p.ID = i.post_id WHERE {$where} HAVING relevance > 0 ORDER BY relevance DESC LIMIT %d";
-		$suppress               = $wpdb->suppress_errors( true );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only; values via prepare().
-		$rows = $wpdb->get_results( $wpdb->prepare( $sql, array_merge( array( $query, $t['index'], $wpdb->posts ), $params, array( (int) $limit ) ) ), ARRAY_A );
-		$err  = $wpdb->last_error;
+		$t        = Activator::tables();
+		$suppress = $wpdb->suppress_errors( true );
+		if ( '' !== (string) $row['lang'] ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table + posts table.
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT i.post_id, i.title, i.primary_keyword, i.secondary_keywords, i.summary, MATCH(i.title, i.primary_keyword, i.secondary_keywords, i.summary) AGAINST (%s IN NATURAL LANGUAGE MODE) AS relevance FROM %i i INNER JOIN %i p ON p.ID = i.post_id WHERE i.post_id <> %d AND p.post_status = 'publish' AND p.post_password = '' AND i.is_noindex = 0 AND i.post_id NOT IN (SELECT l.target_post_id FROM %i l WHERE l.source_post_id = %d) AND ( i.lang = %s OR i.lang = '' ) HAVING relevance > 0 ORDER BY relevance DESC LIMIT %d",
+					$query,
+					$t['index'],
+					$wpdb->posts,
+					(int) $row['post_id'],
+					$t['links'],
+					(int) $row['post_id'],
+					(string) $row['lang'],
+					(int) $limit
+				),
+				ARRAY_A
+			);
+		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table + posts table.
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT i.post_id, i.title, i.primary_keyword, i.secondary_keywords, i.summary, MATCH(i.title, i.primary_keyword, i.secondary_keywords, i.summary) AGAINST (%s IN NATURAL LANGUAGE MODE) AS relevance FROM %i i INNER JOIN %i p ON p.ID = i.post_id WHERE i.post_id <> %d AND p.post_status = 'publish' AND p.post_password = '' AND i.is_noindex = 0 AND i.post_id NOT IN (SELECT l.target_post_id FROM %i l WHERE l.source_post_id = %d) HAVING relevance > 0 ORDER BY relevance DESC LIMIT %d",
+					$query,
+					$t['index'],
+					$wpdb->posts,
+					(int) $row['post_id'],
+					$t['links'],
+					(int) $row['post_id'],
+					(int) $limit
+				),
+				ARRAY_A
+			);
+		}
+		$err = $wpdb->last_error;
 		$wpdb->suppress_errors( $suppress );
 		if ( '' !== $err || ! is_array( $rows ) ) {
 			return null;
@@ -146,11 +157,35 @@ final class Shortlister {
 	 */
 	private static function fallback( array $row, $query, $limit ) {
 		global $wpdb;
-		$t                      = Activator::tables();
-		list( $where, $params ) = self::where( $row );
-		$sql                    = "SELECT i.post_id, i.title, i.primary_keyword, i.secondary_keywords, i.summary FROM %i i INNER JOIN %i p ON p.ID = i.post_id WHERE {$where} LIMIT 5000";
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only; values via prepare().
-		$rows = (array) $wpdb->get_results( $wpdb->prepare( $sql, array_merge( array( $t['index'], $wpdb->posts ), $params ) ), ARRAY_A );
+		$t = Activator::tables();
+		if ( '' !== (string) $row['lang'] ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table + posts table.
+			$rows = (array) $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT i.post_id, i.title, i.primary_keyword, i.secondary_keywords, i.summary FROM %i i INNER JOIN %i p ON p.ID = i.post_id WHERE i.post_id <> %d AND p.post_status = 'publish' AND p.post_password = '' AND i.is_noindex = 0 AND i.post_id NOT IN (SELECT l.target_post_id FROM %i l WHERE l.source_post_id = %d) AND ( i.lang = %s OR i.lang = '' ) LIMIT 5000",
+					$t['index'],
+					$wpdb->posts,
+					(int) $row['post_id'],
+					$t['links'],
+					(int) $row['post_id'],
+					(string) $row['lang']
+				),
+				ARRAY_A
+			);
+		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table + posts table.
+			$rows = (array) $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT i.post_id, i.title, i.primary_keyword, i.secondary_keywords, i.summary FROM %i i INNER JOIN %i p ON p.ID = i.post_id WHERE i.post_id <> %d AND p.post_status = 'publish' AND p.post_password = '' AND i.is_noindex = 0 AND i.post_id NOT IN (SELECT l.target_post_id FROM %i l WHERE l.source_post_id = %d) LIMIT 5000",
+					$t['index'],
+					$wpdb->posts,
+					(int) $row['post_id'],
+					$t['links'],
+					(int) $row['post_id']
+				),
+				ARRAY_A
+			);
+		}
 		if ( ! $rows ) {
 			return array();
 		}

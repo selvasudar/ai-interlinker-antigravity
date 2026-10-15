@@ -123,15 +123,21 @@ final class LinkGraph {
 			return;
 		}
 
-		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-		$sql          = "UPDATE %i i SET
-			i.inbound_count = (SELECT COUNT(DISTINCT l.source_post_id) FROM %i l WHERE l.target_post_id = i.post_id),
-			i.outbound_count = (SELECT COUNT(DISTINCT l2.target_post_id) FROM %i l2 WHERE l2.source_post_id = i.post_id)
-			WHERE i.post_id IN ({$placeholders})";
-
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Dynamic IN list built from sanitized integers; placeholders only.
-		$wpdb->query( $wpdb->prepare( $sql, array_merge( array( $t['index'], $t['links'], $t['links'] ), $ids ) ) );
-		// phpcs:enable
+		foreach ( $ids as $id ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+			$wpdb->query(
+				$wpdb->prepare(
+					'UPDATE %i i SET
+						i.inbound_count = (SELECT COUNT(DISTINCT l.source_post_id) FROM %i l WHERE l.target_post_id = i.post_id),
+						i.outbound_count = (SELECT COUNT(DISTINCT l2.target_post_id) FROM %i l2 WHERE l2.source_post_id = i.post_id)
+					WHERE i.post_id = %d',
+					$t['index'],
+					$t['links'],
+					$t['links'],
+					$id
+				)
+			);
+		}
 	}
 
 	/**

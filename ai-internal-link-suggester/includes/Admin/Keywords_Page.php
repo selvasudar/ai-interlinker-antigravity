@@ -109,13 +109,19 @@ final class Keywords_Page {
 			wp_die( esc_html__( 'You do not have permission to do that.', 'linkcortex' ) );
 		}
 		check_admin_referer( 'ailsug_export_keywords' );
-		$t                      = Activator::tables();
-		$f                      = Keywords_Table::filters();
-		list( $where, $params ) = Keywords_Table::where( $f );
-		$sql                    = "SELECT * FROM %i WHERE {$where} ORDER BY post_id ASC";
-		$args                   = array_merge( array( $t['index'] ), $params );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $where uses placeholders; values go through prepare().
-		$rows                   = $wpdb->get_results( $wpdb->prepare( $sql, $args ), ARRAY_A );
+		$t        = Activator::tables();
+		$f        = Keywords_Table::filters();
+		$w_params = Keywords_Table::where_params( $f );
+		$args     = array_merge( array( $t['index'] ), $w_params );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+		$rows = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic filter parameters passed as array.
+			$wpdb->prepare(
+				"SELECT * FROM %i WHERE ( %s = 'all' OR ( %s = 'nokeyword' AND primary_keyword = '' ) OR ( %s = 'orphan' AND inbound_count = 0 ) OR ( %s = 'low' AND inbound_count BETWEEN 1 AND 2 ) ) AND ( %s = '' OR post_type = %s ) AND ( %s = '' OR title LIKE %s OR primary_keyword LIKE %s ) ORDER BY post_id ASC",
+				$args
+			),
+			ARRAY_A
+		);
 
 		$out = array();
 		foreach ( (array) $rows as $row ) {

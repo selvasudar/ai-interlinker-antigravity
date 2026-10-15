@@ -38,10 +38,22 @@ final class Reverter {
 		if ( ! $ids ) {
 			return array();
 		}
-		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Placeholders built above.
-		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i WHERE id IN ({$placeholders}) AND reverted_at IS NULL", array_merge( array( $t['applied'] ), $ids ) ), ARRAY_A );
-		return is_array( $rows ) ? $rows : array();
+		$rows = array();
+		foreach ( $ids as $id ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+			$row = $wpdb->get_row(
+				$wpdb->prepare(
+					'SELECT * FROM %i WHERE id = %d AND reverted_at IS NULL',
+					$t['applied'],
+					(int) $id
+				),
+				ARRAY_A
+			);
+			if ( $row ) {
+				$rows[] = $row;
+			}
+		}
+		return $rows;
 	}
 
 	/**

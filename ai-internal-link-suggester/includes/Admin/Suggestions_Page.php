@@ -145,10 +145,16 @@ final class Suggestions_Page {
 	 */
 	private static function accept_above( $min ) {
 		global $wpdb;
-		$t    = Activator::tables();
-		$sql  = "SELECT s.id, s.source_post_id FROM %i s WHERE s.status = 'pending' AND s.score >= %d";
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only.
-		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $t['suggestions'], $min ), ARRAY_A );
+		$t = Activator::tables();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT s.id, s.source_post_id FROM %i s WHERE s.status = 'pending' AND s.score >= %d",
+				$t['suggestions'],
+				(int) $min
+			),
+			ARRAY_A
+		);
 		$ids  = array();
 		foreach ( (array) $rows as $row ) {
 			if ( current_user_can( 'edit_post', (int) $row['source_post_id'] ) ) {
@@ -373,14 +379,21 @@ final class Suggestions_Page {
 			wp_die( esc_html__( 'You do not have permission to do that.', 'linkcortex' ) );
 		}
 		check_admin_referer( 'ailsug_export_suggestions' );
-		$f                      = Suggestions_Table::filters();
-		list( $where, $params ) = Suggestions_Table::where( $f );
-		$from_clause            = Suggestions_Table::from_clause();
-		$from_params            = Suggestions_Table::from_params();
-		$sql                    = "SELECT s.*, src.title AS source_title, tgt.title AS target_title FROM {$from_clause} WHERE {$where} ORDER BY s.score DESC";
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Placeholders only.
-		$rows = $wpdb->get_results( $wpdb->prepare( $sql, array_merge( $from_params, $params ) ), ARRAY_A );
-		$out  = array();
+		$f           = Suggestions_Table::filters();
+		$from_params = Suggestions_Table::from_params();
+		$w_params    = Suggestions_Table::where_params( $f, true );
+		$args        = array_merge( $from_params, $w_params );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table + posts table.
+		$rows = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic filter parameters passed as array.
+			$wpdb->prepare(
+				"SELECT s.*, src.title AS source_title, tgt.title AS target_title FROM %i s LEFT JOIN %i src ON src.post_id = s.source_post_id LEFT JOIN %i tgt ON tgt.post_id = s.target_post_id INNER JOIN %i p ON p.ID = s.source_post_id WHERE ( %s = 'all' OR s.status = %s ) AND ( %d = 0 OR s.score >= %d ) AND ( %s = '' OR src.post_type = %s ) AND ( %d = 0 OR EXISTS (SELECT 1 FROM %i tr INNER JOIN %i tt ON tt.term_taxonomy_id = tr.term_taxonomy_id WHERE tr.object_id = s.source_post_id AND tt.term_id = %d) ) AND ( %d = 0 OR tgt.inbound_count = 0 ) AND ( %d = 0 OR s.source_post_id = %d ) AND ( %s = '' OR s.anchor_text LIKE %s OR src.title LIKE %s OR tgt.title LIKE %s ) AND ( %d = 0 OR p.post_author = %d ) ORDER BY s.score DESC",
+				$args
+			),
+			ARRAY_A
+		);
+		$out = array();
 		foreach ( (array) $rows as $r ) {
 			$out[] = array( get_permalink( (int) $r['source_post_id'] ), $r['source_title'], $r['anchor_text'], get_permalink( (int) $r['target_post_id'] ), $r['target_title'], $r['score'], $r['reason'], $r['status'], $r['created_at'] );
 		}

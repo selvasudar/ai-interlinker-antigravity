@@ -82,15 +82,22 @@ final class UsageLog {
 	 */
 	public static function summary( $by ) {
 		global $wpdb;
-		$t      = Activator::tables();
-		$groups = array(
-			'day'   => 'DATE(created_at)',
-			'task'  => 'task',
-			'model' => "CONCAT(provider, ' — ', model)",
-		);
-		$expr   = $groups[ $by ] ?? 'task';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $expr is whitelisted.
-		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT {$expr} AS label, COUNT(*) AS calls, SUM(input_tokens) AS input_tokens, SUM(output_tokens) AS output_tokens, SUM(est_cost_micros) AS cost FROM %i WHERE created_at >= %s GROUP BY {$expr} ORDER BY label ASC", $t['usage'], self::month_start() ), ARRAY_A );
+		$t = Activator::tables();
+		switch ( $by ) {
+			case 'day':
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+				$rows = $wpdb->get_results( $wpdb->prepare( "SELECT DATE(created_at) AS label, COUNT(*) AS calls, SUM(input_tokens) AS input_tokens, SUM(output_tokens) AS output_tokens, SUM(est_cost_micros) AS cost FROM %i WHERE created_at >= %s GROUP BY DATE(created_at) ORDER BY label ASC", $t['usage'], self::month_start() ), ARRAY_A );
+				break;
+			case 'model':
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+				$rows = $wpdb->get_results( $wpdb->prepare( "SELECT CONCAT(provider, ' — ', model) AS label, COUNT(*) AS calls, SUM(input_tokens) AS input_tokens, SUM(output_tokens) AS output_tokens, SUM(est_cost_micros) AS cost FROM %i WHERE created_at >= %s GROUP BY CONCAT(provider, ' — ', model) ORDER BY label ASC", $t['usage'], self::month_start() ), ARRAY_A );
+				break;
+			case 'task':
+			default:
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Own table.
+				$rows = $wpdb->get_results( $wpdb->prepare( "SELECT task AS label, COUNT(*) AS calls, SUM(input_tokens) AS input_tokens, SUM(output_tokens) AS output_tokens, SUM(est_cost_micros) AS cost FROM %i WHERE created_at >= %s GROUP BY task ORDER BY label ASC", $t['usage'], self::month_start() ), ARRAY_A );
+				break;
+		}
 		return is_array( $rows ) ? $rows : array();
 	}
 
