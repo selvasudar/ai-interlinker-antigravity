@@ -4,7 +4,7 @@ Tags: internal links, seo, orphan pages, link building, keywords
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,6 +50,7 @@ This plugin uses the AI features built into WordPress 7.0 and newer. It does **n
 * CSV export of keywords, suggestions, applied links and AI usage.
 * A Site Health check for the AI connection.
 * No ads, upsells, locked features or telemetry.
+* Official website and guides at [linkcortex.in](https://linkcortex.in/).
 
 == Installation ==
 
@@ -135,10 +136,16 @@ None. The block editor panel uses only WordPress's own packages; its source is i
 
 == Changelog ==
 
+= 1.0.1 =
+* Added official website URL (https://linkcortex.in) and Plugin URI.
+
 = 1.0.0 =
 * First public release.
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Official website and documentation links updated.
 
 = 1.0.0 =
 First public release.
